@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloth Shop</title>
+
+<link rel="stylesheet" href="css/styles.css">
+
+<!-- Font Awesome -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+
+<div class="logo">
+<img src="assets/images/logo.jpg">
+<h2>Cloth Shop</h2>
+</div>
+
+<div class="nav-icons">
+
+<button onclick="toggleWishlist()">
+<i class="fa-solid fa-heart"></i>
+<span id="wishlist-count">0</span>
+</button>
+
+<button onclick="toggleCart()">
+<i class="fa-solid fa-bag-shopping"></i>
+<span id="cart-count">0</span>
+</button>
+
+</div>
+
+</nav>
+
+
+<!-- HERO -->
+<section class="hero">
+
+<h1>Upgrade Your Style</h1>
+<p>Premium luxury men's clothing</p>
+
+<button onclick="scrollToProducts()">
+Shop Now
+</button>
+
+</section>
+
+
+<!-- PRODUCTS -->
+<section id="products">
+
+<h2>Our Collection</h2>
+
+<div id="product-grid"></div>
+
+</section>
+
+
+<!-- VIDEO SECTION -->
+<section class="videos">
+
+<h2>Style in Motion</h2>
+
+<div class="video-grid">
+
+<video src="assets/videos/Video-296.mp4" autoplay muted loop></video>
+<video src="assets/videos/Video-455.mp4" autoplay muted loop></video>
+<video src="assets/videos/Video-599.mp4" autoplay muted loop></video>
+<video src="assets/videos/Video-940.mp4" autoplay muted loop></video>
+
+</div>
+
+</section>
+
+
+<!-- CART -->
+<div id="cart-sidebar">
+<h3>Your Cart</h3>
+<div id="cart-items"></div>
+<p>Total: ₹<span id="cart-total">0</span></p>
+</div>
+
+
+<!-- WISHLIST -->
+<div id="wishlist-modal">
+<h3>Your Wishlist</h3>
+<div id="wishlist-items"></div>
+</div>
+
+
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/wishlist.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
