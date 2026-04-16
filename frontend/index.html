@@ -196,7 +196,7 @@
 
                 <div class="hidden sm:flex flex-col">
                     <span class="font-serif font-bold text-lg tracking-widest uppercase leading-none">Cloth Shop</span>
-                    <span class="text-[10px] tracking-[0.3em] uppercase text-gray-500">Made By GK</span>
+                    <span class="text-[10px] tracking-[0.3em] uppercase text-gray-500">Made By VenkyAzeem</span>
                 </div>
             </a>
 
@@ -246,6 +246,23 @@
                     <span id="cart-count"
                         class="absolute top-1 right-1 bg-luxury-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm hidden">0</span>
                 </button>
+                <span id="user-name" class="text-sm font-medium hidden"></span>
+
+<button id="admin-btn" onclick="goToAdmin()"
+class="text-xs border px-2 py-1 rounded hidden">
+Admin
+</button>
+
+<button id="login-btn" onclick="goToLogin()"
+class="text-xs border px-2 py-1 rounded">
+Login
+</button>
+
+<button id="logout-btn" onclick="logout()"
+class="text-xs border px-2 py-1 rounded hidden">
+Logout
+</button>
+
             </div>
         </div>
 
@@ -940,17 +957,44 @@
 
     <script>
         // --- DATA / DATABASE ---
+        const API_BASE = "http://localhost:8888/api";
         let productsDB = [];
+        let currentUser = JSON.parse(localStorage.getItem("user"));
 
-async function loadProducts() {
-    const response = await fetch("http://localhost:8888/api/products");
-    productsDB = await response.json();
+        function createProductViewModel(product) {
+            const image = product.image || "assets/images/products/shirt1.jpg";
+            const description = product.description || "Premium quality fashion essential from the Cloth Shop catalog.";
+            const featureSource = description
+                .split(".")
+                .map(item => item.trim())
+                .filter(Boolean)
+                .slice(0, 3);
 
-    renderProducts();
-}
+            return {
+                ...product,
+                image,
+                images: [image, image, image],
+                description,
+                features: featureSource.length > 0 ? featureSource : [
+                    "Curated premium finish",
+                    "Designed for everyday comfort",
+                    "Easy to pair across occasions"
+                ],
+                rating: product.rating || 4.6,
+                reviews: product.reviews || 124
+            };
+        }
+
+        async function loadProducts() {
+            const response = await fetch(`${API_BASE}/products`);
+            const products = await response.json();
+            productsDB = products.map(createProductViewModel);
+            renderProducts();
+            renderRecentlyViewed();
+        }
 
         // --- STATE MANAGEMENT ---
-        let cart = JSON.parse(localStorage.getItem('sf_cart')) || [];
+        let cart = [];
         let wishlist = JSON.parse(localStorage.getItem('sf_wishlist')) || [];
         let recentlyViewed = JSON.parse(localStorage.getItem('sf_recently_viewed')) || [];
 
@@ -962,6 +1006,32 @@ async function loadProducts() {
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+// --- USER DISPLAY ---
+
+currentUser = JSON.parse(localStorage.getItem("user"));
+
+const userNameElement = document.getElementById("user-name");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const adminBtn = document.getElementById("admin-btn");
+
+if (currentUser) {
+    if (userNameElement) {
+        userNameElement.innerText = "Welcome " + currentUser.name;
+        userNameElement.classList.remove("hidden");
+    }
+
+    if (loginBtn) loginBtn.classList.add("hidden");
+    if (logoutBtn) logoutBtn.classList.remove("hidden");
+    if (adminBtn && currentUser.role === "ADMIN") adminBtn.classList.remove("hidden");
+
+} else {
+    if (userNameElement) userNameElement.classList.add("hidden");
+
+    if (loginBtn) loginBtn.classList.remove("hidden");
+    if (logoutBtn) logoutBtn.classList.add("hidden");
+    if (adminBtn) adminBtn.classList.add("hidden");
+}
             gsap.registerPlugin(ScrollTrigger);
 
             document.getElementById('year').textContent = new Date().getFullYear();
@@ -973,6 +1043,7 @@ async function loadProducts() {
             updateWishlistUI();
             renderRecentlyViewed();
             loadProducts();
+            loadCart();
             // Navbar Scroll Effect
             window.addEventListener('scroll', () => {
                 const nav = document.getElementById('navbar');
@@ -1302,7 +1373,7 @@ async function loadProducts() {
                             ${thumbsHtml}
                         </div>
                         <div class="flex-1 bg-gray-100 product-zoom-container relative aspect-[3/4] md:aspect-auto md:h-[600px] rounded-lg md:rounded-none overflow-hidden">
-                            <img id="main-product-image" src="${product.images[0]}" class="w-full h-full object-cover transform origin-center">
+                            <img id="main-product-image" src="${product.image}" class="w-full h-full object-cover transform origin-center">
                         </div>
                     </div>
                     
@@ -1448,49 +1519,114 @@ async function loadProducts() {
             }
         }
 
-        function addToCart(id, quantity = 1) {
-            const product = productsDB.find(p => p.id === id);
-            const existingItem = cart.find(item => item.id === id);
-
-            if (existingItem) {
-                existingItem.quantity += quantity;
-            } else {
-                cart.push({ ...product, quantity });
+        async function loadCart() {
+            if (!currentUser) {
+                cart = [];
+                updateCartUI();
+                return;
             }
 
-            saveCart();
-            updateCartUI();
-            showToast(`${product.name} added to cart`);
+            try {
+                const response = await fetch(`${API_BASE}/cart/user/${currentUser.id}`);
+                cart = response.ok ? await response.json() : [];
+            } catch (error) {
+                cart = [];
+            }
 
-            // Highlight cart icon temporarily
-            const cartIcons = document.querySelectorAll('.fa-bag-shopping');
-            cartIcons.forEach(icon => {
-                icon.parentElement.classList.add('text-luxury-gold', 'scale-110');
-                setTimeout(() => icon.parentElement.classList.remove('text-luxury-gold', 'scale-110'), 300);
+            updateCartUI();
+        }
+
+        async function persistCartItem(productId, quantity) {
+            const response = await fetch(`${API_BASE}/cart`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    userId: currentUser.id,
+                    productId,
+                    quantity
+                })
             });
+
+            if (!response.ok) {
+                throw new Error("Unable to update cart");
+            }
+
+            return response.json();
         }
 
-        function updateCartQuantity(id, change) {
-            const item = cart.find(item => item.id === id);
-            if (item) {
-                item.quantity += change;
-                if (item.quantity <= 0) {
-                    removeFromCart(id);
+        async function addToCart(id, quantity = 1) {
+            if (!currentUser) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const product = productsDB.find(p => p.id === id);
+            const existingItem = cart.find(item => item.productId === id);
+            const nextQuantity = (existingItem?.quantity || 0) + quantity;
+
+            try {
+                const savedItem = await persistCartItem(id, nextQuantity);
+                const index = cart.findIndex(item => item.productId === id);
+
+                if (index > -1) {
+                    cart[index] = savedItem;
                 } else {
-                    saveCart();
-                    updateCartUI();
+                    cart.push(savedItem);
                 }
+
+                updateCartUI();
+                showToast(`${product.name} added to cart`);
+
+                const cartIcons = document.querySelectorAll('.fa-bag-shopping');
+                cartIcons.forEach(icon => {
+                    icon.parentElement.classList.add('text-luxury-gold', 'scale-110');
+                    setTimeout(() => icon.parentElement.classList.remove('text-luxury-gold', 'scale-110'), 300);
+                });
+            } catch (error) {
+                showToast("Unable to update cart", "error");
             }
         }
 
-        function removeFromCart(id) {
-            cart = cart.filter(item => item.id !== id);
-            saveCart();
-            updateCartUI();
+        async function updateCartQuantity(id, change) {
+            const item = cart.find(cartItem => cartItem.productId === id);
+            if (!item) {
+                return;
+            }
+
+            const nextQuantity = item.quantity + change;
+            if (nextQuantity <= 0) {
+                await removeFromCart(id);
+                return;
+            }
+
+            try {
+                const savedItem = await persistCartItem(id, nextQuantity);
+                const index = cart.findIndex(cartItem => cartItem.productId === id);
+                if (index > -1) {
+                    cart[index] = savedItem;
+                }
+                updateCartUI();
+            } catch (error) {
+                showToast("Unable to update cart", "error");
+            }
         }
 
-        function saveCart() {
-            localStorage.setItem('sf_cart', JSON.stringify(cart));
+        async function removeFromCart(id) {
+            if (!currentUser) {
+                return;
+            }
+
+            try {
+                await fetch(`${API_BASE}/cart/user/${currentUser.id}/product/${id}`, {
+                    method: "DELETE"
+                });
+                cart = cart.filter(item => item.productId !== id);
+                updateCartUI();
+            } catch (error) {
+                showToast("Unable to remove item", "error");
+            }
         }
 
         function updateCartUI() {
@@ -1510,17 +1646,17 @@ async function loadProducts() {
                     count += item.quantity;
                     return `
                         <div class="flex gap-3 md:gap-4 items-center bg-white p-2 md:p-3 rounded border border-gray-100 shadow-sm">
-                            <img src="${item.images[0]}" alt="${item.name}" class="w-16 h-20 md:w-20 md:h-24 object-cover rounded">
+                            <img src="${item.image}" alt="${item.name}" class="w-16 h-20 md:w-20 md:h-24 object-cover rounded">
                             <div class="flex-1 min-w-0">
                                 <h4 class="font-serif font-semibold text-xs md:text-sm line-clamp-1">${item.name}</h4>
                                 <div class="text-xs md:text-sm text-gray-600 mb-2">${formatPrice(item.price)}</div>
                                 <div class="flex items-center border border-gray-200 w-fit rounded">
-                                    <button onclick="updateCartQuantity(${item.id}, -1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">-</button>
+                                    <button onclick="updateCartQuantity(${item.productId}, -1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">-</button>
                                     <span class="w-6 md:w-8 text-center text-xs font-semibold">${item.quantity}</span>
-                                    <button onclick="updateCartQuantity(${item.id}, 1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">+</button>
+                                    <button onclick="updateCartQuantity(${item.productId}, 1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">+</button>
                                 </div>
                             </div>
-                            <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500 transition-colors p-2 shrink-0">
+                            <button onclick="removeFromCart(${item.productId})" class="text-gray-400 hover:text-red-500 transition-colors p-2 shrink-0">
                                 <i class="fa-regular fa-trash-can text-lg"></i>
                             </button>
                         </div>
@@ -1631,7 +1767,7 @@ async function loadProducts() {
                 container.innerHTML = wishlist.map(item => `
                     <div class="border border-gray-100 rounded overflow-hidden group bg-white shadow-sm flex flex-col h-full">
                         <div class="relative aspect-[3/4] bg-gray-100 cursor-pointer" onclick="toggleWishlist(); openProductModal(${item.id})">
-                            <img src="${item.images[0]}" class="w-full h-full object-cover">
+                            <img src="${item.image}" class="w-full h-full object-cover">
                             <button type="button" onclick="toggleWishlistItem(${item.id}, event)" class="absolute top-2 right-2 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 transition shadow z-10">
                                 <i class="fa-solid fa-trash-can text-sm md:text-base"></i>
                             </button>
@@ -1663,32 +1799,65 @@ async function loadProducts() {
         }
 
         function renderRecentlyViewed() {
-            const section = document.getElementById('recently-viewed-section');
-            const grid = document.getElementById('recently-viewed-grid');
 
-            if (recentlyViewed.length === 0) {
-                section.classList.add('hidden');
-                return;
-            }
+    const section = document.getElementById('recently-viewed-section');
+    const grid = document.getElementById('recently-viewed-grid');
 
-            section.classList.remove('hidden');
-            grid.innerHTML = recentlyViewed.map(product => `
-                <div class="cursor-pointer group flex flex-col h-full" onclick="openProductModal(${product.id}); scrollToTop()">
-                    <div class="aspect-[3/4] overflow-hidden mb-2 rounded bg-gray-100">
-                        <img src="${product.image}" class="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500">
-                    </div>
-                    <h5 class="text-[10px] md:text-xs font-serif font-bold line-clamp-1 group-hover:text-luxury-gold transition mb-1">${product.name}</h5>
-                    <span class="text-[10px] md:text-xs text-gray-600 font-semibold">${formatPrice(product.price)}</span>
-                </div>
-            `).join('');
-        }
+    // keep only products that still exist in DB
+    recentlyViewed = recentlyViewed.filter(rv =>
+        productsDB.some(p => p.id === rv.id)
+    );
 
+    if (recentlyViewed.length === 0) {
+        section.classList.add('hidden');
+        return;
+    }
+
+    section.classList.remove('hidden');
+
+    grid.innerHTML = recentlyViewed.map(product => `
+        <div class="cursor-pointer group flex flex-col h-full"
+             onclick="openProductModal(${product.id}); scrollToTop()">
+
+            <div class="aspect-[3/4] overflow-hidden mb-2 rounded bg-gray-100">
+                <img src="${product.image}"
+                     class="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500">
+            </div>
+
+            <h5 class="text-xs font-serif font-bold line-clamp-1 group-hover:text-luxury-gold transition mb-1">
+                ${product.name}
+            </h5>
+
+            <span class="text-xs text-gray-600 font-semibold">
+                ${formatPrice(product.price)}
+            </span>
+        </div>
+    `).join('');
+
+    localStorage.setItem('sf_recently_viewed', JSON.stringify(recentlyViewed));
+}
+// --- AUTH FUNCTIONS ---
+
+function goToLogin() {
+    window.location.href = "login.html";
+}
+
+function goToAdmin() {
+    window.location.href = "admin.html";
+}
+
+function logout() {
+    localStorage.removeItem("user");
+    window.location.reload(); // better UX than redirect
+}
     </script>
+    <!--
 <script src="js/products.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/wishlist.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/app.js"></script>
+-->
 </body>
 
 </html>
