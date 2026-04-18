@@ -13,8 +13,10 @@ public class StoreSettings {
 
     private String brandName;
     private String tagline;
+    private String announcementBar;
     private String heroTitle;
     private String heroSubtitle;
+    private String featuredMessage;
     private String contactPhone;
     private String contactEmail;
     private String storeAddress;

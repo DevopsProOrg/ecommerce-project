@@ -1,9 +1,9 @@
-<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="240" height="240" rx="56" fill="#111827"/>
-  <circle cx="120" cy="120" r="84" fill="#C4A47C" fill-opacity="0.18"/>
-  <path d="M78 120C78 95.7 95.7 78 120 78C144.3 78 162 95.7 162 120C162 144.3 144.3 162 120 162C95.7 162 78 144.3 78 120Z" stroke="#E7C79E" stroke-width="4"/>
+﻿<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" rx="56" fill="#0F172A"/>
+  <circle cx="120" cy="120" r="84" fill="#DC2626" fill-opacity="0.16"/>
+  <path d="M78 120C78 95.7 95.7 78 120 78C144.3 78 162 95.7 162 120C162 144.3 144.3 162 120 162C95.7 162 78 144.3 78 120Z" stroke="#EF4444" stroke-width="4"/>
   <path d="M102 92H138C148.493 92 157 100.507 157 111V129C157 139.493 148.493 148 138 148H102V92Z" fill="#F8FAFC"/>
-  <path d="M113 104H138C142.971 104 147 108.029 147 113V127C147 131.971 142.971 136 138 136H113V104Z" fill="#111827"/>
+  <path d="M113 104H138C142.971 104 147 108.029 147 113V127C147 131.971 142.971 136 138 136H113V104Z" fill="#0F172A"/>
   <path d="M126 92H98C87.5066 92 79 100.507 79 111V129C79 139.493 87.5066 148 98 148H126V136H100C95.5817 136 92 132.418 92 128V112C92 107.582 95.5817 104 100 104H126V92Z" fill="#F8FAFC"/>
-  <text x="120" y="191" text-anchor="middle" fill="#F8FAFC" font-family="Georgia, serif" font-size="24" letter-spacing="6">OG</text>
+  <text x="120" y="191" text-anchor="middle" fill="#EF4444" font-family="Georgia, serif" font-size="24" letter-spacing="6">OG</text>
 </svg>

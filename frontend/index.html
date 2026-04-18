@@ -1,1847 +1,619 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OG Fashions | Elevated Everyday Style</title>
-    <meta name="description"
-        content="OG Fashions brings elevated everyday style, sharp shirts, standout tees, and modern trousers curated for Hyderabad shoppers.">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        luxury: {
-                            black: '#0a0a0a',
-                            white: '#ffffff',
-                            beige: '#f5f2eb',
-                            gold: '#c4a47c',
-                            gray: '#f0f0f0',
-                            darkgray: '#333333'
-                        }
-                    },
-                    fontFamily: {
-                        serif: ['Playfair Display', 'serif'],
-                        sans: ['Jost', 'sans-serif'],
-                    },
-                    screens: {
-                        'xs': '375px',
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        /* Custom Styles & Micro-interactions */
-        body {
-            font-family: 'Jost', sans-serif;
-            overflow-x: hidden;
-            /* Prevent horizontal scroll */
-            background-color: #ffffff;
-            color: #0a0a0a;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        .font-serif {
-            font-family: 'Playfair Display', serif;
-        }
-
-        /* Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Hide Scrollbar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Product Zoom Effect - Desktop Only */
-        @media (min-width: 768px) {
-            .product-zoom-container {
-                overflow: hidden;
-                position: relative;
-                cursor: zoom-in;
-            }
-
-            .product-zoom-container img {
-                transition: transform 0.3s ease;
-            }
-
-            .product-zoom-container:hover img {
-                transform: scale(1.5);
-            }
-        }
-
-        /* Custom Checkbox/Radio */
-        .filter-radio:checked+label {
-            font-weight: 600;
-            color: #c4a47c;
-        }
-
-        .filter-radio:checked+label .radio-indicator {
-            background-color: #c4a47c;
-            border-color: #c4a47c;
-        }
-
-        /* Swiper Custom Pagination */
-        .swiper-pagination-bullet-active {
-            background-color: #0a0a0a !important;
-        }
-
-        /* Toast Animation */
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-
-        .toast-enter {
-            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .toast-exit {
-            animation: slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        /* Mobile Search Expand Animation */
-        .search-expand {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
-        }
-
-        .search-expand.active {
-            max-height: 80px;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #f0f0f0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OG Fashions | Home</title>
+<meta name="description" content="OG Fashions brings fashion, gifting, accessories, and lifestyle shopping into one polished marketplace experience.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fd;--panel:#fff;--soft:#f5f7fc;--text:#182338;--muted:#64748b;--line:rgba(15,23,42,.09);--dark:#10182a;--dark-2:#18233a;--shadow:0 24px 60px rgba(15,23,42,.08);--accent:#ef4444;--accent-2:#f59e0b;--accent-soft:#fff4e6;--blue:#2563eb}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:"Inter",sans-serif;color:var(--text);background:radial-gradient(circle at left top,rgba(239,68,68,.07),transparent 22%),radial-gradient(circle at left 70%,rgba(251,191,36,.08),transparent 16%),radial-gradient(circle at right 10%,rgba(59,130,246,.08),transparent 20%),radial-gradient(circle at right 70%,rgba(16,185,129,.05),transparent 16%),linear-gradient(180deg,#fbfcff,var(--bg));position:relative}body::before{content:"";position:fixed;inset:0;background:url("assets/images/og-logo.svg") center 160px/460px no-repeat;opacity:.032;pointer-events:none;mix-blend-mode:multiply}a{text-decoration:none;color:inherit}button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}.container{width:min(1380px,calc(100% - 40px));margin:0 auto}.announcement{background:#0f172a;color:#fff}.announcement .container{padding:12px 0;text-align:center;font-size:13px;font-weight:700;letter-spacing:.03em}.site-header{position:sticky;top:0;z-index:40;background:rgba(16,24,42,.94);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 18px 38px rgba(15,23,42,.18)}.header-top,.header-bottom,.hero-grid,.section-head,.section-grid,.category-grid,.deal-grid,.feature-grid,.support-grid,.contact-grid,.footer-grid,.hero-stats{display:grid;gap:22px}.header-top{grid-template-columns:minmax(300px,1fr) minmax(420px,620px) auto;align-items:center;padding:18px 0}.brand{display:flex;align-items:center;gap:18px}.brand img{width:82px;height:82px;border-radius:24px;background:#fff;padding:4px;box-shadow:0 12px 28px rgba(0,0,0,.22)}.brand-copy{display:grid;gap:6px}.brand-title{font-size:48px;line-height:1;font-weight:800;color:#fff;letter-spacing:.01em}.brand-accent{color:var(--accent);text-shadow:0 0 12px rgba(239,68,68,.55),0 0 28px rgba(249,115,22,.35),0 0 42px rgba(239,68,68,.25)}.brand-tagline{font-size:14px;color:#d4dced;max-width:330px}.search-strip{display:grid;grid-template-columns:146px 150px 1fr auto;gap:10px;align-items:center;background:#fff;padding:10px;border-radius:18px;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 24px rgba(0,0,0,.08)}.search-strip select,.search-strip input{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 12px;outline:none;color:var(--text)}.search-strip button{padding:11px 16px;border-radius:12px;border:0;background:var(--dark);color:#fff;font-weight:700}.nav-actions,.nav-links,.quick-menu,.rail-track,.chip-row,.action-row,.header-bottom-right{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.nav-actions{justify-content:flex-end}.nav-actions button,.nav-actions a,.pill-link,.back-top,.icon-shortcut,.ghost-chip,.tag-chip{padding:11px 15px;border-radius:14px;border:1px solid transparent;font-weight:700;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}.nav-actions button,.nav-actions a{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08);color:#fff}.nav-actions .primary-light{background:#fff;color:#10182a}.nav-actions button:hover,.nav-actions a:hover,.pill-link:hover,.back-top:hover,.icon-shortcut:hover,.ghost-chip:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(15,23,42,.16)}.welcome-chip{padding:11px 15px;border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-weight:700;display:flex;align-items:center;gap:8px}.smile{display:inline-flex;animation:bob 1.8s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,215,79,.5))}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px) scale(1.08)}}.header-bottom{grid-template-columns:1fr auto;align-items:center;padding:0 0 18px}.nav-links a{color:#e7edf7;font-weight:700;font-size:15px;padding:10px 0;position:relative}.nav-links a::after{content:"";position:absolute;left:0;bottom:2px;width:0;height:2px;background:var(--accent);transition:width .22s ease}.nav-links a:hover::after{width:100%}.pill-link{background:rgba(255,255,255,.08);color:#fff}.hero{padding:44px 0 36px}.hero-shell,.card,.category-card,.deal-card,.product-card,.support-card,.contact-card{background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:var(--shadow);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}.hero-shell:hover,.card:hover,.category-card:hover,.deal-card:hover,.product-card:hover,.support-card:hover,.contact-card:hover{transform:translateY(-6px);box-shadow:0 30px 68px rgba(15,23,42,.12);border-color:rgba(37,99,235,.18)}.hero-shell{padding:34px}.hero-grid{grid-template-columns:1.06fr .94fr;align-items:center}.eyebrow{display:inline-flex;padding:8px 12px;border-radius:999px;background:#fff1f2;color:#b91c1c;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.hero-copy h1{margin:18px 0 16px;font-size:clamp(3rem,5vw,4.8rem);line-height:1.02;font-family:"Playfair Display",serif}.hero-copy p,.muted{color:var(--muted);line-height:1.85}.hero-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px}.hero-stat{padding:18px;border-radius:20px;background:var(--soft);border:1px solid var(--line)}.hero-stat strong{display:block;margin-top:6px;font-size:1.5rem}.hero-media{position:relative;min-height:510px;border-radius:26px;overflow:hidden;background:#e8edf6}.slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease}.slide.active{opacity:1}.slide img{width:100%;height:100%;object-fit:cover}.slide-copy{position:absolute;left:22px;right:22px;bottom:22px;padding:20px;border-radius:20px;background:rgba(15,23,42,.78);color:#fff}.slide-copy strong{display:block;font-size:1.35rem;margin-bottom:6px}.slider-dots{position:absolute;top:22px;left:22px;display:flex;gap:8px}.slider-dots button{width:11px;height:11px;border-radius:50%;border:0;background:rgba(255,255,255,.42)}.slider-dots button.active{background:#fff}.section{padding:68px 0}.section-head{grid-template-columns:1fr auto;align-items:end;margin-bottom:26px}.section-head h2{margin:0;font-size:clamp(2rem,4vw,3rem);font-family:"Playfair Display",serif}.section-head p{margin:8px 0 0;max-width:760px;color:var(--muted);line-height:1.85}.section-grid,.feature-grid,.support-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.deal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.category-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.soft-band{background:linear-gradient(180deg,rgba(255,255,255,.48),rgba(255,255,255,.82));border-top:1px solid rgba(255,255,255,.55);border-bottom:1px solid rgba(15,23,42,.04)}.card,.support-card{padding:24px}.card strong,.support-card strong{font-size:1.08rem}.tag-chip{background:#eef4ff;color:#2948b7;border-color:#d8e4ff;font-size:12px;padding:8px 10px}.ghost-chip{background:#fff6ea;color:#9a5b00;border-color:#fde2b3;font-size:13px}.back-top{background:#fff;border-color:var(--line);color:var(--text);font-size:13px}.icon-shortcut{text-align:center;background:#fff;padding:18px 12px;border-color:var(--line)}.icon-shortcut .icon{width:56px;height:56px;margin:0 auto 12px;border-radius:18px;background:linear-gradient(135deg,#ffe4e6,#eff6ff);display:grid;place-items:center;font-size:24px}.category-card,.product-card{overflow:hidden}.category-card img,.product-card img{width:100%;height:230px;object-fit:cover;background:var(--soft)}.category-card .body,.product-card .body{padding:20px;display:grid;gap:10px}.price-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.price-row strong{font-size:1.1rem}.old-price{color:var(--muted)}.deal-card{padding:24px;background:linear-gradient(180deg,#fff,#fff9ee)}.deal-card .value{font-size:2rem;font-weight:800;color:#111827}.countdown{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.countdown .box{min-width:78px;padding:12px;border-radius:16px;background:#10182a;color:#fff;text-align:center}.countdown .box strong{display:block;font-size:1.4rem}.rail-track{overflow:auto;padding-bottom:6px;scrollbar-width:thin}.rail-track::-webkit-scrollbar{height:8px}.rail-track article{min-width:280px;flex:0 0 280px}.support-grid .support-card{background:linear-gradient(180deg,#fff,#f9fbff)}.contact-grid{grid-template-columns:1fr 1fr;align-items:start}.contact-card{padding:30px}.contact-list{display:grid;gap:18px;color:var(--muted)}.contact-list strong{display:block;color:var(--text);margin-bottom:6px}.faq-list{display:grid;gap:14px;margin-top:18px}.faq-item{padding:14px;border-radius:16px;background:var(--soft);border:1px solid var(--line)}form{display:grid;gap:14px}label{display:grid;gap:6px;font-size:13px;font-weight:700;color:#334155}input,textarea,select{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;outline:none}textarea{min-height:140px;resize:vertical}.form-note,.form-status{font-size:13px;color:var(--muted)}.form-status.success{color:#166534}.form-status.error{color:#b91c1c}.footer{padding:28px 0 46px;color:var(--muted)}.footer-grid{grid-template-columns:1fr auto}.footer-links,.social-links{display:flex;gap:14px;flex-wrap:wrap}.footer-links a,.social-links a{color:var(--muted)}@media (max-width:1180px){.header-top,.header-bottom,.hero-grid,.contact-grid,.section-grid,.category-grid,.deal-grid,.feature-grid,.support-grid,.footer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.header-top{grid-template-columns:1fr}.nav-actions,.header-bottom-right{justify-content:flex-start}.search-strip{max-width:100%}}@media (max-width:820px){.header-top,.header-bottom,.hero-grid,.section-head,.section-grid,.category-grid,.deal-grid,.feature-grid,.support-grid,.contact-grid,.footer-grid,.hero-stats{grid-template-columns:1fr;display:grid}.search-strip{grid-template-columns:1fr}.brand-title{font-size:38px}.hero-media{min-height:360px}.section{padding:50px 0}.nav-actions{justify-content:flex-start}.nav-actions button,.nav-actions a{width:auto}}
+</style>
 </head>
-
-<body class="antialiased selection:bg-luxury-gold selection:text-white relative">
-
-    <!-- Toast Notification Container -->
-    <div id="toast-container"
-        class="fixed top-24 right-4 z-[60] flex flex-col gap-2 w-full max-w-[90%] sm:max-w-sm pointer-events-none">
+<body>
+<div class="announcement">
+    <div class="container">
+        <div id="announcement-text">New arrivals, festival deals, fashion essentials, watches, pouches, and gifting picks across India.</div>
     </div>
+</div>
 
-    <!-- Navigation -->
-    <nav id="navbar" class="fixed w-full z-40 transition-all duration-300 glass py-3 md:py-4">
-        <div class="container mx-auto px-4 md:px-8 flex justify-between items-center">
-
-            <!-- Mobile Menu Toggle -->
-            <button id="mobile-menu-btn"
-                class="md:hidden text-2xl focus:outline-none w-10 h-10 flex items-center justify-start text-luxury-black"
-                onclick="toggleMobileMenu()">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-2 absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0"
-                onclick="scrollToTop()">
-
-                <img class="w-8 h-8 md:w-10 md:h-10 bg-luxury-black text-white rounded-full flex items-center justify-center font-serif font-bold text-lg md:text-xl tracking-wider"
-                    src="assets/images/og-logo.svg" alt="OG Fashions logo">
-
-                <div class="hidden sm:flex flex-col">
-                    <span class="font-serif font-bold text-lg tracking-widest uppercase leading-none" id="brand-name-nav">OG Fashions</span>
-                    <span class="text-[10px] tracking-[0.3em] uppercase text-gray-500" id="brand-tagline-nav">Signature styles from Hyderabad</span>
+<header class="site-header">
+    <div class="container">
+        <div class="header-top">
+            <a class="brand" href="index.html">
+                <img src="assets/images/og-logo.svg" alt="OG Fashions logo">
+                <div class="brand-copy">
+                    <div class="brand-title" id="brand-name-nav"><span class="brand-accent">OG</span> Fashions</div>
+                    <div class="brand-tagline" id="brand-tagline-nav">Hyderabad's fashion and accessories marketplace.</div>
                 </div>
             </a>
 
-            <!-- Desktop Links -->
-            <ul class="hidden md:flex space-x-8 text-sm uppercase tracking-widest font-medium">
-                <li><a href="#" class="hover:text-luxury-gold transition-colors">Home</a></li>
-                <li><a href="#categories" class="hover:text-luxury-gold transition-colors">Categories</a></li>
-                <li><a href="#shop" class="hover:text-luxury-gold transition-colors">Products</a></li>
-                <li><a href="#experience" class="hover:text-luxury-gold transition-colors">Experience</a></li>
-                <li><a href="#contact" class="hover:text-luxury-gold transition-colors">Contact</a></li>
-            </ul>
+            <div class="search-strip">
+                <select id="search-category">
+                    <option value="All">All categories</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="Gifting">Gifting</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                </select>
+                <input id="location-pincode" type="text" maxlength="6" placeholder="Pincode">
+                <input id="home-search" type="search" placeholder="Search shirts, pants, watches, pouches...">
+                <button id="search-btn" type="button">Search</button>
+            </div>
 
-            <!-- Icons & Search -->
-            <div class="flex items-center gap-3 md:gap-6">
-                <!-- Desktop Search Bar -->
-                <div class="relative hidden sm:block group">
-                    <input type="text" id="global-search" placeholder="Search products..."
-                        class="w-0 group-hover:w-48 focus:w-48 transition-all duration-300 bg-transparent border-b border-gray-300 focus:border-luxury-black outline-none py-1 text-sm pb-1 px-2 opacity-0 group-hover:opacity-100 focus:opacity-100 placeholder-gray-400">
-                    <button
-                        class="absolute right-0 top-1/2 -translate-y-1/2 text-lg hover:text-luxury-gold transition-colors"
-                        aria-label="Search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-
-                <!-- Mobile Search Toggle -->
-                <button
-                    class="sm:hidden text-xl w-10 h-10 flex items-center justify-center hover:text-luxury-gold transition-colors"
-                    onclick="toggleMobileSearch()" aria-label="Search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-
-                <!-- Wishlist Icon -->
-                <button onclick="toggleWishlist()"
-                    class="relative text-xl w-10 h-10 flex items-center justify-center hover:text-luxury-gold transition-colors"
-                    aria-label="Wishlist">
-                    <i class="fa-regular fa-heart"></i>
-                    <span id="wishlist-count"
-                        class="absolute top-1 right-1 bg-luxury-gold text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm hidden">0</span>
-                </button>
-
-                <!-- Cart Icon -->
-                <button onclick="toggleCart()"
-                    class="relative text-xl w-10 h-10 flex items-center justify-center hover:text-luxury-gold transition-colors"
-                    aria-label="Cart">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    <span id="cart-count"
-                        class="absolute top-1 right-1 bg-luxury-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm hidden">0</span>
-                </button>
-                <span id="user-name" class="text-sm font-medium hidden"></span>
-
-<button id="admin-btn" onclick="goToAdmin()"
-class="text-xs border px-2 py-1 rounded hidden">
-Admin
-</button>
-
-<button id="login-btn" onclick="goToLogin()"
-class="text-xs border px-2 py-1 rounded">
-Login
-</button>
-
-<button id="logout-btn" onclick="logout()"
-class="text-xs border px-2 py-1 rounded hidden">
-Logout
-</button>
-
+            <div class="nav-actions">
+                <button id="wishlist-btn" type="button">Wishlist <span id="wishlist-count">0</span></button>
+                <button id="cart-btn" type="button">Cart <span id="cart-count">0</span></button>
+                <span id="user-name" class="welcome-chip hidden"></span>
+                <button id="admin-btn" class="hidden" type="button">Admin</button>
+                <button id="login-btn" type="button">Login</button>
+                <button id="logout-btn" class="primary-light hidden" type="button">Logout</button>
             </div>
         </div>
 
-        <!-- Expandable Mobile Search Bar -->
-        <div id="mobile-search-bar"
-            class="search-expand absolute top-full left-0 w-full bg-white px-4 shadow-md sm:hidden z-30">
-            <div class="relative">
-                <input type="text" id="mobile-search-input" placeholder="Search shirts, tees, trousers..."
-                    class="w-full bg-gray-100 rounded-full py-3 px-5 pr-12 outline-none text-sm focus:ring-1 focus:ring-luxury-gold">
-                <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Slide Menu -->
-    <div id="mobile-menu-overlay"
-        class="fixed inset-0 bg-black/50 z-[45] hidden opacity-0 transition-opacity duration-300"
-        onclick="toggleMobileMenu()"></div>
-    <div id="mobile-menu"
-        class="fixed top-0 left-0 h-full w-[80%] max-w-[320px] bg-white z-[50] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
-        <div class="p-6 border-b flex justify-between items-center bg-luxury-beige">
-            <div class="flex items-center gap-2">
-                <div
-                    class="w-8 h-8 bg-luxury-black text-white rounded-full flex items-center justify-center font-serif font-bold text-sm">
-                    OG</div>
-                <span class="font-serif font-bold uppercase tracking-widest text-sm">OG Fashions</span>
-            </div>
-            <button onclick="toggleMobileMenu()"
-                class="text-2xl w-10 h-10 flex items-center justify-end hover:text-luxury-gold transition"><i
-                    class="fa-solid fa-xmark"></i></button>
-        </div>
-        <ul class="flex flex-col p-6 space-y-6 text-xl font-serif overflow-y-auto">
-            <li><a href="#" class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Home</a></li>
-            <li><a href="#categories"
-                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Categories</a></li>
-            <li><a href="#shop"
-                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Products</a></li>
-            <li><a href="#experience"
-                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Experience</a></li>
-            <li><a href="#reels"
-                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Instagram</a></li>
-            <li><a href="#contact" class="mobile-link block hover:text-luxury-gold pb-2">Contact</a></li>
-        </ul>
-        <div class="mt-auto p-6 bg-gray-50 border-t">
-            <div class="flex space-x-4">
-                <a href="https://www.instagram.com/ogfashions" id="instagram-link-menu"
-                    class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-luxury-black hover:text-luxury-gold"><i
-                        class="fa-brands fa-instagram"></i></a>
-                <a href="https://wa.me/917780139445"
-                    class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-luxury-black hover:text-luxury-gold"><i
-                        class="fa-brands fa-whatsapp"></i></a>
+        <div class="header-bottom">
+            <nav class="nav-links">
+                <a href="#top">Home</a>
+                <a href="#quick-links">Categories</a>
+                <a href="#flash-deals">Deals</a>
+                <a href="#recommendations">Recommendations</a>
+                <a href="#support">Support</a>
+            </nav>
+            <div class="header-bottom-right">
+                <a class="pill-link" href="catalog.html">Browse all products</a>
+                <a class="pill-link" href="catalog.html#shop">Filtered shopping</a>
             </div>
         </div>
     </div>
+</header>
 
-    <!-- Cart Sidebar -->
-    <div id="cart-overlay" class="fixed inset-0 bg-black/50 z-[55] hidden opacity-0 transition-opacity duration-300"
-        onclick="toggleCart()"></div>
-    <div id="cart-sidebar"
-        class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-[60] transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
-        <div class="p-4 md:p-6 border-b flex justify-between items-center bg-luxury-beige">
-            <h2 class="font-serif text-xl md:text-2xl font-semibold">Your Cart</h2>
-            <button onclick="toggleCart()"
-                class="text-2xl w-10 h-10 flex items-center justify-end hover:text-luxury-gold transition"><i
-                    class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 no-scrollbar">
-            <!-- Cart Items Injected Here -->
-            <div class="text-center text-gray-500 mt-10">Your cart is empty.</div>
-        </div>
-
-        <div class="p-4 md:p-6 border-t bg-gray-50">
-            <div class="flex justify-between items-center mb-4 text-lg font-semibold font-serif">
-                <span>Subtotal</span>
-                <span id="cart-total">₹0</span>
-            </div>
-            <p class="text-xs text-gray-500 mb-4">Taxes and shipping calculated at checkout</p>
-            <button onclick="orderViaWhatsApp()"
-                class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 flex justify-center items-center gap-2 uppercase tracking-widest text-sm font-semibold transition-colors rounded">
-                <i class="fa-brands fa-whatsapp text-xl"></i> Order on WhatsApp
-            </button>
-        </div>
-    </div>
-
-    <!-- Wishlist Modal -->
-    <div id="wishlist-overlay" class="fixed inset-0 bg-black/50 z-[55] hidden opacity-0 transition-opacity duration-300"
-        onclick="toggleWishlist()"></div>
-    <div id="wishlist-modal"
-        class="fixed top-0 left-0 w-full h-full md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90%] md:max-w-[1000px] md:h-auto md:max-h-[85vh] bg-white z-[60] hidden flex-col shadow-2xl md:rounded-lg overflow-hidden transform md:scale-95 opacity-0 transition-all duration-300 translate-y-full md:translate-y-0">
-        <div class="p-4 md:p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-            <h2 class="font-serif text-2xl md:text-3xl font-semibold">Your Wishlist</h2>
-            <button onclick="toggleWishlist()"
-                class="text-2xl w-10 h-10 flex items-center justify-end hover:text-luxury-gold transition"><i
-                    class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="wishlist-items"
-            class="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <!-- Wishlist Items Injected Here -->
-        </div>
-    </div>
-
-    <!-- Product Details Modal (Full Screen Overlay) -->
-    <div id="product-detail-modal"
-        class="fixed inset-0 bg-white z-[60] hidden overflow-y-auto transform translate-y-full transition-transform duration-300">
-        <button onclick="closeProductModal()"
-            class="fixed top-4 right-4 md:top-8 md:right-10 text-2xl z-20 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shadow-md hover:text-luxury-gold transition"><i
-                class="fa-solid fa-xmark"></i></button>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-16 md:py-24" id="product-detail-content">
-            <!-- Dynamic Content Injected Here -->
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <main>
-        <!-- Hero Section -->
-        <section id="hero" class="relative h-[100svh] min-h-[500px] flex items-center justify-center overflow-hidden">
-            <!-- Background Image -->
-            <div class="absolute inset-0 z-0">
-                <img src="assets/images/products/og-shirt-2.svg"
-                    alt="OG Fashions hero visual"
-                    class="w-full h-full object-cover object-center md:object-center filter brightness-[0.45] scale-110">
-                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,199,158,0.28),transparent_32%),linear-gradient(180deg,rgba(7,10,16,0.28),rgba(7,10,16,0.82))]"></div>
-            </div>
-
-            <div
-                class="relative z-10 text-center text-white px-4 w-full max-w-5xl mx-auto flex flex-col items-center mt-12 md:mt-0">
-                <span
-                    class="text-xs xs:text-sm md:text-base tracking-[0.3em] md:tracking-[0.4em] uppercase mb-3 md:mb-4 opacity-0 hero-el" id="hero-kicker">OG Fashions</span>
-                <h1
-                    class="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold mb-4 md:mb-6 leading-tight opacity-0 hero-el px-2" id="hero-title">
-                    Own your <br class="hidden xs:block"> <span
-                        class="text-luxury-gold italic font-normal">everyday style</span>
-                </h1>
-                <p class="text-sm xs:text-base md:text-xl font-light mb-8 md:mb-10 max-w-2xl px-4 opacity-0 hero-el" id="hero-subtitle">
-                    Fresh catalog drops, elevated essentials, and standout fits curated for Hyderabad streetwear and occasion dressing.</p>
-                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto px-4 xs:px-8 sm:px-0 opacity-0 hero-el">
-                    <a href="#shop"
-                        class="bg-white text-luxury-black px-6 py-4 xs:px-8 w-full sm:w-auto uppercase tracking-widest text-xs md:text-sm font-semibold hover:bg-luxury-gold hover:text-white transition-colors duration-300 text-center">Shop
-                        Now</a>
-                    <a href="#categories"
-                        class="border border-white text-white px-6 py-4 xs:px-8 w-full sm:w-auto uppercase tracking-widest text-xs md:text-sm font-semibold hover:bg-white hover:text-luxury-black transition-colors duration-300 text-center">Explore
-                        Categories</a>
-                </div>
-            </div>
-
-            <!-- Scroll Indicator -->
-            <a href="#categories"
-                class="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 text-white animate-bounce opacity-0 hero-el z-20 w-12 h-12 flex items-center justify-center">
-                <i class="fa-solid fa-arrow-down text-xl md:text-2xl"></i>
-            </a>
-        </section>
-
-        <!-- Categories Section -->
-        <section id="categories" class="py-16 md:py-24 bg-luxury-beige">
-            <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-                <div class="text-center mb-10 md:mb-16 section-header">
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">Curated Collections</h2>
-                    <div class="w-12 md:w-16 h-1 bg-luxury-gold mx-auto"></div>
+<main id="top">
+    <section class="hero">
+        <div class="container hero-shell">
+            <div class="hero-grid">
+                <div class="hero-copy">
+                    <div class="eyebrow" id="hero-kicker">OG Fashions</div>
+                    <h1 id="hero-title">A premium OG Fashions marketplace built for discovery and fast shopping.</h1>
+                    <p id="hero-subtitle">Shop apparel, gifting, watches, pouches, and everyday lifestyle picks from one storefront that feels more like a serious modern marketplace.</p>
+                    <div class="action-row" style="margin-top:24px;">
+                        <a class="pill-link" href="catalog.html">Start shopping</a>
+                        <a class="ghost-chip" href="#flash-deals">Today's deals</a>
+                        <a class="ghost-chip" href="#support">Customer support</a>
+                    </div>
+                    <div class="chip-row" style="margin-top:18px;">
+                        <span class="tag-chip">Smart filters</span>
+                        <span class="tag-chip">Persistent cart</span>
+                        <span class="tag-chip">Admin managed catalog</span>
+                        <span class="tag-chip">Seller ready structure</span>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="hero-stat"><span class="muted">Live products</span><strong id="hero-products">0</strong></div>
+                        <div class="hero-stat"><span class="muted">Categories</span><strong id="hero-categories">0</strong></div>
+                        <div class="hero-stat"><span class="muted">Wishlist saves</span><strong id="hero-wishlist">0</strong></div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    <!-- Category 1 -->
-                    <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('Shirts')">
-                        <img src="assets/images/products/og-shirt-1.svg"
-                            alt="Shirts"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 transition-opacity">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">OG Shirts</h3>
-                            <span
-                                class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
-                                <i
-                                    class="fa-solid fa-arrow-right-long transform group-hover:translate-x-2 transition-transform"></i></span>
+                <div class="hero-media" id="hero-slider">
+                    <article class="slide active">
+                        <img src="assets/images/products/shirt2.jpg" alt="OG Fashions shirts collection">
+                        <div class="slide-copy">
+                            <strong>Shirt collection spotlight</strong>
+                            <div>Cleaner product imagery for formal shirts, casual wear, and premium everyday fits.</div>
                         </div>
-                    </div>
-                    <!-- Category 2 -->
-                    <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('Tshirt')">
-                        <img src="assets/images/products/og-tshirt-1.svg"
-                            alt="OG Tees"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Graphic Tees</h3>
-                            <span
-                                class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
-                                <i
-                                    class="fa-solid fa-arrow-right-long transform group-hover:translate-x-2 transition-transform"></i></span>
+                    </article>
+                    <article class="slide">
+                        <img src="assets/images/products/pant1.jpg" alt="OG Fashions pants collection">
+                        <div class="slide-copy">
+                            <strong>Pants and bottomwear edit</strong>
+                            <div>Tailored pants and versatile picks designed for work, casual wear, and gifting.</div>
                         </div>
-                    </div>
-                    <!-- Category 3 -->
-                    <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('Shirts')">
-                        <img src="assets/images/products/og-shirt-2.svg"
-                            alt="Overshirts"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Street Shirts</h3>
-                            <span
-                                class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
-                                <i
-                                    class="fa-solid fa-arrow-right-long transform group-hover:translate-x-2 transition-transform"></i></span>
+                    </article>
+                    <article class="slide">
+                        <img src="assets/images/products/tshirt2.jpg" alt="OG Fashions accessories and daily essentials">
+                        <div class="slide-copy">
+                            <strong>Accessories and daily picks</strong>
+                            <div>Watches, pouches, gifting items, and lifestyle products under one OG Fashions brand.</div>
                         </div>
-                    </div>
-                    <!-- Category 4 -->
-                    <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('Pants')">
-                        <img src="assets/images/products/og-pant-1.svg"
-                            alt="Pants"
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Trousers & Pants</h3>
-                            <span
-                                class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
-                                <i
-                                    class="fa-solid fa-arrow-right-long transform group-hover:translate-x-2 transition-transform"></i></span>
-                        </div>
+                    </article>
+                    <div class="slider-dots">
+                        <button class="active" type="button"></button>
+                        <button type="button"></button>
+                        <button type="button"></button>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Main Shop / Product Grid Section -->
-        <section id="shop" class="py-16 md:py-24 bg-white relative">
-            <div class="container mx-auto px-4 md:px-8 max-w-[1440px]">
-                <div class="text-center mb-10 md:mb-16 section-header">
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">The OG Collection</h2>
-                    <p class="text-sm md:text-base text-gray-500 max-w-2xl mx-auto px-4">Explore our exclusive range of
-                        elevated everyday fits, clean statement pieces, and modern essentials built for your next look.</p>
+    <section class="section soft-band" id="quick-links">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Discovery hub shortcuts</h2>
+                    <p>Flipkart-style shortcut entry points so customers can jump straight into the main categories and shopping intents.</p>
                 </div>
+                <a class="back-top" href="#top">Back to top</a>
+            </div>
+            <div class="category-grid" id="shortcut-grid"></div>
+        </div>
+    </section>
 
-                <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
-
-                    <!-- Mobile Filter Toggle -->
-                    <div class="lg:hidden w-full">
-                        <button onclick="toggleMobileFilters()"
-                            class="w-full border border-gray-300 py-3 uppercase tracking-widest text-xs font-semibold flex items-center justify-center gap-2 bg-gray-50">
-                            <i class="fa-solid fa-sliders"></i> <span id="filter-btn-text">Show Filters</span>
-                        </button>
-                    </div>
-
-                    <!-- Filters Sidebar -->
-                    <aside id="filters-sidebar"
-                        class="hidden lg:block w-full lg:w-1/4 xl:w-1/5 shrink-0 bg-white md:bg-transparent transition-all duration-300">
-                        <div class="sticky top-24 bg-luxury-beige p-6 rounded-lg md:rounded border border-gray-100">
-                            <div class="flex justify-between items-center mb-6 border-b pb-2">
-                                <h3 class="font-serif text-xl md:text-2xl font-bold">Filter By</h3>
-                                <button onclick="resetFilters()"
-                                    class="text-xs uppercase tracking-widest text-gray-500 hover:text-black">Reset</button>
-                            </div>
-
-                            <!-- Category Filter -->
-                            <div class="mb-8">
-                                <h4 class="font-semibold uppercase tracking-wider text-xs md:text-sm mb-4">Categories
-                                </h4>
-                                <div class="space-y-3" id="category-filters">
-                                    <div class="flex items-center">
-                                        <input type="radio" id="cat-all" name="category" value="All"
-                                            class="hidden filter-radio" checked onchange="applyFilters()">
-                                        <label for="cat-all"
-                                            class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
-                                            <span
-                                                class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            All Products
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="radio" id="cat-shirts" name="category" value="Shirts"
-                                            class="hidden filter-radio" onchange="applyFilters()">
-                                        <label for="cat-shirts"
-                                            class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
-                                            <span
-                                                class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            Shirts
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="radio" id="cat-tshirt" name="category" value="Tshirt"
-                                            class="hidden filter-radio" onchange="applyFilters()">
-                                        <label for="cat-tshirt"
-                                            class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
-                                            <span
-                                                class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            Tees
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="radio" id="cat-pants" name="category" value="Pants"
-                                            class="hidden filter-radio" onchange="applyFilters()">
-                                        <label for="cat-pants"
-                                            class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
-                                            <span
-                                                class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            Trousers
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Price Filter -->
-                            <div class="mb-4">
-                                <h4 class="font-semibold uppercase tracking-wider text-xs md:text-sm mb-4">Price Range
-                                </h4>
-                                <input type="range" id="price-range" min="0" max="5000" step="100" value="5000"
-                                    class="w-full accent-luxury-black" oninput="updatePriceLabel(); applyFilters()">
-                                <div class="flex justify-between text-xs md:text-sm text-gray-600 mt-2">
-                                    <span>₹0</span>
-                                    <span id="price-label">₹5000</span>
-                                </div>
-                            </div>
-
-                            <!-- Mobile Apply Button -->
-                            <button
-                                class="lg:hidden w-full bg-luxury-black text-white py-3 mt-6 uppercase tracking-widest text-xs font-semibold"
-                                onclick="toggleMobileFilters()">
-                                Apply Filters
-                            </button>
-                        </div>
-                    </aside>
-
-                    <!-- Product Grid -->
-                    <div class="w-full lg:w-3/4 xl:w-4/5">
-                        <div id="active-filter-label"
-                            class="mb-4 md:mb-6 text-xs md:text-sm text-gray-500 uppercase tracking-widest hidden text-center md:text-left">
-                            Showing results for: <span class="font-bold text-black" id="search-term-display"></span>
-                        </div>
-
-                        <!-- Responsive Grid Classes: 1 on mobile, 2 on tablet (sm), 3 on desktop (lg), 4 on large desktop (xl) -->
-                        <div id="product-grid"
-                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-4 lg:gap-6 xl:gap-8">
-                            <!-- Products Injected Here -->
-                        </div>
-
-                        <div id="no-products" class="hidden text-center py-10 md:py-20 px-4">
-                            <i class="fa-solid fa-box-open text-4xl md:text-6xl text-gray-300 mb-4"></i>
-                            <h3 class="text-xl md:text-2xl font-serif">No products found</h3>
-                            <p class="text-sm md:text-base text-gray-500 mt-2">Try adjusting your filters or search
-                                term.</p>
-                            <button onclick="resetFilters()"
-                                class="mt-6 border border-black px-6 py-3 uppercase tracking-widest text-xs md:text-sm hover:bg-black hover:text-white transition">Reset
-                                Filters</button>
-                        </div>
-                    </div>
+    <section class="section" id="flash-deals">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Deal of the day and flash sales</h2>
+                    <p>High-priority deals, launch pricing, and limited-time blocks to give the homepage more urgency and commerce energy.</p>
+                </div>
+                <div class="countdown" id="deal-countdown">
+                    <div class="box"><strong id="countdown-hours">00</strong><span>Hours</span></div>
+                    <div class="box"><strong id="countdown-minutes">00</strong><span>Minutes</span></div>
+                    <div class="box"><strong id="countdown-seconds">00</strong><span>Seconds</span></div>
                 </div>
             </div>
-        </section>
+            <div class="deal-grid" id="deal-grid"></div>
+        </div>
+    </section>
 
-        <!-- Recently Viewed Section -->
-        <section id="recently-viewed-section" class="py-12 md:py-16 bg-luxury-beige hidden">
-            <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-                <h2 class="text-2xl md:text-3xl font-serif font-bold mb-6 md:mb-8 text-center">Recently Viewed</h2>
-                <div id="recently-viewed-grid"
-                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                    <!-- Items Injected -->
+    <section class="section soft-band" id="recommendations">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Inspired by your browsing</h2>
+                    <p>Marketplace-style personalized rows for recently viewed intent, category-led discovery, and cross-sell picks from the live catalog.</p>
                 </div>
+                <a class="pill-link" href="catalog.html">Open full catalog</a>
             </div>
-        </section>
+            <div class="rail-track" id="recommendation-rail"></div>
+        </div>
+    </section>
 
-        <!-- Instagram Reels Section -->
-        <section id="reels" class="py-16 md:py-24 bg-luxury-black text-white overflow-hidden">
-            <div class="container mx-auto px-0 md:px-8 max-w-7xl">
-                <div class="flex justify-between items-end mb-8 md:mb-12 section-header px-4 md:px-0">
+    <section class="section" id="best-sellers">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Best sellers and top offers</h2>
+                    <p>Horizontal multi-item rails like a large marketplace homepage, powered by your real OG Fashions products.</p>
+                </div>
+                <a class="back-top" href="#top">Back to top</a>
+            </div>
+            <div class="rail-track" id="bestseller-rail"></div>
+        </div>
+    </section>
+
+    <section class="section soft-band" id="platform-features">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Search, listing, PDP, cart, and support experience</h2>
+                    <p>These sections map your application toward a serious marketplace structure while keeping the current app usable today.</p>
+                </div>
+                <a class="back-top" href="#top">Back to top</a>
+            </div>
+            <div class="feature-grid">
+                <article class="card"><div class="tag-chip">Search & Discovery</div><strong>Smart search, category-led search, and pincode discovery</strong><div class="muted">The homepage now includes a category dropdown and pincode picker. Next steps can extend this into autocomplete, voice, and camera search.</div></article>
+                <article class="card"><div class="tag-chip">PLP</div><strong>Filters, badges, and quick view</strong><div class="muted">The products page already supports quick-view modal, wishlist hearts, pricing badges, and broader filter growth like brand, rating, and availability.</div></article>
+                <article class="card"><div class="tag-chip">PDP</div><strong>Detailed product storytelling</strong><div class="muted">The current detail modal is ready to evolve into a full PDP with image gallery, specs, size variants, pincode delivery check, and verified reviews.</div></article>
+                <article class="card"><div class="tag-chip">Checkout</div><strong>Persistent cart, saved items, and payment expansion</strong><div class="muted">Cart persistence is already DB-backed. The next natural layer is save-for-later, address cards, payments, order success, and order tracking.</div></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="marketplace-growth">
+        <div class="container">
+            <div class="section-head">
+                <div>
+                    <h2>Marketplace, seller, admin, and security path</h2>
+                    <p>We’re shaping the site not just like a storefront, but like a platform that can grow into sellers, operations, analytics, and secure deployment.</p>
+                </div>
+                <a class="pill-link" href="admin.html">Open admin</a>
+            </div>
+            <div class="support-grid">
+                <article class="support-card"><div class="tag-chip">Seller Panel</div><strong>Catalog upload and inventory tracking</strong><div class="muted">Ready direction for seller-side listing, stock management, invoice generation, and order fulfillment workflows.</div></article>
+                <article class="support-card"><div class="tag-chip">Admin</div><strong>Metrics, approvals, user control, and reports</strong><div class="muted">Admin already manages products, store settings, and support inbox. Next layers can add returns, user management, and sales reporting.</div></article>
+                <article class="support-card"><div class="tag-chip">Support</div><strong>FAQ, chatbot, and returns initiation</strong><div class="muted">Customers can already submit support requests in-app. This section is ready for FAQ search, live chat, and refund/return initiation next.</div></article>
+                <article class="support-card"><div class="tag-chip">Security & Infra</div><strong>Notifications, SSL, offline, Docker, Kubernetes</strong><div class="muted">The platform direction now fits JWT auth, push alerts, offline browsing, Docker deployment, Kubernetes, Terraform, and Ansible later.</div></article>
+            </div>
+        </div>
+    </section>
+
+    <section class="section soft-band" id="support">
+        <div class="container contact-grid">
+            <article class="contact-card">
+                <div class="section-head">
                     <div>
-                        <h2 class="text-3xl md:text-5xl font-serif font-bold mb-2">Style in Motion</h2>
-                        <p class="text-sm md:text-base text-gray-400 font-light">Follow our latest looks and drops on Instagram <a
-                                href="https://www.instagram.com/ogfashions" id="instagram-link-inline" class="text-luxury-gold">@ogfashions</a></p>
+                        <h2>Visit, contact, and support OG Fashions</h2>
+                        <p>You can keep these store details editable from admin, while customers can reach support directly from the website.</p>
                     </div>
-                    <a href="https://www.instagram.com/ogfashions" id="instagram-link-top"
-                        class="hidden md:flex items-center gap-2 border border-white/30 px-6 py-2 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
-                        <i class="fa-brands fa-instagram text-xl"></i> Follow Us
-                    </a>
+                    <a class="back-top" href="#top">Back to top</a>
                 </div>
 
-                <!-- Swiper -->
-                <div class="swiper reels-slider h-[400px] sm:h-[450px] md:h-[600px] w-full px-4 md:px-0">
-                    <div class="swiper-wrapper">
-                        <!-- Reels Slide Function generates HTML directly from array -> hardcoded for template here -->
-                        <div
-                            class="swiper-slide w-[220px] xs:w-[250px] md:w-[320px] rounded-xl overflow-hidden relative group cursor-pointer">
-                            <video src="assets/videos/Video-296.mp4" class="w-full h-full object-cover" autoplay muted loop
-                                playsinline></video>
-                            <div
-                                class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <!-- <div
-                                    class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-white text-lg md:text-xl ml-1"></i>
-                                </div> -->
-                            </div>
-                            <div class="absolute bottom-4 left-4 flex items-center gap-2">
-                                <i class="fa-solid fa-heart text-white"></i> <span
-                                    class="text-white text-xs md:text-sm font-semibold">16.4k</span>
-                            </div>
-                        </div>
-                        <div
-                            class="swiper-slide w-[220px] xs:w-[250px] md:w-[320px] rounded-xl overflow-hidden relative group cursor-pointer">
-                            <video src="assets/videos/Video-455.mp4" class="w-full h-full object-cover" autoplay muted loop
-                                playsinline></video>
-                            <div
-                                class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <!-- <div
-                                    class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-white text-lg md:text-xl ml-1"></i>
-                                </div> -->
-                            </div>
-                            <div class="absolute bottom-4 left-4 flex items-center gap-2">
-                                <i class="fa-solid fa-heart text-white"></i> <span
-                                    class="text-white text-xs md:text-sm font-semibold">12.4k</span>
-                            </div>
-                        </div>
-                        <div
-                            class="swiper-slide w-[220px] xs:w-[250px] md:w-[320px] rounded-xl overflow-hidden relative group cursor-pointer">
-                            <video src="assets/videos/Video-599.mp4" class="w-full h-full object-cover" autoplay muted loop
-                                playsinline></video>
-                            <div
-                                class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <!-- <div
-                                    class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-white text-lg md:text-xl ml-1"></i>
-                                </div> -->
-                            </div>
-                            <div class="absolute bottom-4 left-4 flex items-center gap-2">
-                                <i class="fa-solid fa-heart text-white"></i> <span
-                                    class="text-white text-xs md:text-sm font-semibold">20.4k</span>
-                            </div>
-                        </div>
-                        <div
-                            class="swiper-slide w-[220px] xs:w-[250px] md:w-[320px] rounded-xl overflow-hidden relative group cursor-pointer">
-                            <video src="assets/videos/Video-940.mp4" class="w-full h-full object-cover" autoplay muted loop
-                                playsinline></video>
-                            <div
-                                class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                                <!-- <div
-                                    class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <i class="fa-solid fa-play text-white text-lg md:text-xl ml-1"></i>
-                                </div> -->
-                            </div>
-                            <div class="absolute bottom-4 left-4 flex items-center gap-2">
-                                <i class="fa-solid fa-heart text-white"></i> <span
-                                    class="text-white text-xs md:text-sm font-semibold">92.4k</span>
-                            </div>
-                        </div>
+                <div class="contact-list">
+                    <div>
+                        <strong>Store address</strong>
+                        <div id="store-address">OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.<br>300030, India</div>
                     </div>
-                </div>
-                <div class="mt-8 text-center md:hidden px-4">
-                    <a href="https://www.instagram.com/ogfashions" id="instagram-link-mobile"
-                        class="inline-flex items-center justify-center w-full gap-2 border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
-                        <i class="fa-brands fa-instagram text-xl"></i> Follow on Instagram
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Experience Section -->
-        <section id="experience" class="py-16 md:py-24 bg-white">
-            <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-                <div class="text-center mb-10 md:mb-16 section-header">
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">Why OG Fashions Feels Different</h2>
-                    <p class="text-sm md:text-base text-gray-500">Built for shoppers who want a boutique look with a reliable local store experience.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
-                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
-                            <i class="fa-solid fa-shirt"></i>
-                        </div>
-                        <h3 class="font-serif text-2xl mb-3">Original Style Direction</h3>
-                        <p class="text-gray-600 leading-7">OG Fashions is built around signature everyday pieces, clean silhouettes, and standout colors that feel current without becoming disposable.</p>
+                    <div>
+                        <strong>Opening hours</strong>
+                        <div id="opening-hours">Monday - Saturday: 10:00 AM - 8:30 PM<br>Sunday: Closed</div>
                     </div>
-                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
-                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </div>
-                        <h3 class="font-serif text-2xl mb-3">Local Store, Real Support</h3>
-                        <p class="text-gray-600 leading-7">Customers can discover online and visit the Hyderabad store for fit checks, pickup coordination, and direct support from a real team.</p>
+                    <div>
+                        <strong>Email</strong>
+                        <div id="contact-email-display">contact@ogfashions.com</div>
                     </div>
-                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
-                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
-                            <i class="fa-solid fa-bolt"></i>
-                        </div>
-                        <h3 class="font-serif text-2xl mb-3">Ready to Scale</h3>
-                        <p class="text-gray-600 leading-7">The storefront is now moving toward a production path with admin-managed data, container-ready setup, and cleaner upgrade steps for future deployment.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact" class="py-16 md:py-24 bg-luxury-black text-white relative">
-            <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-                <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-stretch">
-                    <div class="rounded-[2rem] overflow-hidden border border-white/10 bg-gradient-to-br from-white/8 to-transparent p-8 md:p-12">
-                        <span class="text-luxury-gold tracking-[0.2em] md:tracking-[0.3em] uppercase text-xs md:text-sm mb-3 md:mb-4 block">Visit OG Fashions</span>
-                        <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif mb-6 md:mb-8 leading-tight" id="contact-hero-title">Discover your next standout fit in person.</h2>
-                        <p class="text-gray-300 text-sm md:text-base leading-7 max-w-2xl">Explore our sharp everyday essentials, coordinate pickup or walk-ins, and stay connected with the OG Fashions store team directly from Hyderabad.</p>
-                        <div class="mt-8 md:mt-10 flex flex-wrap gap-3">
-                            <a href="tel:+917780139445" id="contact-phone-link" class="inline-flex items-center gap-2 border border-white/15 px-5 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
-                                <i class="fa-solid fa-phone"></i> Call Store
-                            </a>
-                            <a href="mailto:contact@ogfashions.com" id="contact-email-link" class="inline-flex items-center gap-2 border border-white/15 px-5 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
-                                <i class="fa-solid fa-envelope"></i> Email Us
-                            </a>
-                        </div>
-                    </div>
-                    <div class="bg-[#101828] rounded-[2rem] p-8 sm:p-10 md:p-12 flex flex-col justify-center border border-white/10">
-                        <div class="space-y-6 md:space-y-8">
-                            <div class="flex items-start gap-3 md:gap-4">
-                                <i class="fa-solid fa-location-dot text-luxury-gold text-lg md:text-xl mt-1"></i>
-                                <div>
-                                    <h4 class="font-bold text-base md:text-lg mb-1">Store Address</h4>
-                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="store-address">OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.
-300030, India</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3 md:gap-4">
-                                <i class="fa-solid fa-clock text-luxury-gold text-lg md:text-xl mt-1"></i>
-                                <div>
-                                    <h4 class="font-bold text-base md:text-lg mb-1">Opening Hours</h4>
-                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="opening-hours">Monday - Saturday: 10:00 AM - 8:30 PM
-Sunday: Closed</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3 md:gap-4">
-                                <i class="fa-solid fa-phone text-luxury-gold text-lg md:text-xl mt-1"></i>
-                                <div>
-                                    <h4 class="font-bold text-base md:text-lg mb-1">Contact</h4>
-                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="contact-details">+91 7780139445
-contact@ogfashions.com</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-[#050505] text-white pt-16 md:pt-20 pb-8 md:pb-10 border-t border-white/10">
-        <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
-                <!-- Brand -->
-                <div>
-                    <div class="flex items-center gap-2 mb-6">
-                        <div
-                            class="w-8 h-8 md:w-10 md:h-10 bg-white text-black rounded-full flex items-center justify-center font-serif font-bold text-lg md:text-xl tracking-wider">
-                            OG
-                        </div>
-                        <div class="flex flex-col">
-                            <span
-                                class="font-serif font-bold text-base md:text-lg tracking-widest uppercase leading-none" id="brand-name-footer">OG Fashions</span>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 text-xs md:text-sm leading-relaxed mb-6" id="brand-tagline-footer">Signature styles from Hyderabad with stronger fits, sharper color stories, and a boutique-first shopping experience.</p>
-                    <div class="flex space-x-4">
-                        <a href="https://www.instagram.com/ogfashions" id="instagram-link-footer"
-                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-luxury-gold hover:text-white transition-colors text-sm md:text-base"><i
-                                class="fa-brands fa-instagram"></i></a>
-                        <a href="#"
-                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-luxury-gold hover:text-white transition-colors text-sm md:text-base"><i
-                                class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#"
-                            class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-luxury-gold hover:text-white transition-colors text-sm md:text-base"><i
-                                class="fa-brands fa-whatsapp"></i></a>
+                    <div>
+                        <strong>Phone</strong>
+                        <div id="contact-phone">+91 7780139445</div>
                     </div>
                 </div>
 
-                <!-- Quick Links -->
-                <div>
-                    <h4 class="font-serif text-lg md:text-xl mb-4 md:mb-6">Quick Links</h4>
-                    <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">About Us</a></li>
-                        <li><a href="#experience" class="hover:text-luxury-gold transition-colors block py-1">Why OG Fashions</a></li>
-                        <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Size Guide</a></li>
-                        <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Shipping &
-                                Returns</a></li>
-                        <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Privacy Policy</a>
-                        </li>
-                    </ul>
+                <div class="faq-list">
+                    <div class="faq-item"><strong>Returns and replacement</strong><div class="muted">Support requests from the site can be tracked by your admin team directly from the support inbox.</div></div>
+                    <div class="faq-item"><strong>Help center direction</strong><div class="muted">FAQ search, live chatbot widget, and refund initiation can be layered onto this support foundation next.</div></div>
+                    <div class="faq-item"><strong>Notifications</strong><div class="muted">This app structure is ready for order updates, price drop alerts, and personalized web notifications later.</div></div>
+                </div>
+            </article>
+
+            <article class="contact-card">
+                <div class="section-head">
+                    <div>
+                        <h2>Send support request from the website</h2>
+                        <p>No mail app popup. The request is submitted directly into your backend and becomes visible in the admin support inbox.</p>
+                    </div>
                 </div>
 
-                <!-- Categories -->
-                <div>
-                    <h4 class="font-serif text-lg md:text-xl mb-4 md:mb-6">Categories</h4>
-                    <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-400">
-                        <li><a href="#" onclick="filterByCategory('Shirts'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Premium Shirts</a></li>
-                        <li><a href="#" onclick="filterByCategory('Tshirt'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Graphic & Solid Tees</a></li>
-                        <li><a href="#" onclick="filterByCategory('Pants'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Trousers & Bottoms</a></li>
-                        <li><a href="#reels"
-                                class="hover:text-luxury-gold transition-colors block py-1">Style in Motion</a></li>
-                    </ul>
-                </div>
+                <form id="contact-form">
+                    <label>Full name<input id="contact-name" required></label>
+                    <label>Email address<input id="contact-email" type="email" required></label>
+                    <label>Phone number<input id="contact-user-phone"></label>
+                    <label>Order ID<input id="contact-order-id" placeholder="Optional"></label>
+                    <label>Issue details<textarea id="contact-issue" required placeholder="Tell us what you need help with"></textarea></label>
+                    <button id="contact-submit-btn" type="submit" style="padding:13px 16px;border-radius:14px;border:0;background:var(--dark);color:#fff;font-weight:700;">Send support request</button>
+                    <div class="form-note">Requests are saved directly in the OG Fashions support inbox. SMTP can be added later only if you want external outgoing email too.</div>
+                    <div id="contact-form-status" class="form-status"></div>
+                </form>
+            </article>
+        </div>
+    </section>
+</main>
 
-                <!-- Newsletter -->
-                <div>
-                    <h4 class="font-serif text-lg md:text-xl mb-4 md:mb-6">Newsletter</h4>
-                    <p class="text-gray-400 text-xs md:text-sm mb-4">Subscribe to receive updates, access to exclusive
-                        deals, and more.</p>
-                    <form onsubmit="event.preventDefault(); showToast('Subscribed successfully!', 'success');"
-                        class="flex flex-col sm:flex-row w-full gap-2 sm:gap-0">
-                        <input type="email" placeholder="Enter your email" required
-                            class="bg-white/5 border border-white/10 px-4 py-3 sm:py-2 w-full outline-none focus:border-luxury-gold text-sm text-white rounded sm:rounded-r-none">
-                        <button type="submit"
-                            class="bg-luxury-gold text-white px-6 py-3 sm:py-2 hover:bg-white hover:text-black transition-colors rounded sm:rounded-l-none font-semibold text-sm">
-                            <span class="sm:hidden uppercase tracking-wider">Subscribe</span>
-                            <i class="fa-solid fa-arrow-right hidden sm:inline-block"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <div
-                class="text-center text-gray-600 text-[10px] md:text-xs border-t border-white/10 pt-6 md:pt-8 mt-6 md:mt-8">
-                &copy; <span id="year"></span> <span id="brand-name-copyright">OG Fashions</span>. All Rights Reserved.
+<footer class="footer">
+    <div class="container footer-grid">
+        <div>
+            <div><strong id="brand-name-footer">OG Fashions</strong> - <span id="brand-tagline-footer">Hyderabad's fashion and accessories marketplace.</span></div>
+            <div class="footer-links" style="margin-top:12px;">
+                <a href="#top">Home</a>
+                <a href="catalog.html">Shop</a>
+                <a href="admin.html">Sellers</a>
+                <a href="#support">Support</a>
+                <a href="#">About us</a>
+                <a href="#">Careers</a>
             </div>
         </div>
-    </footer>
+        <div>
+            <div class="social-links">
+                <a href="#">Instagram</a>
+                <a href="#">Facebook</a>
+                <a href="#">LinkedIn</a>
+            </div>
+            <div style="margin-top:12px;text-align:right;"><a class="back-top" href="#top">Back to top</a></div>
+        </div>
+    </div>
+</footer>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-    <script src="js/app-config.js"></script>
+<script src="js/app-config.js"></script>
+<script>
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
+const DEFAULT_SETTINGS = { brandName:"OG Fashions", tagline:"Hyderabad's fashion and accessories marketplace.", announcementBar:"New arrivals, festival deals, fashion essentials, watches, pouches, and gifting picks across India.", heroTitle:"A premium OG Fashions marketplace built for discovery and fast shopping.", heroSubtitle:"Shop apparel, gifting, watches, pouches, and everyday lifestyle picks from one storefront that feels more like a serious modern marketplace.", contactPhone:"+91 7780139445", contactEmail:"contact@ogfashions.com", storeAddress:"OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India", openingHours:"Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed" };
+const SHORTCUTS = [
+    { icon:"👕", title:"Fashion", note:"Shirts, pants, tees, and new fits", link:"catalog.html?category=Fashion" },
+    { icon:"⌚", title:"Accessories", note:"Watches, pouches, and style extras", link:"catalog.html?category=Accessories" },
+    { icon:"🎁", title:"Gifting", note:"Wallets, organizers, and gift-ready picks", link:"catalog.html?category=Gifting" },
+    { icon:"🛍️", title:"Lifestyle", note:"Daily essentials and mixed categories", link:"catalog.html?category=Lifestyle" },
+    { icon:"🔥", title:"Top Deals", note:"Flash-sale products and high-priority offers", link:"#flash-deals" }
+];
 
-    <script>
-        // --- DATA / DATABASE ---
-        const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
-        let productsDB = [];
-        let currentUser = JSON.parse(localStorage.getItem("user"));
-        let currentStoreSettings = null;
+let storeSettings = { ...DEFAULT_SETTINGS };
+let productsDB = [];
+let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+let wishlist = JSON.parse(localStorage.getItem("og_wishlist") || "[]");
+let cart = [];
+let sliderIndex = 0;
+let sliderTimer = null;
+let countdownTimer = null;
 
-        function createProductViewModel(product) {
-            const image = product.image || "assets/images/products/og-shirt-1.svg";
-            const description = product.description || "Premium quality OG Fashions essential built for elevated everyday style.";
-            const featureSource = description
-                .split(".")
-                .map(item => item.trim())
-                .filter(Boolean)
-                .slice(0, 3);
-
-            return {
-                ...product,
-                image,
-                images: [image, image, image],
-                description,
-                features: featureSource.length > 0 ? featureSource : [
-                    "Curated premium finish",
-                    "Designed for everyday comfort",
-                    "Easy to pair across occasions"
-                ],
-                rating: product.rating || 4.6,
-                reviews: product.reviews || 124
-            };
-        }
-
-        function applyStoreSettings(settings) {
-            currentStoreSettings = settings;
-            document.title = `${settings.brandName} | Elevated Everyday Style`;
-            document.querySelector('meta[name="description"]').setAttribute("content", settings.heroSubtitle);
-
-            const textTargets = {
-                "brand-name-nav": settings.brandName,
-                "brand-name-footer": settings.brandName,
-                "brand-name-copyright": settings.brandName,
-                "brand-tagline-nav": settings.tagline,
-                "brand-tagline-footer": settings.heroSubtitle,
-                "hero-kicker": settings.brandName,
-                "hero-title": settings.heroTitle,
-                "hero-subtitle": settings.heroSubtitle,
-                "store-address": settings.storeAddress,
-                "opening-hours": settings.openingHours,
-                "contact-details": `${settings.contactPhone}\n${settings.contactEmail}`
-            };
-
-            Object.entries(textTargets).forEach(([id, value]) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = value;
-                }
-            });
-
-            const phoneLink = document.getElementById("contact-phone-link");
-            if (phoneLink) {
-                phoneLink.href = `tel:${settings.contactPhone.replace(/\s+/g, "")}`;
-            }
-
-            const emailLink = document.getElementById("contact-email-link");
-            if (emailLink) {
-                emailLink.href = `mailto:${settings.contactEmail}`;
-            }
-
-            ["instagram-link-inline", "instagram-link-top", "instagram-link-mobile", "instagram-link-footer", "instagram-link-menu"].forEach((id) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.href = settings.instagramUrl || "#";
-                }
-            });
-        }
-
-        async function loadStoreSettings() {
-            try {
-                const response = await fetch(`${API_BASE}/store-settings`);
-                if (!response.ok) return;
-                const settings = await response.json();
-                applyStoreSettings(settings);
-            } catch (error) {
-                console.error("Unable to load store settings", error);
-            }
-        }
-
-        async function loadProducts() {
-            const response = await fetch(`${API_BASE}/products`);
-            const products = await response.json();
-            productsDB = products.map(createProductViewModel);
-            renderProducts();
-            renderRecentlyViewed();
-        }
-
-        // --- STATE MANAGEMENT ---
-        let cart = [];
-        let wishlist = JSON.parse(localStorage.getItem('sf_wishlist')) || [];
-        let recentlyViewed = JSON.parse(localStorage.getItem('sf_recently_viewed')) || [];
-
-        let currentFilters = {
-            category: 'All',
-            priceMax: 5000,
-            search: ''
-        };
-
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-// --- USER DISPLAY ---
-
-currentUser = JSON.parse(localStorage.getItem("user"));
-
-const userNameElement = document.getElementById("user-name");
-const loginBtn = document.getElementById("login-btn");
-const logoutBtn = document.getElementById("logout-btn");
-const adminBtn = document.getElementById("admin-btn");
-
-if (currentUser) {
-    if (userNameElement) {
-        userNameElement.innerText = "Welcome " + currentUser.name;
-        userNameElement.classList.remove("hidden");
+function brandMarkup(name) {
+    if (!name) return '<span class="brand-accent">OG</span> Fashions';
+    if (name.toUpperCase().startsWith("OG ")) {
+        return `<span class="brand-accent">OG</span> ${name.slice(3)}`;
     }
-
-    if (loginBtn) loginBtn.classList.add("hidden");
-    if (logoutBtn) logoutBtn.classList.remove("hidden");
-    if (adminBtn && currentUser.role === "ADMIN") adminBtn.classList.remove("hidden");
-
-} else {
-    if (userNameElement) userNameElement.classList.add("hidden");
-
-    if (loginBtn) loginBtn.classList.remove("hidden");
-    if (logoutBtn) logoutBtn.classList.add("hidden");
-    if (adminBtn) adminBtn.classList.add("hidden");
+    return name;
 }
-            gsap.registerPlugin(ScrollTrigger);
 
-            document.getElementById('year').textContent = new Date().getFullYear();
+function formatPrice(value) {
+    return `Rs.${Number(value || 0).toFixed(0)}`;
+}
 
-            initAnimations();
-            initSliders();
-            renderProducts();
-            updateCartUI();
-            updateWishlistUI();
-            renderRecentlyViewed();
-            loadStoreSettings();
-            loadProducts();
-            loadCart();
-            // Navbar Scroll Effect
-            window.addEventListener('scroll', () => {
-                const nav = document.getElementById('navbar');
-                if (window.scrollY > 50) {
-                    nav.classList.add('shadow-md');
-                } else {
-                    nav.classList.remove('shadow-md');
-                }
-            });
+function normalizeProduct(product) {
+    return {
+        ...product,
+        image: product.image || "assets/images/products/shirt1.jpg",
+        brand: product.brand || "OG Fashions",
+        category: product.category || "Fashion",
+        subcategory: product.subcategory || product.category || "General",
+        highlights: Array.isArray(product.highlights)
+            ? product.highlights
+            : (product.highlights ? String(product.highlights).split(",").map((item) => item.trim()).filter(Boolean) : []),
+        price: Number(product.price || 0),
+        originalPrice: Number(product.originalPrice || product.price || 0),
+        rating: Number(product.rating || 4.4),
+        reviewCount: Number(product.reviewCount || 0),
+        stock: Number(product.stock || 0)
+    };
+}
 
-            // Global Search Listener Desktop
-            document.getElementById('global-search').addEventListener('input', (e) => {
-                handleSearch(e.target.value);
-            });
+function updateAuthUI() {
+    const userName = document.getElementById("user-name");
+    const adminBtn = document.getElementById("admin-btn");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    if (currentUser) {
+        userName.innerHTML = `<span>Hi, ${currentUser.name}</span> <span class="smile">&#128522;</span>`;
+        userName.classList.remove("hidden");
+        logoutBtn.classList.remove("hidden");
+        loginBtn.classList.add("hidden");
+        adminBtn.classList.toggle("hidden", currentUser.role !== "ADMIN");
+    } else {
+        userName.classList.add("hidden");
+        logoutBtn.classList.add("hidden");
+        loginBtn.classList.remove("hidden");
+        adminBtn.classList.add("hidden");
+    }
+}
 
-            // Global Search Listener Mobile
-            document.getElementById('mobile-search-input').addEventListener('input', (e) => {
-                handleSearch(e.target.value);
-            });
+function updateMiniCounts() {
+    document.getElementById("wishlist-count").textContent = wishlist.length;
+    document.getElementById("cart-count").textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById("hero-products").textContent = productsDB.length;
+    document.getElementById("hero-categories").textContent = new Set(productsDB.map((product) => product.category).filter(Boolean)).size;
+    document.getElementById("hero-wishlist").textContent = wishlist.length;
+}
 
-            // Close menus on resize or outside click logic could be added here
-        });
+function applyStoreSettings(settings) {
+    storeSettings = { ...DEFAULT_SETTINGS, ...settings };
+    document.title = `${storeSettings.brandName} | Home`;
+    document.getElementById("announcement-text").textContent = storeSettings.announcementBar;
+    document.getElementById("brand-name-nav").innerHTML = brandMarkup(storeSettings.brandName);
+    document.getElementById("brand-name-footer").textContent = storeSettings.brandName;
+    document.getElementById("brand-tagline-nav").textContent = storeSettings.tagline;
+    document.getElementById("brand-tagline-footer").textContent = storeSettings.tagline;
+    document.getElementById("hero-kicker").textContent = storeSettings.brandName;
+    document.getElementById("hero-title").textContent = storeSettings.heroTitle;
+    document.getElementById("hero-subtitle").textContent = storeSettings.heroSubtitle;
+    document.getElementById("store-address").innerHTML = storeSettings.storeAddress.replace(/\n/g, "<br>");
+    document.getElementById("opening-hours").innerHTML = storeSettings.openingHours.replace(/\n/g, "<br>");
+    document.getElementById("contact-phone").textContent = storeSettings.contactPhone;
+    document.getElementById("contact-email-display").textContent = storeSettings.contactEmail || DEFAULT_SETTINGS.contactEmail;
+}
 
-        // --- MOBILE SPECIFIC LOGIC ---
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            const overlay = document.getElementById('mobile-menu-overlay');
-            const isOpen = !menu.classList.contains('-translate-x-full');
+async function loadStoreSettings() {
+    try {
+        const response = await fetch(`${API_BASE}/store-settings`);
+        if (!response.ok) throw new Error("settings unavailable");
+        applyStoreSettings(await response.json());
+    } catch (error) {
+        applyStoreSettings(DEFAULT_SETTINGS);
+    }
+}
 
-            if (isOpen) {
-                // Close Menu
-                menu.classList.add('-translate-x-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                }, 300);
-                document.body.style.overflow = '';
-            } else {
-                // Open Menu
-                overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    overlay.classList.remove('opacity-0');
-                    menu.classList.remove('-translate-x-full');
-                }, 10);
-                document.body.style.overflow = 'hidden';
-                // close other overlays
-                closeSearch();
-            }
-        }
+function renderShortcuts() {
+    document.getElementById("shortcut-grid").innerHTML = SHORTCUTS.map((item) => `
+        <a class="icon-shortcut" href="${item.link}">
+            <div class="icon">${item.icon}</div>
+            <strong>${item.title}</strong>
+            <div class="muted">${item.note}</div>
+        </a>
+    `).join("");
+}
 
-        function toggleMobileSearch() {
-            const searchBar = document.getElementById('mobile-search-bar');
-            if (searchBar.classList.contains('active')) {
-                closeSearch();
-            } else {
-                searchBar.classList.add('active');
-                setTimeout(() => document.getElementById('mobile-search-input').focus(), 300);
-            }
-        }
+function productCardMarkup(product) {
+    const discount = product.originalPrice > product.price ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+    return `
+        <article class="product-card">
+            <img src="${product.image}" alt="${product.name}">
+            <div class="body">
+                <div class="tag-chip">${product.subcategory || product.category}</div>
+                <strong>${product.name}</strong>
+                <div class="muted">${product.brand} - Rating ${product.rating.toFixed(1)} (${product.reviewCount})</div>
+                <div class="price-row"><strong>${formatPrice(product.price)}</strong>${discount ? `<span class="old-price"><s>${formatPrice(product.originalPrice)}</s></span><span class="ghost-chip">${discount}% off</span>` : ""}</div>
+                <div class="action-row"><a class="pill-link" href="catalog.html?focus=${product.id}">Quick view</a></div>
+            </div>
+        </article>
+    `;
+}
 
-        function closeSearch() {
-            document.getElementById('mobile-search-bar').classList.remove('active');
-        }
-
-        function toggleMobileFilters() {
-            const sidebar = document.getElementById('filters-sidebar');
-            const btnText = document.getElementById('filter-btn-text');
-
-            if (sidebar.classList.contains('hidden')) {
-                sidebar.classList.remove('hidden');
-                if (btnText) btnText.textContent = "Hide Filters";
-            } else {
-                sidebar.classList.add('hidden');
-                if (btnText) btnText.textContent = "Show Filters";
-            }
-        }
-
-        // --- UI & INTERACTIONS ---
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            toggleMobileMenu(); // ensure it closes if open
-        }
-
-        function formatPrice(price) {
-            return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
-        }
-
-        function generateStars(rating) {
-            let starsHtml = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= Math.floor(rating)) {
-                    starsHtml += '<i class="fa-solid fa-star"></i>';
-                } else if (i === Math.ceil(rating) && !Number.isInteger(rating)) {
-                    starsHtml += '<i class="fa-solid fa-star-half-stroke"></i>';
-                } else {
-                    starsHtml += '<i class="fa-regular fa-star"></i>';
-                }
-            }
-            return starsHtml;
-        }
-
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            const icon = type === 'success' ? '<i class="fa-solid fa-check-circle text-green-500"></i>' : '<i class="fa-solid fa-info-circle text-blue-500"></i>';
-
-            toast.className = `glass px-4 py-3 md:px-6 md:py-4 rounded shadow-lg flex items-center gap-3 toast-enter border-l-4 ${type === 'success' ? 'border-green-500' : 'border-blue-500'}`;
-            toast.innerHTML = `${icon} <span class="font-medium text-xs md:text-sm">${message}</span>`;
-
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.remove('toast-enter');
-                toast.classList.add('toast-exit');
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
-        }
-
-        // --- ANIMATIONS & SLIDERS ---
-        function initAnimations() {
-            gsap.to(".hero-el", {
-                y: 0,
-                opacity: 1,
-                duration: 1,
-                stagger: 0.15,
-                ease: "power3.out",
-                delay: 0.1
-            });
-
-            gsap.utils.toArray('.section-header').forEach(header => {
-                gsap.from(header, {
-                    scrollTrigger: {
-                        trigger: header,
-                        start: "top 85%",
-                    },
-                    y: 20,
-                    opacity: 0,
-                    duration: 0.6
-                });
-            });
-
-            // Prevent heavy animations on mobile for better performance
-            if (window.innerWidth > 768) {
-                gsap.utils.toArray('.category-card').forEach((card, i) => {
-                    gsap.from(card, {
-                        scrollTrigger: {
-                            trigger: '#categories',
-                            start: "top 75%",
-                        },
-                        y: 30,
-                        opacity: 0,
-                        duration: 0.5,
-                        delay: i * 0.1
-                    });
-                });
-            }
-        }
-
-        function initSliders() {
-            new Swiper('.reels-slider', {
-                slidesPerView: 'auto',
-                spaceBetween: 16,
-                centeredSlides: true,
-                loop: true,
-                autoplay: { delay: 3000, disableOnInteraction: false },
-                breakpoints: {
-                    768: { centeredSlides: false, spaceBetween: 24 }
-                }
-            });
-
-        }
-
-        // --- PRODUCT GRID & FILTERS ---
-        function handleSearch(val) {
-            currentFilters.search = val.toLowerCase();
-            document.getElementById('shop').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            applyFilters();
-        }
-
-        function updatePriceLabel() {
-            const val = document.getElementById('price-range').value;
-            document.getElementById('price-label').textContent = `₹${val}`;
-        }
-
-        function filterByCategory(cat) {
-            // Uncheck all first
-            document.querySelectorAll('input[name="category"]').forEach(el => el.checked = false);
-            // Check the specific one
-            const targetId = `cat-${cat.toLowerCase().replace('-', '') === 'all' ? 'all' : cat.toLowerCase().replace('-', '')}`;
-            const targetInput = document.getElementById(targetId);
-            if (targetInput) targetInput.checked = true;
-
-            document.getElementById('shop').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            applyFilters();
-        }
-
-        function applyFilters() {
-            const checkedCat = document.querySelector('input[name="category"]:checked');
-            if (checkedCat) currentFilters.category = checkedCat.value;
-            currentFilters.priceMax = parseInt(document.getElementById('price-range').value);
-            renderProducts();
-
-            // Auto close mobile filters
-            if (window.innerWidth < 1024) {
-                const sidebar = document.getElementById('filters-sidebar');
-                if (!sidebar.classList.contains('hidden')) {
-                    toggleMobileFilters();
-                }
-            }
-        }
-
-        function resetFilters() {
-            document.getElementById('cat-all').checked = true;
-            document.getElementById('price-range').value = 5000;
-            document.getElementById('global-search').value = '';
-            document.getElementById('mobile-search-input').value = '';
-            updatePriceLabel();
-            currentFilters = { category: 'All', priceMax: 5000, search: '' };
-            renderProducts();
-        }
-
-        function renderProducts() {
-            const grid = document.getElementById('product-grid');
-            const noProducts = document.getElementById('no-products');
-            const searchLabel = document.getElementById('active-filter-label');
-            const searchTermDisplay = document.getElementById('search-term-display');
-
-            grid.innerHTML = '';
-
-            let filtered = productsDB.filter(p => {
-                let matchCat = currentFilters.category === 'All' || p.category === currentFilters.category;
-                let matchPrice = p.price <= currentFilters.priceMax;
-                let matchSearch = p.name.toLowerCase().includes(currentFilters.search) || p.category.toLowerCase().includes(currentFilters.search);
-                return matchCat && matchPrice && matchSearch;
-            });
-
-            if (currentFilters.search !== '') {
-                searchLabel.classList.remove('hidden');
-                searchTermDisplay.textContent = `"${currentFilters.search}"`;
-            } else {
-                searchLabel.classList.add('hidden');
-            }
-
-            if (filtered.length === 0) {
-                grid.classList.add('hidden');
-                noProducts.classList.remove('hidden');
-            } else {
-                grid.classList.remove('hidden');
-                noProducts.classList.add('hidden');
-
-                filtered.forEach(product => {
-                    const isWishlisted = wishlist.some(item => item.id === product.id);
-
-                    const card = document.createElement('div');
-                    card.className = "group cursor-pointer product-card-animate flex flex-col bg-white";
-                    // Using event.stopPropagation() is crucial to stop clicks on buttons opening the modal
-                    card.innerHTML = `
-                        <div class="relative overflow-hidden mb-3 md:mb-4 bg-gray-100 aspect-[3/4] sm:aspect-[4/5] md:aspect-[3/4]" onclick="openProductModal(${product.id})">
-                            <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover transition-transform duration-700 lg:group-hover:scale-105">
-                            
-                            <!-- Badges -->
-                            ${product.category === 'New Arrivals' ? '<span class="absolute top-3 left-3 md:top-4 md:left-4 bg-white text-black text-[10px] font-bold uppercase tracking-widest px-2 py-1 shadow-sm">New</span>' : ''}
-                            
-                            <!-- Mobile Always Visible Wishlist -->
-                            <button type="button" onclick="toggleWishlistItem(${product.id}, event)" class="absolute top-2 right-2 md:top-4 md:right-4 w-9 h-9 md:w-10 md:h-10 bg-white/80 backdrop-blur-sm md:bg-white rounded-full flex items-center justify-center text-lg hover:text-luxury-gold transition-colors shadow lg:hidden z-10">
-                                <i class="${isWishlisted ? 'fa-solid text-luxury-gold' : 'fa-regular'} fa-heart"></i>
-                            </button>
-                            
-                            <!-- Desktop Hover Actions -->
-                            <div class="hidden lg:flex absolute bottom-0 left-0 w-full p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 gap-2 z-10">
-                                <button type="button" onclick="event.stopPropagation(); addToCart(${product.id})" class="flex-1 bg-white text-black py-3 text-xs xl:text-sm font-semibold uppercase tracking-wider hover:bg-luxury-black hover:text-white transition-colors shadow-lg">Add to Cart</button>
-                                <button type="button" onclick="toggleWishlistItem(${product.id}, event)" class="w-12 h-12 bg-white flex items-center justify-center text-lg hover:text-luxury-gold transition-colors shadow-lg shrink-0">
-                                    <i class="${isWishlisted ? 'fa-solid text-luxury-gold' : 'fa-regular'} fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col flex-1" onclick="openProductModal(${product.id})">
-                            <div class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-1">${product.category}</div>
-                            <h3 class="font-serif text-base md:text-lg font-semibold mb-1 lg:group-hover:text-luxury-gold transition-colors line-clamp-1">${product.name}</h3>
-                            <div class="flex justify-between items-center mt-auto">
-                                <span class="font-semibold text-gray-900 text-sm md:text-base">${formatPrice(product.price)}</span>
-                                <div class="text-luxury-gold text-[10px] md:text-xs">${generateStars(product.rating)}</div>
-                            </div>
-                        </div>
-                        <!-- Mobile Add to Cart Button -->
-                        <button type="button" onclick="event.stopPropagation(); addToCart(${product.id})" class="lg:hidden w-full mt-3 border border-gray-200 bg-gray-50 text-black py-2 md:py-3 text-xs font-semibold uppercase tracking-wider hover:bg-black hover:text-white transition-colors">Add to Cart</button>
-                    `;
-                    grid.appendChild(card);
-                });
-            }
-        }
-
-        // --- PRODUCT DETAILS MODAL ---
-        function openProductModal(id) {
-            const product = productsDB.find(p => p.id === id);
-            if (!product) return;
-
-            addToRecentlyViewed(product);
-
-            const modal = document.getElementById('product-detail-modal');
-            const content = document.getElementById('product-detail-content');
-            const isWishlisted = wishlist.some(item => item.id === product.id);
-
-            let thumbsHtml = product.images.map((img, idx) => `
-                <img src="${img}" class="w-16 h-20 md:w-20 md:h-24 object-cover cursor-pointer border-2 ${idx === 0 ? 'border-luxury-black' : 'border-transparent'} hover:border-luxury-black transition shrink-0" onclick="changeMainImage(this, '${img}')">
-            `).join('');
-
-            let featuresHtml = product.features.map(f => `<li><i class="fa-solid fa-check text-luxury-gold mr-2 text-xs md:text-sm"></i> ${f}</li>`).join('');
-
-            content.innerHTML = `
-                <div class="flex flex-col lg:flex-row gap-6 lg:gap-12 xl:gap-16">
-                    <!-- Gallery -->
-                    <div class="w-full lg:w-1/2 flex flex-col-reverse md:flex-row gap-3 md:gap-4">
-                        <div class="flex md:flex-col gap-2 md:gap-4 overflow-x-auto md:overflow-y-auto md:max-h-[600px] no-scrollbar pb-2 md:pb-0">
-                            ${thumbsHtml}
-                        </div>
-                        <div class="flex-1 bg-gray-100 product-zoom-container relative aspect-[3/4] md:aspect-auto md:h-[600px] rounded-lg md:rounded-none overflow-hidden">
-                            <img id="main-product-image" src="${product.image}" class="w-full h-full object-cover transform origin-center">
-                        </div>
-                    </div>
-                    
-                    <!-- Info -->
-                    <div class="w-full lg:w-1/2 flex flex-col justify-center">
-                        <nav class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-3 md:mb-4 hidden md:block">Home / ${product.category} / <span class="text-black">${product.name}</span></nav>
-                        
-                        <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold mb-3 md:mb-4 leading-tight">${product.name}</h1>
-                        
-                        <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                            <span class="text-xl md:text-2xl font-semibold">${formatPrice(product.price)}</span>
-                            <div class="h-4 w-px bg-gray-300"></div>
-                            <div class="flex items-center text-luxury-gold text-xs md:text-sm gap-2">
-                                <div>${generateStars(product.rating)}</div>
-                                <span class="text-gray-500 text-[10px] md:text-xs">${product.reviews}+ style picks</span>
-                            </div>
-                        </div>
-
-                        <p class="text-sm md:text-base text-gray-600 leading-relaxed mb-6 md:mb-8">${product.description}</p>
-                        
-                        <div class="mb-6 md:mb-8 bg-gray-50 p-4 md:p-6 rounded md:bg-transparent md:p-0 md:rounded-none">
-                            <h4 class="font-bold uppercase tracking-wider text-xs md:text-sm mb-3 md:mb-4">Features</h4>
-                            <ul class="space-y-2 text-sm text-gray-600">
-                                ${featuresHtml}
-                            </ul>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 md:mb-8 sticky bottom-0 bg-white py-4 md:py-0 md:static border-t border-gray-100 md:border-0 z-20">
-                            <div class="flex gap-3 w-full">
-                                <div class="flex border border-gray-300 w-28 md:w-32 h-12 md:h-14 shrink-0 rounded">
-                                    <button onclick="updateModalQty(-1)" class="w-10 flex items-center justify-center hover:bg-gray-100 text-lg">-</button>
-                                    <input type="number" id="modal-qty" value="1" min="1" class="w-full text-center outline-none bg-transparent font-semibold text-sm md:text-base p-0 border-0 focus:ring-0">
-                                    <button onclick="updateModalQty(1)" class="w-10 flex items-center justify-center hover:bg-gray-100 text-lg">+</button>
-                                </div>
-                                <button type="button" onclick="toggleWishlistItem(${product.id}, event)" id="modal-wishlist-btn" class="w-12 md:w-14 h-12 md:h-14 border border-gray-300 flex items-center justify-center text-lg md:text-xl hover:text-luxury-gold transition-colors shrink-0 rounded">
-                                    <i class="${isWishlisted ? 'fa-solid text-luxury-gold' : 'fa-regular'} fa-heart"></i>
-                                </button>
-                            </div>
-                            <button onclick="addModalItemToCart(${product.id})" class="w-full bg-luxury-black text-white h-12 md:h-14 uppercase tracking-widest text-xs md:text-sm font-semibold hover:bg-luxury-gold transition-colors rounded md:rounded-none">Add to Cart</button>
-                        </div>
-                        
-                        <button onclick="buyNow(${product.id})" class="w-full bg-[#25D366] text-white h-12 md:h-14 uppercase tracking-widest text-xs md:text-sm font-semibold hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 rounded md:rounded-none mb-8 md:mb-0">
-                            <i class="fa-brands fa-whatsapp text-lg"></i> Buy Now on WhatsApp
-                        </button>
-                    </div>
+function renderDeals() {
+    const deals = productsDB.slice(0, 3);
+    document.getElementById("deal-grid").innerHTML = deals.map((product, index) => {
+        const discount = product.originalPrice > product.price ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 12 + (index * 4);
+        return `
+            <article class="deal-card">
+                <div class="tag-chip">${index === 0 ? "Deal of the day" : index === 1 ? "Limited time" : "Top offer"}</div>
+                <strong>${product.name}</strong>
+                <div class="value">${formatPrice(product.price)}</div>
+                <div class="muted">${product.brand} - ${product.category}</div>
+                <div class="chip-row">
+                    <span class="ghost-chip">${discount}% off</span>
+                    <span class="ghost-chip">${product.stock > 0 ? `${product.stock} in stock` : "Restocking soon"}</span>
                 </div>
-            `;
+                <div class="action-row" style="margin-top:12px;">
+                    <a class="pill-link" href="catalog.html?focus=${product.id}">View product</a>
+                    <a class="ghost-chip" href="catalog.html?category=${encodeURIComponent(product.category)}">More ${product.category}</a>
+                </div>
+            </article>
+        `;
+    }).join("");
+}
 
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('translate-y-full');
-            }, 10);
-            document.body.style.overflow = 'hidden';
+function renderRecommendationRail() {
+    const recommended = productsDB.filter((product) => wishlist.includes(product.id)).concat(productsDB.filter((product) => !wishlist.includes(product.id))).slice(0, 8);
+    document.getElementById("recommendation-rail").innerHTML = recommended.map(productCardMarkup).join("");
+}
 
-            // Setup Zoom Effect Desktop
-            if (window.innerWidth >= 768) {
-                const mainImg = document.getElementById('main-product-image');
-                const zoomContainer = document.querySelector('.product-zoom-container');
+function renderBestsellerRail() {
+    const bestsellers = [...productsDB].sort((a, b) => (b.rating + (b.reviewCount / 100)) - (a.rating + (a.reviewCount / 100))).slice(0, 8);
+    document.getElementById("bestseller-rail").innerHTML = bestsellers.map(productCardMarkup).join("");
+}
 
-                zoomContainer.addEventListener('mousemove', (e) => {
-                    const { left, top, width, height } = zoomContainer.getBoundingClientRect();
-                    const x = (e.clientX - left) / width * 100;
-                    const y = (e.clientY - top) / height * 100;
-                    mainImg.style.transformOrigin = `${x}% ${y}%`;
-                });
-                zoomContainer.addEventListener('mouseleave', () => {
-                    mainImg.style.transformOrigin = `center center`;
-                });
-            }
-        }
+async function loadProducts() {
+    const response = await fetch(`${API_BASE}/products`);
+    const data = await response.json();
+    productsDB = data.map(normalizeProduct).sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    renderDeals();
+    renderRecommendationRail();
+    renderBestsellerRail();
+    updateMiniCounts();
+}
 
-        function closeProductModal() {
-            const modal = document.getElementById('product-detail-modal');
-            modal.classList.add('translate-y-full');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-
-            // Only restore scroll if cart/menu/wishlist aren't open
-            if (document.getElementById('cart-sidebar').classList.contains('translate-x-full') &&
-                document.getElementById('mobile-menu').classList.contains('-translate-x-full') &&
-                document.getElementById('wishlist-modal').classList.contains('hidden')) {
-                document.body.style.overflow = '';
-            }
-        }
-
-        function changeMainImage(thumbElement, src) {
-            document.getElementById('main-product-image').src = src;
-            const thumbs = thumbElement.parentElement.querySelectorAll('img');
-            thumbs.forEach(t => {
-                t.classList.remove('border-luxury-black');
-                t.classList.add('border-transparent');
-            });
-            thumbElement.classList.remove('border-transparent');
-            thumbElement.classList.add('border-luxury-black');
-        }
-
-        function updateModalQty(change) {
-            const input = document.getElementById('modal-qty');
-            let val = parseInt(input.value) + change;
-            if (val < 1) val = 1;
-            input.value = val;
-        }
-
-        function addModalItemToCart(id) {
-            const qty = parseInt(document.getElementById('modal-qty').value);
-            addToCart(id, qty);
-        }
-
-        function buyNow(id) {
-            const qty = parseInt(document.getElementById('modal-qty').value);
-            const product = productsDB.find(p => p.id === id);
-
-            let message = `Hello OG Fashions! I would like to buy:\n\n`;
-            message += `*${product.name}*\n`;
-            message += `Quantity: ${qty}\n`;
-            message += `Price: ${formatPrice(product.price * qty)}\n\n`;
-            message += `Please let me know the payment and delivery details.`;
-
-            const encoded = encodeURIComponent(message);
-            window.open(`https://wa.me/919876543210?text=${encoded}`, '_blank');
-        }
-
-        // --- CART SYSTEM ---
-        function toggleCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
-
-            if (sidebar.classList.contains('translate-x-full')) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
-                sidebar.classList.remove('translate-x-full');
-                document.body.style.overflow = 'hidden';
-            } else {
-                sidebar.classList.add('translate-x-full');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-                if (document.getElementById('product-detail-modal').classList.contains('hidden') &&
-                    document.getElementById('mobile-menu').classList.contains('-translate-x-full')) {
-                    document.body.style.overflow = '';
-                }
-            }
-        }
-
-        async function loadCart() {
-            if (!currentUser) {
-                cart = [];
-                updateCartUI();
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/cart/user/${currentUser.id}`);
-                cart = response.ok ? await response.json() : [];
-            } catch (error) {
-                cart = [];
-            }
-
-            updateCartUI();
-        }
-
-        async function persistCartItem(productId, quantity) {
-            const response = await fetch(`${API_BASE}/cart`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    userId: currentUser.id,
-                    productId,
-                    quantity
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error("Unable to update cart");
-            }
-
-            return response.json();
-        }
-
-        async function addToCart(id, quantity = 1) {
-            if (!currentUser) {
-                window.location.href = "login.html";
-                return;
-            }
-
-            const product = productsDB.find(p => p.id === id);
-            const existingItem = cart.find(item => item.productId === id);
-            const nextQuantity = (existingItem?.quantity || 0) + quantity;
-
-            try {
-                const savedItem = await persistCartItem(id, nextQuantity);
-                const index = cart.findIndex(item => item.productId === id);
-
-                if (index > -1) {
-                    cart[index] = savedItem;
-                } else {
-                    cart.push(savedItem);
-                }
-
-                updateCartUI();
-                showToast(`${product.name} added to cart`);
-
-                const cartIcons = document.querySelectorAll('.fa-bag-shopping');
-                cartIcons.forEach(icon => {
-                    icon.parentElement.classList.add('text-luxury-gold', 'scale-110');
-                    setTimeout(() => icon.parentElement.classList.remove('text-luxury-gold', 'scale-110'), 300);
-                });
-            } catch (error) {
-                showToast("Unable to update cart", "error");
-            }
-        }
-
-        async function updateCartQuantity(id, change) {
-            const item = cart.find(cartItem => cartItem.productId === id);
-            if (!item) {
-                return;
-            }
-
-            const nextQuantity = item.quantity + change;
-            if (nextQuantity <= 0) {
-                await removeFromCart(id);
-                return;
-            }
-
-            try {
-                const savedItem = await persistCartItem(id, nextQuantity);
-                const index = cart.findIndex(cartItem => cartItem.productId === id);
-                if (index > -1) {
-                    cart[index] = savedItem;
-                }
-                updateCartUI();
-            } catch (error) {
-                showToast("Unable to update cart", "error");
-            }
-        }
-
-        async function removeFromCart(id) {
-            if (!currentUser) {
-                return;
-            }
-
-            try {
-                await fetch(`${API_BASE}/cart/user/${currentUser.id}/product/${id}`, {
-                    method: "DELETE"
-                });
-                cart = cart.filter(item => item.productId !== id);
-                updateCartUI();
-            } catch (error) {
-                showToast("Unable to remove item", "error");
-            }
-        }
-
-        function updateCartUI() {
-            const container = document.getElementById('cart-items');
-            const countBadges = document.querySelectorAll('#cart-count');
-            const totalEl = document.getElementById('cart-total');
-
-            let total = 0;
-            let count = 0;
-
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-500 mt-10">Your cart is empty. <br><br> <button onclick="toggleCart(); document.getElementById(\'shop\').scrollIntoView({behavior:\'smooth\'})" class="text-luxury-black underline uppercase text-xs tracking-widest font-bold">Continue Shopping</button></div>';
-                countBadges.forEach(b => b.classList.add('hidden'));
-            } else {
-                container.innerHTML = cart.map(item => {
-                    total += item.price * item.quantity;
-                    count += item.quantity;
-                    return `
-                        <div class="flex gap-3 md:gap-4 items-center bg-white p-2 md:p-3 rounded border border-gray-100 shadow-sm">
-                            <img src="${item.image}" alt="${item.name}" class="w-16 h-20 md:w-20 md:h-24 object-cover rounded">
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-serif font-semibold text-xs md:text-sm line-clamp-1">${item.name}</h4>
-                                <div class="text-xs md:text-sm text-gray-600 mb-2">${formatPrice(item.price)}</div>
-                                <div class="flex items-center border border-gray-200 w-fit rounded">
-                                    <button onclick="updateCartQuantity(${item.productId}, -1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">-</button>
-                                    <span class="w-6 md:w-8 text-center text-xs font-semibold">${item.quantity}</span>
-                                    <button onclick="updateCartQuantity(${item.productId}, 1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100">+</button>
-                                </div>
-                            </div>
-                            <button onclick="removeFromCart(${item.productId})" class="text-gray-400 hover:text-red-500 transition-colors p-2 shrink-0">
-                                <i class="fa-regular fa-trash-can text-lg"></i>
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-
-                countBadges.forEach(b => {
-                    b.textContent = count;
-                    b.classList.remove('hidden');
-                });
-            }
-
-            totalEl.textContent = formatPrice(total);
-        }
-
-        function orderViaWhatsApp() {
-            if (cart.length === 0) {
-                showToast("Your cart is empty!", "info");
-                return;
-            }
-
-            let message = `Hello OG Fashions! I would like to place an order:\n\n`;
-            let total = 0;
-
-            cart.forEach((item, index) => {
-                message += `${index + 1}. *${item.name}*\n`;
-                message += `   Qty: ${item.quantity} x ${formatPrice(item.price)}\n`;
-                total += item.price * item.quantity;
-            });
-
-            message += `\n*Total: ${formatPrice(total)}*\n\n`;
-            message += `Please provide payment details.`;
-
-            const encoded = encodeURIComponent(message);
-            window.open(`https://wa.me/919876543210?text=${encoded}`, '_blank');
-        }
-
-        // --- WISHLIST SYSTEM ---
-        function toggleWishlist() {
-            const modal = document.getElementById('wishlist-modal');
-            const overlay = document.getElementById('wishlist-overlay');
-
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('translate-y-full', 'md:scale-95', 'opacity-0');
-                    overlay.classList.remove('opacity-0');
-                }, 10);
-                document.body.style.overflow = 'hidden';
-            } else {
-                modal.classList.add('translate-y-full', 'md:scale-95', 'opacity-0');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    overlay.classList.add('hidden');
-                }, 300);
-
-                if (document.getElementById('product-detail-modal').classList.contains('hidden') &&
-                    document.getElementById('cart-sidebar').classList.contains('translate-x-full') &&
-                    document.getElementById('mobile-menu').classList.contains('-translate-x-full')) {
-                    document.body.style.overflow = '';
-                }
-            }
-        }
-
-        function toggleWishlistItem(id, event) {
-            // Stop Event Propagation for mobile to prevent opening product modal
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-            const product = productsDB.find(p => p.id === id);
-            const index = wishlist.findIndex(item => item.id === id);
-
-            if (index > -1) {
-                wishlist.splice(index, 1);
-                showToast("Removed from wishlist", "info");
-            } else {
-                wishlist.push(product);
-                showToast("Added to wishlist");
-            }
-
-            saveWishlist();
-            updateWishlistUI();
-            renderProducts(); // Re-render to update heart icons on grid
-
-            // Update modal button if open
-            const modalBtn = document.getElementById('modal-wishlist-btn');
-            if (modalBtn && document.getElementById('product-detail-modal').classList.contains('translate-y-full') === false) {
-                modalBtn.innerHTML = `<i class="${wishlist.some(i => i.id === id) ? 'fa-solid text-luxury-gold' : 'fa-regular'} fa-heart"></i>`;
-            }
-        }
-
-        function saveWishlist() {
-            localStorage.setItem('sf_wishlist', JSON.stringify(wishlist));
-        }
-
-        function updateWishlistUI() {
-            const container = document.getElementById('wishlist-items');
-            const countBadges = document.querySelectorAll('#wishlist-count');
-
-            if (wishlist.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center py-10 md:py-20 text-gray-500">Your wishlist is empty.</div>';
-                countBadges.forEach(b => b.classList.add('hidden'));
-            } else {
-                container.innerHTML = wishlist.map(item => `
-                    <div class="border border-gray-100 rounded overflow-hidden group bg-white shadow-sm flex flex-col h-full">
-                        <div class="relative aspect-[3/4] bg-gray-100 cursor-pointer" onclick="toggleWishlist(); openProductModal(${item.id})">
-                            <img src="${item.image}" class="w-full h-full object-cover">
-                            <button type="button" onclick="toggleWishlistItem(${item.id}, event)" class="absolute top-2 right-2 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 transition shadow z-10">
-                                <i class="fa-solid fa-trash-can text-sm md:text-base"></i>
-                            </button>
-                        </div>
-                        <div class="p-3 md:p-4 bg-white flex flex-col flex-1">
-                            <h4 class="font-serif font-semibold text-xs md:text-sm line-clamp-1 mb-1">${item.name}</h4>
-                            <div class="font-semibold text-gray-900 mb-3 md:mb-4 text-sm">${formatPrice(item.price)}</div>
-                            <button type="button" onclick="addToCart(${item.id}); toggleWishlistItem(${item.id}, event)" class="mt-auto w-full border border-black py-2 md:py-3 text-[10px] md:text-xs uppercase tracking-widest font-bold hover:bg-black hover:text-white transition rounded-sm">Move to Cart</button>
-                        </div>
-                    </div>
-                `).join('');
-
-                countBadges.forEach(b => {
-                    b.textContent = wishlist.length;
-                    b.classList.remove('hidden');
-                });
-            }
-        }
-
-        // --- RECENTLY VIEWED ---
-        function addToRecentlyViewed(product) {
-            recentlyViewed = recentlyViewed.filter(p => p.id !== product.id);
-            recentlyViewed.unshift(product);
-            if (recentlyViewed.length > 5) {
-                recentlyViewed.pop();
-            }
-            localStorage.setItem('sf_recently_viewed', JSON.stringify(recentlyViewed));
-            renderRecentlyViewed();
-        }
-
-        function renderRecentlyViewed() {
-
-    const section = document.getElementById('recently-viewed-section');
-    const grid = document.getElementById('recently-viewed-grid');
-
-    // keep only products that still exist in DB
-    recentlyViewed = recentlyViewed.filter(rv =>
-        productsDB.some(p => p.id === rv.id)
-    );
-
-    if (recentlyViewed.length === 0) {
-        section.classList.add('hidden');
+async function loadCartCount() {
+    if (!currentUser) {
+        cart = [];
+        updateMiniCounts();
         return;
     }
-
-    section.classList.remove('hidden');
-
-    grid.innerHTML = recentlyViewed.map(product => `
-        <div class="cursor-pointer group flex flex-col h-full"
-             onclick="openProductModal(${product.id}); scrollToTop()">
-
-            <div class="aspect-[3/4] overflow-hidden mb-2 rounded bg-gray-100">
-                <img src="${product.image}"
-                     class="w-full h-full object-cover md:group-hover:scale-105 transition-transform duration-500">
-            </div>
-
-            <h5 class="text-xs font-serif font-bold line-clamp-1 group-hover:text-luxury-gold transition mb-1">
-                ${product.name}
-            </h5>
-
-            <span class="text-xs text-gray-600 font-semibold">
-                ${formatPrice(product.price)}
-            </span>
-        </div>
-    `).join('');
-
-    localStorage.setItem('sf_recently_viewed', JSON.stringify(recentlyViewed));
+    try {
+        const response = await fetch(`${API_BASE}/cart/user/${currentUser.id}`);
+        cart = response.ok ? await response.json() : [];
+    } catch (error) {
+        cart = [];
+    }
+    updateMiniCounts();
 }
-// --- AUTH FUNCTIONS ---
 
-function goToLogin() {
+function goToCatalogWithSearch() {
+    const q = document.getElementById("home-search").value.trim();
+    const category = document.getElementById("search-category").value;
+    const pincode = document.getElementById("location-pincode").value.trim();
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (category && category !== "All") params.set("category", category);
+    if (pincode) params.set("pincode", pincode);
+    window.location.href = `catalog.html${params.toString() ? `?${params.toString()}` : ""}`;
+}
+
+function setupSlider() {
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const dots = Array.from(document.querySelectorAll(".slider-dots button"));
+    function showSlide(index) {
+        sliderIndex = (index + slides.length) % slides.length;
+        slides.forEach((slide, idx) => slide.classList.toggle("active", idx === sliderIndex));
+        dots.forEach((dot, idx) => dot.classList.toggle("active", idx === sliderIndex));
+    }
+    dots.forEach((dot, idx) => dot.addEventListener("click", () => {
+        showSlide(idx);
+        restart();
+    }));
+    function restart() {
+        clearInterval(sliderTimer);
+        sliderTimer = setInterval(() => showSlide(sliderIndex + 1), 5000);
+    }
+    restart();
+}
+
+function setupCountdown() {
+    const deadline = new Date();
+    deadline.setHours(23, 59, 59, 999);
+    function updateCountdown() {
+        const remaining = Math.max(deadline.getTime() - Date.now(), 0);
+        const hours = String(Math.floor(remaining / (1000 * 60 * 60))).padStart(2, "0");
+        const minutes = String(Math.floor((remaining / (1000 * 60)) % 60)).padStart(2, "0");
+        const seconds = String(Math.floor((remaining / 1000) % 60)).padStart(2, "0");
+        document.getElementById("countdown-hours").textContent = hours;
+        document.getElementById("countdown-minutes").textContent = minutes;
+        document.getElementById("countdown-seconds").textContent = seconds;
+    }
+    updateCountdown();
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(updateCountdown, 1000);
+}
+
+function setFormStatus(message, type) {
+    const status = document.getElementById("contact-form-status");
+    status.textContent = message || "";
+    status.className = `form-status${type ? ` ${type}` : ""}`;
+}
+
+function setupContactForm() {
+    document.getElementById("contact-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitButton = document.getElementById("contact-submit-btn");
+        const payload = {
+            name: document.getElementById("contact-name").value.trim(),
+            email: document.getElementById("contact-email").value.trim(),
+            phone: document.getElementById("contact-user-phone").value.trim(),
+            orderId: document.getElementById("contact-order-id").value.trim(),
+            issue: document.getElementById("contact-issue").value.trim()
+        };
+        setFormStatus("");
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+        try {
+            const response = await fetch(`${API_BASE}/contact-requests`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.message || "Unable to send your support request right now.");
+            }
+            document.getElementById("contact-form").reset();
+            setFormStatus(result.message || "Support request submitted successfully.", "success");
+        } catch (error) {
+            setFormStatus(error.message || "Unable to send your support request right now.", "error");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "Send support request";
+        }
+    });
+}
+
+document.getElementById("home-search").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") goToCatalogWithSearch();
+});
+document.getElementById("search-btn").addEventListener("click", goToCatalogWithSearch);
+document.getElementById("wishlist-btn").addEventListener("click", () => {
+    window.location.href = "catalog.html?view=wishlist";
+});
+document.getElementById("cart-btn").addEventListener("click", () => {
+    window.location.href = "catalog.html?cart=open";
+});
+document.getElementById("login-btn").addEventListener("click", () => {
     window.location.href = "login.html";
-}
-
-function goToAdmin() {
+});
+document.getElementById("admin-btn").addEventListener("click", () => {
     window.location.href = "admin.html";
-}
-
-function logout() {
+});
+document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("user");
-    window.location.reload(); // better UX than redirect
-}
-    </script>
-    <!--
-<script src="js/products.js"></script>
-<script src="js/cart.js"></script>
-<script src="js/wishlist.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/app.js"></script>
--->
-</body>
+    currentUser = null;
+    updateAuthUI();
+    loadCartCount();
+});
 
+(async function init() {
+    updateAuthUI();
+    renderShortcuts();
+    setupSlider();
+    setupCountdown();
+    setupContactForm();
+    updateMiniCounts();
+    await loadStoreSettings();
+    await loadProducts();
+    await loadCartCount();
+})();
+</script>
+</body>
 </html>

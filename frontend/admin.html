@@ -6,176 +6,388 @@
 <title>Admin Dashboard | OG Fashions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 :root {
+    --bg: #07111f;
+    --card: rgba(10, 20, 36, 0.92);
+    --muted: #8ea0b5;
+    --text: #e8eef5;
     --line: rgba(255,255,255,0.08);
-    --text: #e5e7eb;
-    --muted: #94a3b8;
-    --accent: #c4a47c;
+    --accent: #d8a56a;
+    --accent-2: #f0c58d;
+    --success: #84cc16;
+    --danger: #fb7185;
 }
 * { box-sizing: border-box; }
 body {
     margin: 0;
-    font-family: "Jost", sans-serif;
+    font-family: "Inter", sans-serif;
     background:
-        radial-gradient(circle at top right, rgba(196, 164, 124, 0.18), transparent 30%),
-        linear-gradient(160deg, #020617, #0f172a 50%, #111827);
+        radial-gradient(circle at top right, rgba(216, 165, 106, 0.18), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(65, 105, 225, 0.12), transparent 32%),
+        linear-gradient(160deg, #020617, #0b1220 52%, #111827);
     color: var(--text);
 }
-.page { max-width: 1240px; margin: 0 auto; padding: 32px 20px 48px; }
-.topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 28px; }
-.title { font-family: "Playfair Display", serif; font-size: clamp(2rem, 4vw, 3.4rem); margin: 0 0 8px; }
-.muted { color: var(--muted); }
-.actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn, button { border: 0; border-radius: 14px; padding: 13px 16px; font: inherit; cursor: pointer; text-decoration: none; }
-.btn-primary { background: linear-gradient(135deg, var(--accent), #e7c79e); color: #111827; font-weight: 700; }
-.btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--line); }
-.grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
-.card { background: rgba(17, 24, 39, 0.92); border: 1px solid var(--line); border-radius: 24px; padding: 24px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22); }
+.page { max-width: 1440px; margin: 0 auto; padding: 28px 20px 56px; }
+.topbar, .stats, .layout, .panel-grid, .field-grid, .inventory-grid { display: grid; gap: 18px; }
+.topbar { grid-template-columns: 1.2fr auto; align-items: start; margin-bottom: 22px; }
+.eyebrow { margin: 0 0 8px; color: var(--accent-2); font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; }
+.title { margin: 0; font-family: "Playfair Display", serif; font-size: clamp(2.1rem, 4vw, 3.4rem); }
+.subtle { color: var(--muted); line-height: 1.65; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: end; }
+.btn, button, select, input, textarea { font: inherit; }
+.btn, button {
+    border: 0;
+    border-radius: 16px;
+    padding: 13px 18px;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+.btn:hover, button:hover { transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #111827; font-weight: 800; }
+.btn-secondary { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--line); }
+.stats { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 20px; }
+.stat, .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.24);
+}
+.stat { padding: 18px 20px; }
+.stat .value { font-size: 1.9rem; font-weight: 800; margin-top: 8px; }
+.layout { grid-template-columns: 420px minmax(0, 1fr); align-items: start; }
+.panel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card { padding: 22px; }
+.card h2 { margin: 0; font-size: 1.2rem; }
+.card-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 16px; }
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(216, 165, 106, 0.14);
+    color: var(--accent-2);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+    font-weight: 700;
+}
 form { display: grid; gap: 14px; }
-label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
-input, textarea, select { width: 100%; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text); padding: 13px 14px; font: inherit; }
-textarea { min-height: 120px; resize: vertical; }
+.field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; color: #c9d5e2; }
+input, textarea, select {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    padding: 12px 14px;
+}
+textarea { min-height: 110px; resize: vertical; }
+input:focus, textarea:focus, select:focus { outline: 2px solid rgba(216, 165, 106, 0.28); border-color: var(--accent); }
+select option { color: #111827; }
 .status { min-height: 22px; font-size: 14px; }
-.status.error { color: #fca5a5; }
-.status.success { color: #86efac; }
-.products { display: grid; gap: 16px; }
-.product-row { display: grid; grid-template-columns: 96px 1fr auto; gap: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,0.03); }
-.product-row img { width: 96px; height: 120px; object-fit: cover; border-radius: 14px; background: #e5e7eb; }
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(196, 164, 124, 0.14); color: #f4d8b3; font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; }
-.empty { padding: 36px; text-align: center; border: 1px dashed rgba(255,255,255,0.16); border-radius: 18px; color: var(--muted); }
-@media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
-@media (max-width: 700px) { .topbar, .product-row { grid-template-columns: 1fr; } .product-row img { width: 100%; height: 220px; } }
+.status.error { color: var(--danger); }
+.status.success { color: var(--success); }
+.inventory-toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.inventory-grid { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.product-card {
+    display: grid;
+    grid-template-rows: 220px auto;
+    overflow: hidden;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+}
+.product-card img { width: 100%; height: 220px; object-fit: cover; background: #f5f5f5; }
+.product-body { padding: 18px; display: grid; gap: 14px; }
+.row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; color: var(--muted); font-size: 13px; }
+.meta-box { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+.product-actions { display: flex; gap: 10px; }
+.compact { font-size: 13px; color: var(--muted); }
+.switch-row { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; background: rgba(255,255,255,0.04); }
+.switch-row input { width: auto; margin: 0; }
+.support-grid { display: grid; gap: 14px; }
+.support-item { padding: 16px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+.support-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 10px; }
+@media (max-width: 1180px) {
+    .layout, .panel-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 860px) {
+    .topbar { grid-template-columns: 1fr; }
+    .actions { justify-content: start; }
+    .stats, .field-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 <div class="page">
     <div class="topbar">
         <div>
-            <p class="muted" style="margin:0;">Admin workspace</p>
-            <h1 class="title">Catalog dashboard</h1>
-            <p class="muted" id="admin-meta" style="margin:0;">Checking admin session...</p>
+            <p class="eyebrow">OG Fashions Marketplace Admin</p>
+            <h1 class="title">Catalog and storefront control center</h1>
+            <p class="subtle" id="admin-meta">Checking admin session...</p>
         </div>
         <div class="actions">
             <a class="btn btn-secondary" href="index.html">Open storefront</a>
+            <button id="refresh-btn" class="btn btn-secondary" type="button">Refresh catalog</button>
             <button id="logout-btn" class="btn btn-primary" type="button">Logout</button>
         </div>
     </div>
 
-    <div class="grid">
-        <div style="display:grid; gap:24px;">
+    <div class="stats">
+        <div class="stat">
+            <div class="compact">Total products</div>
+            <div class="value" id="stat-products">0</div>
+        </div>
+        <div class="stat">
+            <div class="compact">Featured items</div>
+            <div class="value" id="stat-featured">0</div>
+        </div>
+        <div class="stat">
+            <div class="compact">Low stock items</div>
+            <div class="value" id="stat-low-stock">0</div>
+        </div>
+        <div class="stat">
+            <div class="compact">Categories live</div>
+            <div class="value" id="stat-categories">0</div>
+        </div>
+        <div class="stat">
+            <div class="compact">Support requests</div>
+            <div class="value" id="stat-support">0</div>
+        </div>
+    </div>
+
+    <div class="layout">
         <section class="card">
-            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px;">
+            <div class="card-head">
                 <div>
-                    <h2 style="margin:0; font-family:'Playfair Display', serif;">Product form</h2>
-                    <p class="muted" style="margin:6px 0 0;">Create or update products directly in MySQL.</p>
+                    <h2>Marketplace product form</h2>
+                    <p class="subtle" style="margin:8px 0 0;">Add fashion, watches, pouches, bags, wallets, or any new sellable item with richer product metadata.</p>
                 </div>
                 <span id="form-mode" class="pill">Create</span>
             </div>
 
             <form id="product-form">
                 <input id="product-id" type="hidden">
-                <div>
-                    <label for="name">Product name</label>
+                <label>
+                    Product name
                     <input id="name" required>
+                </label>
+
+                <div class="field-grid">
+                    <label>
+                        Category
+                        <select id="category" required>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Accessories">Accessories</option>
+                            <option value="Footwear">Footwear</option>
+                            <option value="Gifting">Gifting</option>
+                            <option value="Lifestyle">Lifestyle</option>
+                        </select>
+                    </label>
+                    <label>
+                        Subcategory
+                        <input id="subcategory" placeholder="Watches, Mobile Pouches, Shirts" required>
+                    </label>
                 </div>
-                <div>
-                    <label for="category">Category</label>
-                    <select id="category" required>
-                        <option value="Shirts">Shirts</option>
-                        <option value="Tshirt">Tshirt</option>
-                        <option value="Pants">Pants</option>
-                    </select>
+
+                <div class="field-grid">
+                    <label>
+                        Brand
+                        <input id="brand" value="OG Fashions" required>
+                    </label>
+                    <label>
+                        SKU
+                        <input id="sku" placeholder="OG-ACC-WATCH-011">
+                    </label>
                 </div>
-                <div>
-                    <label for="price">Price</label>
-                    <input id="price" type="number" min="1" step="0.01" required>
+
+                <label>
+                    Product description
+                    <textarea id="description" placeholder="Write a clear product description" required></textarea>
+                </label>
+
+                <label>
+                    Highlights
+                    <input id="highlights" placeholder="Comma separated highlights for quick bullets">
+                </label>
+
+                <div class="field-grid">
+                    <label>
+                        Badge
+                        <input id="badge" placeholder="Best Seller, New Arrival, Limited Stock">
+                    </label>
+                    <label>
+                        Image path
+                        <input id="image" placeholder="assets/images/products/og-marketplace-style-1.svg" required>
+                    </label>
                 </div>
-                <div>
-                    <label for="stock">Stock</label>
-                    <input id="stock" type="number" min="0" step="1" required>
+
+                <div class="field-grid">
+                    <label>
+                        Selling price
+                        <input id="price" type="number" min="1" step="0.01" required>
+                    </label>
+                    <label>
+                        Original price
+                        <input id="original-price" type="number" min="1" step="0.01">
+                    </label>
                 </div>
-                <div>
-                    <label for="image">Image path</label>
-                    <input id="image" placeholder="assets/images/products/shirt1.jpg" required>
+
+                <div class="field-grid">
+                    <label>
+                        Stock
+                        <input id="stock" type="number" min="0" step="1" required>
+                    </label>
+                    <label>
+                        Rating
+                        <input id="rating" type="number" min="0" max="5" step="0.1" placeholder="4.5">
+                    </label>
                 </div>
-                <div>
-                    <label for="description">Description</label>
-                    <textarea id="description" placeholder="Write a short product description"></textarea>
+
+                <div class="field-grid">
+                    <label>
+                        Review count
+                        <input id="review-count" type="number" min="0" step="1" placeholder="0">
+                    </label>
+                    <label>
+                        Color
+                        <input id="color" placeholder="Ivory, Black, Tan">
+                    </label>
                 </div>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+
+                <div class="field-grid">
+                    <label>
+                        Material
+                        <input id="material" placeholder="Cotton, Vegan leather, Alloy">
+                    </label>
+                    <label>
+                        Size or fit info
+                        <input id="size-info" placeholder="S / M / L or One size">
+                    </label>
+                </div>
+
+                <label>
+                    Delivery info
+                    <input id="delivery-info" placeholder="Ships across India in 3-5 business days.">
+                </label>
+
+                <label class="switch-row">
+                    <input id="featured" type="checkbox">
+                    <span>Mark as featured product on storefront</span>
+                </label>
+
+                <div class="actions" style="justify-content:start;">
                     <button class="btn btn-primary" id="submit-btn" type="submit">Save product</button>
-                    <button class="btn btn-secondary" id="reset-btn" type="button">Reset</button>
+                    <button class="btn btn-secondary" id="reset-btn" type="button">Reset form</button>
                 </div>
                 <div id="status" class="status"></div>
             </form>
         </section>
 
-        <section class="card">
-            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px;">
-                <div>
-                    <h2 style="margin:0; font-family:'Playfair Display', serif;">Store settings</h2>
-                    <p class="muted" style="margin:6px 0 0;">Update the OG Fashions brand and contact details shown on the storefront.</p>
+        <div class="panel-grid">
+            <section class="card">
+                <div class="card-head">
+                    <div>
+                        <h2>Storefront settings</h2>
+                        <p class="subtle" style="margin:8px 0 0;">Update messaging, announcement copy, and contact details without editing HTML.</p>
+                    </div>
                 </div>
-            </div>
 
-            <form id="settings-form">
-                <div>
-                    <label for="settings-brand-name">Brand name</label>
-                    <input id="settings-brand-name" required>
+                <form id="settings-form">
+                    <label>
+                        Brand name
+                        <input id="settings-brand-name" required>
+                    </label>
+                    <label>
+                        Tagline
+                        <input id="settings-tagline" required>
+                    </label>
+                    <label>
+                        Announcement bar
+                        <input id="settings-announcement-bar" required>
+                    </label>
+                    <label>
+                        Hero title
+                        <input id="settings-hero-title" required>
+                    </label>
+                    <label>
+                        Hero subtitle
+                        <textarea id="settings-hero-subtitle" required></textarea>
+                    </label>
+                    <label>
+                        Featured message
+                        <textarea id="settings-featured-message" required></textarea>
+                    </label>
+                    <label>
+                        Store address
+                        <textarea id="settings-address" required></textarea>
+                    </label>
+                    <label>
+                        Opening hours
+                        <textarea id="settings-hours" required></textarea>
+                    </label>
+                    <div class="field-grid">
+                        <label>
+                            Contact phone
+                            <input id="settings-phone" required>
+                        </label>
+                        <label>
+                            Contact email
+                            <input id="settings-email" type="email" required>
+                        </label>
+                    </div>
+                    <label>
+                        Instagram URL
+                        <input id="settings-instagram">
+                    </label>
+                    <div class="actions" style="justify-content:start;">
+                        <button class="btn btn-primary" id="settings-submit-btn" type="submit">Save storefront settings</button>
+                    </div>
+                    <div id="settings-status" class="status"></div>
+                </form>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div>
+                        <h2>Catalog guidance</h2>
+                        <p class="subtle" style="margin:8px 0 0;">A few org-style rules to keep the marketplace clean as you scale.</p>
+                    </div>
                 </div>
-                <div>
-                    <label for="settings-tagline">Tagline</label>
-                    <input id="settings-tagline" required>
+                <div class="subtle" style="display:grid; gap:14px;">
+                    <div class="meta-box"><strong style="color:#fff;">Use categories broadly</strong><br>Keep `Fashion`, `Accessories`, `Lifestyle`, and future categories broad, then use subcategory for the exact product family.</div>
+                    <div class="meta-box"><strong style="color:#fff;">Keep SKU stable</strong><br>SKU should stay unique even if the title changes. This helps later when we add orders and reporting.</div>
+                    <div class="meta-box"><strong style="color:#fff;">Write highlights for cards</strong><br>Short comma-separated highlights become bullets in the shopper UI and make each item feel more realistic.</div>
+                    <div class="meta-box"><strong style="color:#fff;">Use featured items carefully</strong><br>Featured products are shown more prominently, so use them for hero launches or high-conversion products.</div>
                 </div>
-                <div>
-                    <label for="settings-hero-title">Hero title</label>
-                    <input id="settings-hero-title" required>
-                </div>
-                <div>
-                    <label for="settings-hero-subtitle">Hero subtitle</label>
-                    <textarea id="settings-hero-subtitle" placeholder="Short storefront introduction" required></textarea>
-                </div>
-                <div>
-                    <label for="settings-address">Store address</label>
-                    <textarea id="settings-address" required></textarea>
-                </div>
-                <div>
-                    <label for="settings-hours">Opening hours</label>
-                    <textarea id="settings-hours" required></textarea>
-                </div>
-                <div>
-                    <label for="settings-phone">Contact phone</label>
-                    <input id="settings-phone" required>
-                </div>
-                <div>
-                    <label for="settings-email">Contact email</label>
-                    <input id="settings-email" type="email" required>
-                </div>
-                <div>
-                    <label for="settings-instagram">Instagram URL</label>
-                    <input id="settings-instagram">
-                </div>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                    <button class="btn btn-primary" id="settings-submit-btn" type="submit">Save storefront settings</button>
-                </div>
-                <div id="settings-status" class="status"></div>
-            </form>
-        </section>
+            </section>
         </div>
-
-        <section class="card">
-            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap;">
-                <div>
-                    <h2 style="margin:0; font-family:'Playfair Display', serif;">Inventory</h2>
-                    <p class="muted" style="margin:6px 0 0;">Live products from the backend database.</p>
-                </div>
-                <button class="btn btn-secondary" id="refresh-btn" type="button">Refresh</button>
-            </div>
-            <div id="products" class="products"></div>
-        </section>
     </div>
+
+    <section class="card" style="margin-top:22px;">
+        <div class="inventory-toolbar">
+            <div>
+                <h2>Support inbox</h2>
+                <p class="subtle" style="margin:8px 0 0;">Every support form submission is stored here even if mail delivery is not configured yet.</p>
+            </div>
+        </div>
+        <div id="support-requests" class="support-grid"></div>
+    </section>
+
+    <section class="card" style="margin-top:22px;">
+        <div class="inventory-toolbar">
+            <div>
+                <h2>Live inventory</h2>
+                <p class="subtle" style="margin:8px 0 0;">Database-backed products currently available in the storefront catalog.</p>
+            </div>
+        </div>
+        <div id="products" class="inventory-grid"></div>
+    </section>
 </div>
 <script src="js/app-config.js"></script>
 <script src="js/admin.js"></script>

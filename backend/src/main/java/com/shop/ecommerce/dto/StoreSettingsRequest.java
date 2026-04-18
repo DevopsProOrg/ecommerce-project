@@ -5,8 +5,10 @@ public class StoreSettingsRequest {
     private Long adminUserId;
     private String brandName;
     private String tagline;
+    private String announcementBar;
     private String heroTitle;
     private String heroSubtitle;
+    private String featuredMessage;
     private String contactPhone;
     private String contactEmail;
     private String storeAddress;
@@ -37,6 +39,14 @@ public class StoreSettingsRequest {
         this.tagline = tagline;
     }
 
+    public String getAnnouncementBar() {
+        return announcementBar;
+    }
+
+    public void setAnnouncementBar(String announcementBar) {
+        this.announcementBar = announcementBar;
+    }
+
     public String getHeroTitle() {
         return heroTitle;
     }
@@ -51,6 +61,14 @@ public class StoreSettingsRequest {
 
     public void setHeroSubtitle(String heroSubtitle) {
         this.heroSubtitle = heroSubtitle;
+    }
+
+    public String getFeaturedMessage() {
+        return featuredMessage;
+    }
+
+    public void setFeaturedMessage(String featuredMessage) {
+        this.featuredMessage = featuredMessage;
     }
 
     public String getContactPhone() {

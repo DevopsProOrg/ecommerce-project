@@ -1,0 +1,15 @@
+<svg width="640" height="760" viewBox="0 0 640 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="760" rx="36" fill="#F4EFE8"/>
+  <circle cx="470" cy="132" r="94" fill="#E0D2C4"/>
+  <circle cx="198" cy="640" r="132" fill="#D9C6AE"/>
+  <rect x="202" y="146" width="236" height="116" rx="58" fill="#F2C6A0"/>
+  <path d="M212 276C212 235.131 245.131 202 286 202H354C394.869 202 428 235.131 428 276V426H212V276Z" fill="#C6A37D"/>
+  <path d="M228 258C228 232.595 248.595 212 274 212H366C391.405 212 412 232.595 412 258V424H228V258Z" fill="#5B6473"/>
+  <path d="M320 260V426" stroke="#C9CDD4" stroke-width="10"/>
+  <path d="M270 294H304" stroke="#C9CDD4" stroke-width="10" stroke-linecap="round"/>
+  <path d="M336 294H370" stroke="#C9CDD4" stroke-width="10" stroke-linecap="round"/>
+  <rect x="238" y="426" width="164" height="164" rx="82" fill="#2A3444"/>
+  <rect x="264" y="448" width="112" height="118" rx="26" fill="#EFE3D6"/>
+  <path d="M214 426H426L454 628H186L214 426Z" fill="#2A3444"/>
+  <path d="M320 488L354 546H286L320 488Z" fill="#D89D5B"/>
+</svg>

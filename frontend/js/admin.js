@@ -1,5 +1,6 @@
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
+﻿const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
 const adminUser = JSON.parse(localStorage.getItem("user") || "null");
+const DEFAULT_IMAGE = "assets/images/products/og-marketplace-style-1.svg";
 
 const form = document.getElementById("product-form");
 const statusElement = document.getElementById("status");
@@ -10,6 +11,7 @@ const adminMeta = document.getElementById("admin-meta");
 const settingsForm = document.getElementById("settings-form");
 const settingsStatusElement = document.getElementById("settings-status");
 const settingsSubmitButton = document.getElementById("settings-submit-btn");
+const supportRequestsContainer = document.getElementById("support-requests");
 
 function setStatus(message, type = "") {
     statusElement.textContent = message;
@@ -27,17 +29,26 @@ function ensureAdmin() {
         return false;
     }
 
-    adminMeta.textContent = `${adminUser.name} (${adminUser.email})`;
+    adminMeta.textContent = `${adminUser.name} (${adminUser.email}) - managing the live OG Fashions marketplace catalog.`;
     return true;
 }
 
 function resetForm() {
     form.reset();
     document.getElementById("product-id").value = "";
-    document.getElementById("image").value = "assets/images/products/og-shirt-1.svg";
+    document.getElementById("brand").value = "OG Fashions";
+    document.getElementById("image").value = DEFAULT_IMAGE;
+    document.getElementById("delivery-info").value = "Ships across India in 3-5 business days.";
+    document.getElementById("rating").value = "4.5";
+    document.getElementById("review-count").value = "0";
+    document.getElementById("featured").checked = false;
     formMode.textContent = "Create";
     submitButton.textContent = "Save product";
     setStatus("");
+}
+
+function toNumber(value) {
+    return value === "" ? null : Number(value);
 }
 
 function getPayload() {
@@ -45,61 +56,156 @@ function getPayload() {
         adminUserId: adminUser.id,
         name: document.getElementById("name").value.trim(),
         category: document.getElementById("category").value,
+        subcategory: document.getElementById("subcategory").value.trim(),
+        brand: document.getElementById("brand").value.trim(),
+        sku: document.getElementById("sku").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        highlights: document.getElementById("highlights").value.trim(),
+        badge: document.getElementById("badge").value.trim(),
         price: Number(document.getElementById("price").value),
+        originalPrice: toNumber(document.getElementById("original-price").value),
         stock: Number(document.getElementById("stock").value),
         image: document.getElementById("image").value.trim(),
-        description: document.getElementById("description").value.trim()
+        color: document.getElementById("color").value.trim(),
+        material: document.getElementById("material").value.trim(),
+        sizeInfo: document.getElementById("size-info").value.trim(),
+        deliveryInfo: document.getElementById("delivery-info").value.trim(),
+        rating: toNumber(document.getElementById("rating").value),
+        reviewCount: toNumber(document.getElementById("review-count").value),
+        featured: document.getElementById("featured").checked
     };
 }
 
 function fillForm(product) {
     document.getElementById("product-id").value = product.id;
     document.getElementById("name").value = product.name || "";
-    document.getElementById("category").value = product.category || "Shirts";
-    document.getElementById("price").value = product.price ?? "";
-    document.getElementById("stock").value = product.stock ?? 0;
-    document.getElementById("image").value = product.image || "";
+    document.getElementById("category").value = product.category || "Fashion";
+    document.getElementById("subcategory").value = product.subcategory || "";
+    document.getElementById("brand").value = product.brand || "OG Fashions";
+    document.getElementById("sku").value = product.sku || "";
     document.getElementById("description").value = product.description || "";
+    document.getElementById("highlights").value = product.highlights || "";
+    document.getElementById("badge").value = product.badge || "";
+    document.getElementById("price").value = product.price ?? "";
+    document.getElementById("original-price").value = product.originalPrice ?? "";
+    document.getElementById("stock").value = product.stock ?? 0;
+    document.getElementById("image").value = product.image || DEFAULT_IMAGE;
+    document.getElementById("color").value = product.color || "";
+    document.getElementById("material").value = product.material || "";
+    document.getElementById("size-info").value = product.sizeInfo || "";
+    document.getElementById("delivery-info").value = product.deliveryInfo || "";
+    document.getElementById("rating").value = product.rating ?? "";
+    document.getElementById("review-count").value = product.reviewCount ?? 0;
+    document.getElementById("featured").checked = Boolean(product.featured);
     formMode.textContent = "Edit";
     submitButton.textContent = "Update product";
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function renderProducts(products) {
-    if (!products.length) {
-        productsContainer.innerHTML = '<div class="empty">No products found in the catalog yet.</div>';
+function formatPrice(value) {
+    return `Rs.${Number(value || 0).toFixed(0)}`;
+}
+
+function updateStats(products) {
+    document.getElementById("stat-products").textContent = products.length;
+    document.getElementById("stat-featured").textContent = products.filter((product) => product.featured).length;
+    document.getElementById("stat-low-stock").textContent = products.filter((product) => Number(product.stock || 0) <= 10).length;
+    document.getElementById("stat-categories").textContent = new Set(products.map((product) => product.category).filter(Boolean)).size;
+}
+
+function formatDateTime(value) {
+    if (!value) return "Just now";
+    return new Date(value).toLocaleString();
+}
+
+function updateSupportStats(requests) {
+    document.getElementById("stat-support").textContent = requests.length;
+}
+
+function renderSupportRequests(requests) {
+    updateSupportStats(requests);
+
+    if (!requests.length) {
+        supportRequestsContainer.innerHTML = '<div class="meta-box">No support requests submitted yet.</div>';
         return;
     }
 
-    productsContainer.innerHTML = products.map((product) => `
-        <article class="product-row">
-            <img src="${product.image || "assets/images/products/shirt1.jpg"}" alt="${product.name}">
-            <div>
-                <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
-                    <div>
-                        <div class="pill">${product.category || "Catalog"}</div>
-                        <h3 style="margin:10px 0 6px; font-family:'Playfair Display', serif;">${product.name}</h3>
-                    </div>
-                    <strong style="font-size:1.1rem;">Rs.${Number(product.price || 0).toFixed(0)}</strong>
+    supportRequestsContainer.innerHTML = requests.map((request) => `
+        <article class="support-item">
+            <div class="support-head">
+                <div>
+                    <strong style="font-size:1rem;">${request.name}</strong>
+                    <div class="compact">${request.email}${request.phone ? ` • ${request.phone}` : ""}</div>
                 </div>
-                <p class="muted" style="margin:0 0 12px; line-height:1.6;">${product.description || "No description added yet."}</p>
-                <div class="muted">Stock: ${product.stock ?? 0}</div>
+                <div style="text-align:right;">
+                    <div class="pill">${request.status || "RECEIVED"}</div>
+                    <div class="compact" style="margin-top:6px;">${formatDateTime(request.createdAt)}</div>
+                </div>
             </div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-secondary" type="button" onclick="editProduct(${product.id})">Edit</button>
-                <button class="btn btn-primary" type="button" onclick="deleteProduct(${product.id})">Delete</button>
-            </div>
+            <div class="compact" style="margin-bottom:10px;">Order ID: ${request.orderId || "-"}</div>
+            <div class="subtle" style="margin-bottom:10px;">${request.issue || "No issue details provided."}</div>
+            <div class="meta-box"><strong style="color:#fff;">Mail delivery</strong><br>${request.emailSent ? "Email sent successfully." : "Saved in admin inbox. SMTP not configured or delivery pending."}</div>
         </article>
     `).join("");
+}
 
-    window.catalogProducts = products;
+function renderProducts(products) {
+    updateStats(products);
+
+    if (!products.length) {
+        productsContainer.innerHTML = '<div class="meta-box">No products found in the catalog yet.</div>';
+        return;
+    }
+
+    const sorted = [...products].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+
+    productsContainer.innerHTML = sorted.map((product) => {
+        const discount = product.originalPrice && product.originalPrice > product.price
+            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+            : 0;
+
+        return `
+            <article class="product-card">
+                <img src="${product.image || DEFAULT_IMAGE}" alt="${product.name}">
+                <div class="product-body">
+                    <div class="row">
+                        <div>
+                            <div class="pill">${product.category || "Catalog"}</div>
+                            <h3 style="margin:10px 0 6px; font-size:1.15rem;">${product.name}</h3>
+                            <div class="compact">${product.brand || "OG Fashions"}${product.subcategory ? ` • ${product.subcategory}` : ""}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:1.1rem; font-weight:800;">${formatPrice(product.price)}</div>
+                            ${discount ? `<div class="compact"><s>${formatPrice(product.originalPrice)}</s> • ${discount}% off</div>` : ""}
+                        </div>
+                    </div>
+                    <p class="subtle" style="margin:0;">${product.description || "No description added yet."}</p>
+                    <div class="meta-grid">
+                        <div class="meta-box"><strong style="color:#fff;">SKU</strong><br>${product.sku || "-"}</div>
+                        <div class="meta-box"><strong style="color:#fff;">Stock</strong><br>${product.stock ?? 0} units</div>
+                        <div class="meta-box"><strong style="color:#fff;">Color</strong><br>${product.color || "-"}</div>
+                        <div class="meta-box"><strong style="color:#fff;">Material</strong><br>${product.material || "-"}</div>
+                    </div>
+                    <div class="compact">${product.badge ? `${product.badge} • ` : ""}Rating ${Number(product.rating || 0).toFixed(1)} (${product.reviewCount || 0} reviews)</div>
+                    <div class="product-actions">
+                        <button class="btn btn-secondary" type="button" onclick="editProduct(${product.id})">Edit</button>
+                        <button class="btn btn-primary" type="button" onclick="deleteProduct(${product.id})">Delete</button>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join("");
+
+    window.catalogProducts = sorted;
 }
 
 function fillSettingsForm(settings) {
     document.getElementById("settings-brand-name").value = settings.brandName || "";
     document.getElementById("settings-tagline").value = settings.tagline || "";
+    document.getElementById("settings-announcement-bar").value = settings.announcementBar || "";
     document.getElementById("settings-hero-title").value = settings.heroTitle || "";
     document.getElementById("settings-hero-subtitle").value = settings.heroSubtitle || "";
+    document.getElementById("settings-featured-message").value = settings.featuredMessage || "";
     document.getElementById("settings-address").value = settings.storeAddress || "";
     document.getElementById("settings-hours").value = settings.openingHours || "";
     document.getElementById("settings-phone").value = settings.contactPhone || "";
@@ -117,6 +223,15 @@ async function loadStoreSettings() {
     const response = await fetch(`${API_BASE}/store-settings`);
     const settings = await response.json();
     fillSettingsForm(settings);
+}
+
+async function loadSupportRequests() {
+    const response = await fetch(`${API_BASE}/contact-requests/admin/${adminUser.id}`);
+    if (!response.ok) {
+        throw new Error("Unable to load support requests");
+    }
+    const requests = await response.json();
+    renderSupportRequests(requests);
 }
 
 function editProduct(id) {
@@ -199,8 +314,10 @@ async function saveStoreSettings(event) {
                 adminUserId: adminUser.id,
                 brandName: document.getElementById("settings-brand-name").value.trim(),
                 tagline: document.getElementById("settings-tagline").value.trim(),
+                announcementBar: document.getElementById("settings-announcement-bar").value.trim(),
                 heroTitle: document.getElementById("settings-hero-title").value.trim(),
                 heroSubtitle: document.getElementById("settings-hero-subtitle").value.trim(),
+                featuredMessage: document.getElementById("settings-featured-message").value.trim(),
                 storeAddress: document.getElementById("settings-address").value.trim(),
                 openingHours: document.getElementById("settings-hours").value.trim(),
                 contactPhone: document.getElementById("settings-phone").value.trim(),
@@ -229,7 +346,10 @@ document.getElementById("logout-btn").addEventListener("click", () => {
     window.location.href = "login.html";
 });
 
-document.getElementById("refresh-btn").addEventListener("click", loadProducts);
+document.getElementById("refresh-btn").addEventListener("click", () => {
+    loadProducts();
+    loadSupportRequests();
+});
 document.getElementById("reset-btn").addEventListener("click", resetForm);
 form.addEventListener("submit", saveProduct);
 settingsForm.addEventListener("submit", saveStoreSettings);
@@ -241,5 +361,8 @@ if (ensureAdmin()) {
     });
     loadStoreSettings().catch(() => {
         setSettingsStatus("Unable to load storefront settings.", "error");
+    });
+    loadSupportRequests().catch(() => {
+        supportRequestsContainer.innerHTML = '<div class="meta-box">Unable to load support requests right now.</div>';
     });
 }

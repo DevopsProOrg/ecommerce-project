@@ -33,8 +33,10 @@ public class StoreSettingsService {
         StoreSettings settings = getSettings();
         settings.setBrandName(requireValue(request.getBrandName(), "Brand name"));
         settings.setTagline(requireValue(request.getTagline(), "Tagline"));
+        settings.setAnnouncementBar(requireValue(request.getAnnouncementBar(), "Announcement bar"));
         settings.setHeroTitle(requireValue(request.getHeroTitle(), "Hero title"));
         settings.setHeroSubtitle(requireValue(request.getHeroSubtitle(), "Hero subtitle"));
+        settings.setFeaturedMessage(requireValue(request.getFeaturedMessage(), "Featured message"));
         settings.setContactPhone(requireValue(request.getContactPhone(), "Contact phone"));
         settings.setContactEmail(requireValue(request.getContactEmail(), "Contact email"));
         settings.setStoreAddress(requireValue(request.getStoreAddress(), "Store address"));
@@ -48,9 +50,11 @@ public class StoreSettingsService {
         StoreSettings settings = new StoreSettings();
         settings.setId(SETTINGS_ID);
         settings.setBrandName("OG Fashions");
-        settings.setTagline("Signature styles from Hyderabad.");
-        settings.setHeroTitle("Own your everyday style with OG Fashions.");
-        settings.setHeroSubtitle("Fresh catalog drops, elevated essentials, and standout fits curated for Hyderabad streetwear and occasion dressing.");
+        settings.setTagline("Hyderabad's fashion and accessories marketplace.");
+        settings.setAnnouncementBar("New arrivals, fashion essentials, watches, pouches, and everyday picks shipped across India.");
+        settings.setHeroTitle("Build your lifestyle catalog with OG Fashions.");
+        settings.setHeroSubtitle("Sell fashion, accessories, watches, mobile pouches, and curated everyday essentials from one modern storefront backed by Spring Boot and MySQL.");
+        settings.setFeaturedMessage("Launch apparel drops, accessory collections, and gifting picks from one admin-managed marketplace.");
         settings.setContactPhone("+91 7780139445");
         settings.setContactEmail("contact@ogfashions.com");
         settings.setStoreAddress("OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India");

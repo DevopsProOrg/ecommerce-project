@@ -16,6 +16,7 @@ public class ProductService {
 
     private final ProductRepository repo;
     private final UserRepository userRepository;
+    private static final String DEFAULT_IMAGE = "assets/images/products/shirt1.jpg";
 
     public ProductService(ProductRepository repo, UserRepository userRepository) {
         this.repo = repo;
@@ -70,15 +71,37 @@ public class ProductService {
         if (request.getStock() == null || request.getStock() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock cannot be negative");
         }
+        if (request.getOriginalPrice() != null && request.getOriginalPrice() < request.getPrice()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Original price must be greater than or equal to price");
+        }
+        if (request.getRating() != null && (request.getRating() < 0 || request.getRating() > 5)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating must be between 0 and 5");
+        }
+        if (request.getReviewCount() != null && request.getReviewCount() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Review count cannot be negative");
+        }
 
         product.setName(request.getName().trim());
         product.setCategory(request.getCategory().trim());
+        product.setSubcategory(normalizeOptional(request.getSubcategory()));
+        product.setBrand(normalizeOptional(request.getBrand(), "OG Fashions"));
+        product.setSku(normalizeOptional(request.getSku(), buildSku(request)));
         product.setDescription(request.getDescription() == null ? "" : request.getDescription().trim());
+        product.setHighlights(normalizeOptional(request.getHighlights()));
+        product.setBadge(normalizeOptional(request.getBadge()));
         product.setPrice(request.getPrice());
+        product.setOriginalPrice(request.getOriginalPrice() == null ? request.getPrice() : request.getOriginalPrice());
         product.setImage(request.getImage() == null || request.getImage().isBlank()
-                ? "assets/images/products/og-shirt-1.svg"
+                ? DEFAULT_IMAGE
                 : request.getImage().trim());
         product.setStock(request.getStock());
+        product.setColor(normalizeOptional(request.getColor()));
+        product.setMaterial(normalizeOptional(request.getMaterial()));
+        product.setSizeInfo(normalizeOptional(request.getSizeInfo()));
+        product.setDeliveryInfo(normalizeOptional(request.getDeliveryInfo(), "Ships across India in 3-5 business days."));
+        product.setRating(request.getRating() == null ? 4.4 : request.getRating());
+        product.setReviewCount(request.getReviewCount() == null ? 0 : request.getReviewCount());
+        product.setFeatured(Boolean.TRUE.equals(request.getFeatured()));
     }
 
     private void validateAdmin(Long adminUserId) {
@@ -92,5 +115,21 @@ public class ProductService {
         if (!"ADMIN".equalsIgnoreCase(user.getRole())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can manage products");
         }
+    }
+
+    private String normalizeOptional(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private String normalizeOptional(String value, String fallback) {
+        String normalized = normalizeOptional(value);
+        return normalized.isBlank() ? fallback : normalized;
+    }
+
+    private String buildSku(ProductRequest request) {
+        String categoryCode = request.getCategory().replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        String nameCode = request.getName().replaceAll("[^A-Za-z0-9]", "").toUpperCase();
+        String compactName = nameCode.length() > 6 ? nameCode.substring(0, 6) : nameCode;
+        return "OG-" + categoryCode + "-" + compactName;
     }
 }
