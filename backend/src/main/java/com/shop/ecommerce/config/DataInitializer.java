@@ -3,8 +3,10 @@ package com.shop.ecommerce.config;
 import com.shop.ecommerce.model.Product;
 import com.shop.ecommerce.model.User;
 import com.shop.ecommerce.repository.ProductRepository;
+import com.shop.ecommerce.repository.StoreSettingsRepository;
 import com.shop.ecommerce.repository.UserRepository;
 import com.shop.ecommerce.service.PasswordService;
+import com.shop.ecommerce.service.StoreSettingsService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -30,10 +32,12 @@ public class DataInitializer {
     @Bean
     CommandLineRunner seedData(UserRepository userRepository,
                                ProductRepository productRepository,
-                               PasswordService passwordService) {
+                               PasswordService passwordService,
+                               StoreSettingsService storeSettingsService) {
         return args -> {
             seedAdmin(userRepository, passwordService);
             seedProducts(productRepository);
+            seedStoreSettings(storeSettingsService);
         };
     }
 
@@ -67,51 +71,51 @@ public class DataInitializer {
 
         productRepository.saveAll(List.of(
                 buildProduct(
-                        "Premium Oxford Shirt",
+                        "OG Slate Overshirt",
                         "Shirts",
-                        "Tailored cotton shirt for workwear and premium casual styling.",
-                        1799.0,
-                        "assets/images/products/shirt1.jpg",
+                        "Structured overshirt with a refined drape for sharp everyday layering.",
+                        1899.0,
+                        "assets/images/products/og-shirt-1.svg",
                         25
                 ),
                 buildProduct(
-                        "Classic Linen Shirt",
+                        "OG Ivory Street Shirt",
                         "Shirts",
-                        "Breathable linen blend shirt designed for smart summer looks.",
-                        1999.0,
-                        "assets/images/products/shirt2.jpg",
+                        "A clean statement shirt for elevated casual styling and festive wear.",
+                        2099.0,
+                        "assets/images/products/og-shirt-2.svg",
                         18
                 ),
                 buildProduct(
-                        "Urban Essential Tee",
+                        "OG Ember Tee",
                         "Tshirt",
-                        "Soft premium tee with a clean silhouette for everyday layering.",
-                        899.0,
-                        "assets/images/products/tshirt1.jpg",
+                        "Soft premium tee with a bold urban palette and relaxed silhouette.",
+                        999.0,
+                        "assets/images/products/og-tshirt-1.svg",
                         40
                 ),
                 buildProduct(
-                        "Signature Graphic Tee",
+                        "OG Midnight Tee",
                         "Tshirt",
-                        "Statement t-shirt with a modern fit and durable fabric finish.",
-                        999.0,
-                        "assets/images/products/tshirt2.jpg",
+                        "Dark everyday essential with a confident streetwear attitude.",
+                        1099.0,
+                        "assets/images/products/og-tshirt-2.svg",
                         32
                 ),
                 buildProduct(
-                        "Slim Fit Chino",
+                        "OG Sand Trousers",
                         "Pants",
-                        "Versatile chinos with a structured fit for office and weekend wear.",
-                        2199.0,
-                        "assets/images/products/pant1.jpg",
+                        "Versatile trousers built for polished day-to-evening looks.",
+                        2299.0,
+                        "assets/images/products/og-pant-1.svg",
                         20
                 ),
                 buildProduct(
-                        "Relaxed Fit Denim",
+                        "OG Steel Trousers",
                         "Pants",
-                        "All-day comfort denim crafted for a polished casual wardrobe.",
+                        "Tailored casual bottoms with a sharp silhouette and modern finish.",
                         2499.0,
-                        "assets/images/products/pant2.jpg",
+                        "assets/images/products/og-pant-2.svg",
                         16
                 )
         ));
@@ -131,5 +135,9 @@ public class DataInitializer {
         product.setImage(image);
         product.setStock(stock);
         return product;
+    }
+
+    private void seedStoreSettings(StoreSettingsService storeSettingsService) {
+        storeSettingsService.getSettings();
     }
 }

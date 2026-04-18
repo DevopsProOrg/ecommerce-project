@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cloth Shop | Premium Men's Wear</title>
+    <title>OG Fashions | Elevated Everyday Style</title>
     <meta name="description"
-        content="Upgrade Your Style with Cloth Shop. Discover premium luxury men's clothing, shirts, t-shirts, jeans, and accessories.">
+        content="OG Fashions brings elevated everyday style, sharp shirts, standout tees, and modern trousers curated for Hyderabad shoppers.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -192,11 +192,11 @@
                 onclick="scrollToTop()">
 
                 <img class="w-8 h-8 md:w-10 md:h-10 bg-luxury-black text-white rounded-full flex items-center justify-center font-serif font-bold text-lg md:text-xl tracking-wider"
-                    src="assets/images/logo.jpg" alt="">
+                    src="assets/images/og-logo.svg" alt="OG Fashions logo">
 
                 <div class="hidden sm:flex flex-col">
-                    <span class="font-serif font-bold text-lg tracking-widest uppercase leading-none">Cloth Shop</span>
-                    <span class="text-[10px] tracking-[0.3em] uppercase text-gray-500">Made By VenkyAzeem</span>
+                    <span class="font-serif font-bold text-lg tracking-widest uppercase leading-none" id="brand-name-nav">OG Fashions</span>
+                    <span class="text-[10px] tracking-[0.3em] uppercase text-gray-500" id="brand-tagline-nav">Signature styles from Hyderabad</span>
                 </div>
             </a>
 
@@ -205,7 +205,7 @@
                 <li><a href="#" class="hover:text-luxury-gold transition-colors">Home</a></li>
                 <li><a href="#categories" class="hover:text-luxury-gold transition-colors">Categories</a></li>
                 <li><a href="#shop" class="hover:text-luxury-gold transition-colors">Products</a></li>
-                <li><a href="#reviews" class="hover:text-luxury-gold transition-colors">Reviews</a></li>
+                <li><a href="#experience" class="hover:text-luxury-gold transition-colors">Experience</a></li>
                 <li><a href="#contact" class="hover:text-luxury-gold transition-colors">Contact</a></li>
             </ul>
 
@@ -270,7 +270,7 @@ Logout
         <div id="mobile-search-bar"
             class="search-expand absolute top-full left-0 w-full bg-white px-4 shadow-md sm:hidden z-30">
             <div class="relative">
-                <input type="text" id="mobile-search-input" placeholder="Search for shirts, jeans..."
+                <input type="text" id="mobile-search-input" placeholder="Search shirts, tees, trousers..."
                     class="w-full bg-gray-100 rounded-full py-3 px-5 pr-12 outline-none text-sm focus:ring-1 focus:ring-luxury-gold">
                 <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             </div>
@@ -286,9 +286,9 @@ Logout
         <div class="p-6 border-b flex justify-between items-center bg-luxury-beige">
             <div class="flex items-center gap-2">
                 <div
-                    class="w-8 h-8 bg-luxury-black text-white rounded-full flex items-center justify-center font-serif font-bold text-lg">
-                    S</div>
-                <span class="font-serif font-bold uppercase tracking-widest text-sm">Menu</span>
+                    class="w-8 h-8 bg-luxury-black text-white rounded-full flex items-center justify-center font-serif font-bold text-sm">
+                    OG</div>
+                <span class="font-serif font-bold uppercase tracking-widest text-sm">OG Fashions</span>
             </div>
             <button onclick="toggleMobileMenu()"
                 class="text-2xl w-10 h-10 flex items-center justify-end hover:text-luxury-gold transition"><i
@@ -300,18 +300,18 @@ Logout
                     class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Categories</a></li>
             <li><a href="#shop"
                     class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Products</a></li>
-            <li><a href="#reviews"
-                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Reviews</a></li>
+            <li><a href="#experience"
+                    class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Experience</a></li>
             <li><a href="#reels"
                     class="mobile-link block hover:text-luxury-gold border-b border-gray-100 pb-2">Instagram</a></li>
             <li><a href="#contact" class="mobile-link block hover:text-luxury-gold pb-2">Contact</a></li>
         </ul>
         <div class="mt-auto p-6 bg-gray-50 border-t">
             <div class="flex space-x-4">
-                <a href="#"
+                <a href="https://www.instagram.com/ogfashions" id="instagram-link-menu"
                     class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-luxury-black hover:text-luxury-gold"><i
                         class="fa-brands fa-instagram"></i></a>
-                <a href="#"
+                <a href="https://wa.me/917780139445"
                     class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-luxury-black hover:text-luxury-gold"><i
                         class="fa-brands fa-whatsapp"></i></a>
             </div>
@@ -383,24 +383,23 @@ Logout
         <section id="hero" class="relative h-[100svh] min-h-[500px] flex items-center justify-center overflow-hidden">
             <!-- Background Image -->
             <div class="absolute inset-0 z-0">
-                <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=2000&auto=format&fit=crop"
-                    alt="Premium Men's Fashion"
-                    class="w-full h-full object-cover object-center md:object-top filter brightness-[0.6]">
+                <img src="assets/images/products/og-shirt-2.svg"
+                    alt="OG Fashions hero visual"
+                    class="w-full h-full object-cover object-center md:object-center filter brightness-[0.45] scale-110">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,199,158,0.28),transparent_32%),linear-gradient(180deg,rgba(7,10,16,0.28),rgba(7,10,16,0.82))]"></div>
             </div>
 
             <div
                 class="relative z-10 text-center text-white px-4 w-full max-w-5xl mx-auto flex flex-col items-center mt-12 md:mt-0">
                 <span
-                    class="text-xs xs:text-sm md:text-base tracking-[0.3em] md:tracking-[0.4em] uppercase mb-3 md:mb-4 opacity-0 hero-el">Cloth
-                    Shop
-                    Fashion xyz</span>
+                    class="text-xs xs:text-sm md:text-base tracking-[0.3em] md:tracking-[0.4em] uppercase mb-3 md:mb-4 opacity-0 hero-el" id="hero-kicker">OG Fashions</span>
                 <h1
-                    class="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold mb-4 md:mb-6 leading-tight opacity-0 hero-el px-2">
-                    Upgrade Your <br class="hidden xs:block"> <span
-                        class="text-luxury-gold italic font-normal">Style</span>
+                    class="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold mb-4 md:mb-6 leading-tight opacity-0 hero-el px-2" id="hero-title">
+                    Own your <br class="hidden xs:block"> <span
+                        class="text-luxury-gold italic font-normal">everyday style</span>
                 </h1>
-                <p class="text-sm xs:text-base md:text-xl font-light mb-8 md:mb-10 max-w-2xl px-4 opacity-0 hero-el">
-                    Discover the pinnacle of luxury menswear. Curated collections for the modern gentleman.</p>
+                <p class="text-sm xs:text-base md:text-xl font-light mb-8 md:mb-10 max-w-2xl px-4 opacity-0 hero-el" id="hero-subtitle">
+                    Fresh catalog drops, elevated essentials, and standout fits curated for Hyderabad streetwear and occasion dressing.</p>
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto px-4 xs:px-8 sm:px-0 opacity-0 hero-el">
                     <a href="#shop"
                         class="bg-white text-luxury-black px-6 py-4 xs:px-8 w-full sm:w-auto uppercase tracking-widest text-xs md:text-sm font-semibold hover:bg-luxury-gold hover:text-white transition-colors duration-300 text-center">Shop
@@ -430,12 +429,12 @@ Logout
                     <!-- Category 1 -->
                     <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
                         onclick="filterByCategory('Shirts')">
-                        <img src="https://plus.unsplash.com/premium_photo-1683140435505-afb6f1738d11?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3VtbWVyJTIwb3V0Zml0fGVufDB8fDB8fHww"
+                        <img src="assets/images/products/og-shirt-1.svg"
                             alt="Shirts"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 transition-opacity">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Premium Shirts</h3>
+                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">OG Shirts</h3>
                             <span
                                 class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
                                 <i
@@ -444,13 +443,13 @@ Logout
                     </div>
                     <!-- Category 2 -->
                     <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('T-Shirts')">
-                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600&auto=format&fit=crop"
-                            alt="T-Shirts"
+                        onclick="filterByCategory('Tshirt')">
+                        <img src="assets/images/products/og-tshirt-1.svg"
+                            alt="OG Tees"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Luxury T-Shirts</h3>
+                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Graphic Tees</h3>
                             <span
                                 class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
                                 <i
@@ -459,13 +458,13 @@ Logout
                     </div>
                     <!-- Category 3 -->
                     <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
-                        onclick="filterByCategory('Jeans')">
-                        <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop"
-                            alt="Jeans"
+                        onclick="filterByCategory('Shirts')">
+                        <img src="assets/images/products/og-shirt-2.svg"
+                            alt="Overshirts"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Denim Jeans</h3>
+                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Street Shirts</h3>
                             <span
                                 class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
                                 <i
@@ -475,12 +474,12 @@ Logout
                     <!-- Category 4 -->
                     <div class="group relative h-[350px] md:h-[500px] overflow-hidden cursor-pointer category-card rounded-lg sm:rounded-none"
                         onclick="filterByCategory('Pants')">
-                        <img src="https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=600&auto=format&fit=crop"
+                        <img src="assets/images/products/og-pant-1.svg"
                             alt="Pants"
                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Chinos & Pants</h3>
+                            <h3 class="text-white font-serif text-2xl md:text-3xl mb-1 md:mb-2">Trousers & Pants</h3>
                             <span
                                 class="text-luxury-gold uppercase tracking-widest text-xs md:text-sm font-semibold group-hover:text-white transition-colors flex items-center gap-2">Explore
                                 <i
@@ -495,9 +494,9 @@ Logout
         <section id="shop" class="py-16 md:py-24 bg-white relative">
             <div class="container mx-auto px-4 md:px-8 max-w-[1440px]">
                 <div class="text-center mb-10 md:mb-16 section-header">
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">The Collection</h2>
+                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">The OG Collection</h2>
                     <p class="text-sm md:text-base text-gray-500 max-w-2xl mx-auto px-4">Explore our exclusive range of
-                        meticulously crafted menswear, designed for elegance and comfort.</p>
+                        elevated everyday fits, clean statement pieces, and modern essentials built for your next look.</p>
                 </div>
 
                 <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
@@ -546,23 +545,13 @@ Logout
                                         </label>
                                     </div>
                                     <div class="flex items-center">
-                                        <input type="radio" id="cat-tshirts" name="category" value="T-Shirts"
+                                        <input type="radio" id="cat-tshirt" name="category" value="Tshirt"
                                             class="hidden filter-radio" onchange="applyFilters()">
-                                        <label for="cat-tshirts"
+                                        <label for="cat-tshirt"
                                             class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
                                             <span
                                                 class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            T-Shirts
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="radio" id="cat-jeans" name="category" value="Jeans"
-                                            class="hidden filter-radio" onchange="applyFilters()">
-                                        <label for="cat-jeans"
-                                            class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
-                                            <span
-                                                class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            Jeans
+                                            Tees
                                         </label>
                                     </div>
                                     <div class="flex items-center">
@@ -572,7 +561,7 @@ Logout
                                             class="cursor-pointer text-sm md:text-base text-gray-600 hover:text-black transition-colors flex items-center gap-3">
                                             <span
                                                 class="w-4 h-4 border border-gray-400 rounded-full flex items-center justify-center radio-indicator"></span>
-                                            Pants
+                                            Trousers
                                         </label>
                                     </div>
                                 </div>
@@ -643,11 +632,10 @@ Logout
                 <div class="flex justify-between items-end mb-8 md:mb-12 section-header px-4 md:px-0">
                     <div>
                         <h2 class="text-3xl md:text-5xl font-serif font-bold mb-2">Style in Motion</h2>
-                        <p class="text-sm md:text-base text-gray-400 font-light">Follow us on Instagram <a
-                                href="https://www.instagram.com/Cloth Shop_fashion_xyz" class="text-luxury-gold">@Cloth
-                                Shop_fashion</a></p>
+                        <p class="text-sm md:text-base text-gray-400 font-light">Follow our latest looks and drops on Instagram <a
+                                href="https://www.instagram.com/ogfashions" id="instagram-link-inline" class="text-luxury-gold">@ogfashions</a></p>
                     </div>
-                    <a href="https://www.instagram.com/Cloth Shop_fashion_xyz"
+                    <a href="https://www.instagram.com/ogfashions" id="instagram-link-top"
                         class="hidden md:flex items-center gap-2 border border-white/30 px-6 py-2 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
                         <i class="fa-brands fa-instagram text-xl"></i> Follow Us
                     </a>
@@ -724,7 +712,7 @@ Logout
                     </div>
                 </div>
                 <div class="mt-8 text-center md:hidden px-4">
-                    <a href="https://www.instagram.com/Cloth Shop_fashion_xyz"
+                    <a href="https://www.instagram.com/ogfashions" id="instagram-link-mobile"
                         class="inline-flex items-center justify-center w-full gap-2 border border-white/30 px-6 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
                         <i class="fa-brands fa-instagram text-xl"></i> Follow on Instagram
                     </a>
@@ -732,128 +720,81 @@ Logout
             </div>
         </section>
 
-        <!-- Reviews Section -->
-        <section id="reviews" class="py-16 md:py-24 bg-white">
+        <!-- Experience Section -->
+        <section id="experience" class="py-16 md:py-24 bg-white">
             <div class="container mx-auto px-4 md:px-8 max-w-7xl">
                 <div class="text-center mb-10 md:mb-16 section-header">
-                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">Client Elegance</h2>
-                    <p class="text-sm md:text-base text-gray-500">What our gentlemen say about our collection.</p>
+                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-3 md:mb-4">Why OG Fashions Feels Different</h2>
+                    <p class="text-sm md:text-base text-gray-500">Built for shoppers who want a boutique look with a reliable local store experience.</p>
                 </div>
-
-                <div class="swiper reviews-slider pb-12">
-                    <div class="swiper-wrapper">
-                        <!-- Review 1 -->
-                        <div
-                            class="swiper-slide p-6 md:p-8 bg-luxury-beige rounded-lg border border-gray-100 relative h-auto">
-                            <i
-                                class="fa-solid fa-quote-right absolute top-4 right-4 md:top-6 md:right-8 text-3xl md:text-4xl text-luxury-gold/20"></i>
-                            <div class="flex text-luxury-gold mb-4 text-xs md:text-sm">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i>
-                            </div>
-                            <p class="font-serif text-base md:text-lg italic mb-6">"The fitting of the shirts is
-                                absolutely impeccable. It feels like bespoke tailoring. Cloth Shop has become my go-to
-                                for luxury wear."</p>
-                            <div class="flex items-center gap-3 md:gap-4 mt-auto">
-                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rahul S."
-                                    class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-bold text-sm md:text-base">Rahul Sharma</h4>
-                                    <span class="text-[10px] md:text-xs text-gray-500">Verified Buyer</span>
-                                </div>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
+                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
+                            <i class="fa-solid fa-shirt"></i>
                         </div>
-                        <!-- Review 2 -->
-                        <div
-                            class="swiper-slide p-6 md:p-8 bg-luxury-beige rounded-lg border border-gray-100 relative h-auto">
-                            <i
-                                class="fa-solid fa-quote-right absolute top-4 right-4 md:top-6 md:right-8 text-3xl md:text-4xl text-luxury-gold/20"></i>
-                            <div class="flex text-luxury-gold mb-4 text-xs md:text-sm">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star-half-stroke"></i>
-                            </div>
-                            <p class="font-serif text-base md:text-lg italic mb-6">"Bought a pair of denim and a blazer.
-                                The quality is simply outstanding. The fabric is breathable and clearly premium."</p>
-                            <div class="flex items-center gap-3 md:gap-4 mt-auto">
-                                <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="Vikram S."
-                                    class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-bold text-sm md:text-base">Vikram Singh</h4>
-                                    <span class="text-[10px] md:text-xs text-gray-500">Verified Buyer</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Review 3 -->
-                        <div
-                            class="swiper-slide p-6 md:p-8 bg-luxury-beige rounded-lg border border-gray-100 relative h-auto">
-                            <i
-                                class="fa-solid fa-quote-right absolute top-4 right-4 md:top-6 md:right-8 text-3xl md:text-4xl text-luxury-gold/20"></i>
-                            <div class="flex text-luxury-gold mb-4 text-xs md:text-sm">
-                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
-                                    class="fa-solid fa-star"></i>
-                            </div>
-                            <p class="font-serif text-base md:text-lg italic mb-6">"Exceptional customer service and
-                                beautiful packaging. Ordering on WhatsApp was seamless. The Chinos fit perfectly."</p>
-                            <div class="flex items-center gap-3 md:gap-4 mt-auto">
-                                <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="Aditya K."
-                                    class="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-bold text-sm md:text-base">Aditya Kumar</h4>
-                                    <span class="text-[10px] md:text-xs text-gray-500">Verified Buyer</span>
-                                </div>
-                            </div>
-                        </div>
+                        <h3 class="font-serif text-2xl mb-3">Original Style Direction</h3>
+                        <p class="text-gray-600 leading-7">OG Fashions is built around signature everyday pieces, clean silhouettes, and standout colors that feel current without becoming disposable.</p>
                     </div>
-                    <div class="swiper-pagination mt-6 md:mt-8"></div>
+                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
+                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl mb-3">Local Store, Real Support</h3>
+                        <p class="text-gray-600 leading-7">Customers can discover online and visit the Hyderabad store for fit checks, pickup coordination, and direct support from a real team.</p>
+                    </div>
+                    <div class="bg-luxury-beige rounded-2xl border border-gray-100 p-8">
+                        <div class="w-12 h-12 rounded-full bg-luxury-gold/15 text-luxury-gold flex items-center justify-center mb-5">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl mb-3">Ready to Scale</h3>
+                        <p class="text-gray-600 leading-7">The storefront is now moving toward a production path with admin-managed data, container-ready setup, and cleaner upgrade steps for future deployment.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="py-0 relative">
-            <div class="flex flex-col-reverse lg:flex-row">
-                <!-- Map -->
-                <div class="w-full lg:w-1/2 h-[300px] md:h-[400px] lg:h-[600px] bg-gray-200">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115206.57012351475!2d72.77526737525287!3d24.877864356494195!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3942ceb7f14b3017%3A0x64b0fce571113bba!2sxyz%2C%20Rajasthan%20307001!5e0!3m2!1sen!2sin!4v1709555123456!5m2!1sen!2sin"
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-                <!-- Info -->
-                <div
-                    class="w-full lg:w-1/2 bg-luxury-black text-white p-8 sm:p-12 md:p-16 lg:p-24 flex flex-col justify-center">
-                    <span
-                        class="text-luxury-gold tracking-[0.2em] md:tracking-[0.3em] uppercase text-xs md:text-sm mb-3 md:mb-4">Visit
-                        Our Boutique</span>
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif mb-8 md:mb-10 leading-tight">Experience
-                        Luxury <br class="hidden sm:block">In Person.</h2>
-
-                    <div class="space-y-6 md:space-y-8">
-                        <div class="flex items-start gap-3 md:gap-4">
-                            <i class="fa-solid fa-location-dot text-luxury-gold text-lg md:text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-base md:text-lg mb-1">Store Address</h4>
-                                <p class="text-gray-400 font-light text-sm md:text-base">Cloth Shop Fashion, Main
-                                    Market,<br>xyz, Rajasthan 307001, India</p>
-                            </div>
+        <section id="contact" class="py-16 md:py-24 bg-luxury-black text-white relative">
+            <div class="container mx-auto px-4 md:px-8 max-w-7xl">
+                <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-stretch">
+                    <div class="rounded-[2rem] overflow-hidden border border-white/10 bg-gradient-to-br from-white/8 to-transparent p-8 md:p-12">
+                        <span class="text-luxury-gold tracking-[0.2em] md:tracking-[0.3em] uppercase text-xs md:text-sm mb-3 md:mb-4 block">Visit OG Fashions</span>
+                        <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif mb-6 md:mb-8 leading-tight" id="contact-hero-title">Discover your next standout fit in person.</h2>
+                        <p class="text-gray-300 text-sm md:text-base leading-7 max-w-2xl">Explore our sharp everyday essentials, coordinate pickup or walk-ins, and stay connected with the OG Fashions store team directly from Hyderabad.</p>
+                        <div class="mt-8 md:mt-10 flex flex-wrap gap-3">
+                            <a href="tel:+917780139445" id="contact-phone-link" class="inline-flex items-center gap-2 border border-white/15 px-5 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
+                                <i class="fa-solid fa-phone"></i> Call Store
+                            </a>
+                            <a href="mailto:contact@ogfashions.com" id="contact-email-link" class="inline-flex items-center gap-2 border border-white/15 px-5 py-3 rounded-full hover:bg-white hover:text-black transition-colors text-sm">
+                                <i class="fa-solid fa-envelope"></i> Email Us
+                            </a>
                         </div>
-                        <div class="flex items-start gap-3 md:gap-4">
-                            <i class="fa-solid fa-clock text-luxury-gold text-lg md:text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-base md:text-lg mb-1">Opening Hours</h4>
-                                <p class="text-gray-400 font-light text-sm md:text-base">Monday - Saturday: 10:00 AM -
-                                    8:30 PM<br>Sunday: Closed</p>
+                    </div>
+                    <div class="bg-[#101828] rounded-[2rem] p-8 sm:p-10 md:p-12 flex flex-col justify-center border border-white/10">
+                        <div class="space-y-6 md:space-y-8">
+                            <div class="flex items-start gap-3 md:gap-4">
+                                <i class="fa-solid fa-location-dot text-luxury-gold text-lg md:text-xl mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-base md:text-lg mb-1">Store Address</h4>
+                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="store-address">OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.
+300030, India</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-start gap-3 md:gap-4">
-                            <i class="fa-solid fa-phone text-luxury-gold text-lg md:text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-base md:text-lg mb-1">Contact</h4>
-                                <p class="text-gray-400 font-light text-sm md:text-base">+91 4512857777<br>contact@Cloth
-                                    Shopfashion.com</p>
+                            <div class="flex items-start gap-3 md:gap-4">
+                                <i class="fa-solid fa-clock text-luxury-gold text-lg md:text-xl mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-base md:text-lg mb-1">Opening Hours</h4>
+                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="opening-hours">Monday - Saturday: 10:00 AM - 8:30 PM
+Sunday: Closed</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 md:gap-4">
+                                <i class="fa-solid fa-phone text-luxury-gold text-lg md:text-xl mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-base md:text-lg mb-1">Contact</h4>
+                                    <p class="text-gray-400 font-light text-sm md:text-base whitespace-pre-line" id="contact-details">+91 7780139445
+contact@ogfashions.com</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -871,18 +812,16 @@ Logout
                     <div class="flex items-center gap-2 mb-6">
                         <div
                             class="w-8 h-8 md:w-10 md:h-10 bg-white text-black rounded-full flex items-center justify-center font-serif font-bold text-lg md:text-xl tracking-wider">
-                            S
+                            OG
                         </div>
                         <div class="flex flex-col">
                             <span
-                                class="font-serif font-bold text-base md:text-lg tracking-widest uppercase leading-none">Cloth
-                                Shop</span>
+                                class="font-serif font-bold text-base md:text-lg tracking-widest uppercase leading-none" id="brand-name-footer">OG Fashions</span>
                         </div>
                     </div>
-                    <p class="text-gray-400 text-xs md:text-sm leading-relaxed mb-6">Redefining men's luxury fashion in
-                        xyz. Premium fabrics, tailored fits, and timeless elegance.</p>
+                    <p class="text-gray-400 text-xs md:text-sm leading-relaxed mb-6" id="brand-tagline-footer">Signature styles from Hyderabad with stronger fits, sharper color stories, and a boutique-first shopping experience.</p>
                     <div class="flex space-x-4">
-                        <a href="https://www.instagram.com/Cloth Shop_fashion_xyz"
+                        <a href="https://www.instagram.com/ogfashions" id="instagram-link-footer"
                             class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-luxury-gold hover:text-white transition-colors text-sm md:text-base"><i
                                 class="fa-brands fa-instagram"></i></a>
                         <a href="#"
@@ -899,7 +838,7 @@ Logout
                     <h4 class="font-serif text-lg md:text-xl mb-4 md:mb-6">Quick Links</h4>
                     <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-400">
                         <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">About Us</a></li>
-                        <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Our Story</a></li>
+                        <li><a href="#experience" class="hover:text-luxury-gold transition-colors block py-1">Why OG Fashions</a></li>
                         <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Size Guide</a></li>
                         <li><a href="#" class="hover:text-luxury-gold transition-colors block py-1">Shipping &
                                 Returns</a></li>
@@ -914,14 +853,12 @@ Logout
                     <ul class="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-400">
                         <li><a href="#" onclick="filterByCategory('Shirts'); return false;"
                                 class="hover:text-luxury-gold transition-colors block py-1">Premium Shirts</a></li>
-                        <li><a href="#" onclick="filterByCategory('T-Shirts'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Luxury T-Shirts</a></li>
-                        <li><a href="#" onclick="filterByCategory('Jeans'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Denim Collection</a></li>
+                        <li><a href="#" onclick="filterByCategory('Tshirt'); return false;"
+                                class="hover:text-luxury-gold transition-colors block py-1">Graphic & Solid Tees</a></li>
                         <li><a href="#" onclick="filterByCategory('Pants'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">Chinos & Trousers</a></li>
-                        <li><a href="#" onclick="filterByCategory('New Arrivals'); return false;"
-                                class="hover:text-luxury-gold transition-colors block py-1">New Arrivals</a></li>
+                                class="hover:text-luxury-gold transition-colors block py-1">Trousers & Bottoms</a></li>
+                        <li><a href="#reels"
+                                class="hover:text-luxury-gold transition-colors block py-1">Style in Motion</a></li>
                     </ul>
                 </div>
 
@@ -945,7 +882,7 @@ Logout
 
             <div
                 class="text-center text-gray-600 text-[10px] md:text-xs border-t border-white/10 pt-6 md:pt-8 mt-6 md:mt-8">
-                &copy; <span id="year"></span> Cloth Shop. All Rights Reserved. Designed for Luxury.
+                &copy; <span id="year"></span> <span id="brand-name-copyright">OG Fashions</span>. All Rights Reserved.
             </div>
         </div>
     </footer>
@@ -954,16 +891,18 @@ Logout
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script src="js/app-config.js"></script>
 
     <script>
         // --- DATA / DATABASE ---
-        const API_BASE = "http://localhost:8888/api";
+        const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
         let productsDB = [];
         let currentUser = JSON.parse(localStorage.getItem("user"));
+        let currentStoreSettings = null;
 
         function createProductViewModel(product) {
-            const image = product.image || "assets/images/products/shirt1.jpg";
-            const description = product.description || "Premium quality fashion essential from the Cloth Shop catalog.";
+            const image = product.image || "assets/images/products/og-shirt-1.svg";
+            const description = product.description || "Premium quality OG Fashions essential built for elevated everyday style.";
             const featureSource = description
                 .split(".")
                 .map(item => item.trim())
@@ -983,6 +922,61 @@ Logout
                 rating: product.rating || 4.6,
                 reviews: product.reviews || 124
             };
+        }
+
+        function applyStoreSettings(settings) {
+            currentStoreSettings = settings;
+            document.title = `${settings.brandName} | Elevated Everyday Style`;
+            document.querySelector('meta[name="description"]').setAttribute("content", settings.heroSubtitle);
+
+            const textTargets = {
+                "brand-name-nav": settings.brandName,
+                "brand-name-footer": settings.brandName,
+                "brand-name-copyright": settings.brandName,
+                "brand-tagline-nav": settings.tagline,
+                "brand-tagline-footer": settings.heroSubtitle,
+                "hero-kicker": settings.brandName,
+                "hero-title": settings.heroTitle,
+                "hero-subtitle": settings.heroSubtitle,
+                "store-address": settings.storeAddress,
+                "opening-hours": settings.openingHours,
+                "contact-details": `${settings.contactPhone}\n${settings.contactEmail}`
+            };
+
+            Object.entries(textTargets).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = value;
+                }
+            });
+
+            const phoneLink = document.getElementById("contact-phone-link");
+            if (phoneLink) {
+                phoneLink.href = `tel:${settings.contactPhone.replace(/\s+/g, "")}`;
+            }
+
+            const emailLink = document.getElementById("contact-email-link");
+            if (emailLink) {
+                emailLink.href = `mailto:${settings.contactEmail}`;
+            }
+
+            ["instagram-link-inline", "instagram-link-top", "instagram-link-mobile", "instagram-link-footer", "instagram-link-menu"].forEach((id) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.href = settings.instagramUrl || "#";
+                }
+            });
+        }
+
+        async function loadStoreSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/store-settings`);
+                if (!response.ok) return;
+                const settings = await response.json();
+                applyStoreSettings(settings);
+            } catch (error) {
+                console.error("Unable to load store settings", error);
+            }
         }
 
         async function loadProducts() {
@@ -1042,6 +1036,7 @@ if (currentUser) {
             updateCartUI();
             updateWishlistUI();
             renderRecentlyViewed();
+            loadStoreSettings();
             loadProducts();
             loadCart();
             // Navbar Scroll Effect
@@ -1214,17 +1209,6 @@ if (currentUser) {
                 }
             });
 
-            new Swiper('.reviews-slider', {
-                slidesPerView: 1,
-                spaceBetween: 20,
-                loop: true,
-                autoplay: { delay: 4000 },
-                pagination: { el: ".swiper-pagination", clickable: true },
-                breakpoints: {
-                    768: { slidesPerView: 2, spaceBetween: 24 },
-                    1024: { slidesPerView: 3, spaceBetween: 30 }
-                }
-            });
         }
 
         // --- PRODUCT GRID & FILTERS ---
@@ -1388,7 +1372,7 @@ if (currentUser) {
                             <div class="h-4 w-px bg-gray-300"></div>
                             <div class="flex items-center text-luxury-gold text-xs md:text-sm gap-2">
                                 <div>${generateStars(product.rating)}</div>
-                                <span class="text-gray-500 text-[10px] md:text-xs">(${product.reviews} reviews)</span>
+                                <span class="text-gray-500 text-[10px] md:text-xs">${product.reviews}+ style picks</span>
                             </div>
                         </div>
 
@@ -1488,7 +1472,7 @@ if (currentUser) {
             const qty = parseInt(document.getElementById('modal-qty').value);
             const product = productsDB.find(p => p.id === id);
 
-            let message = `Hello Cloth Shop Fashion! I would like to buy:\n\n`;
+            let message = `Hello OG Fashions! I would like to buy:\n\n`;
             message += `*${product.name}*\n`;
             message += `Quantity: ${qty}\n`;
             message += `Price: ${formatPrice(product.price * qty)}\n\n`;
@@ -1678,7 +1662,7 @@ if (currentUser) {
                 return;
             }
 
-            let message = `Hello Cloth Shop Fashion! I would like to place an order:\n\n`;
+            let message = `Hello OG Fashions! I would like to place an order:\n\n`;
             let total = 0;
 
             cart.forEach((item, index) => {

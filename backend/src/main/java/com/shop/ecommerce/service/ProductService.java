@@ -76,7 +76,7 @@ public class ProductService {
         product.setDescription(request.getDescription() == null ? "" : request.getDescription().trim());
         product.setPrice(request.getPrice());
         product.setImage(request.getImage() == null || request.getImage().isBlank()
-                ? "assets/images/products/shirt1.jpg"
+                ? "assets/images/products/og-shirt-1.svg"
                 : request.getImage().trim());
         product.setStock(request.getStock());
     }

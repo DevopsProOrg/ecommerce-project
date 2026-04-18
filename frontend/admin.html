@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | Cloth Shop</title>
+<title>Admin Dashboard | OG Fashions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
@@ -64,6 +64,7 @@ textarea { min-height: 120px; resize: vertical; }
     </div>
 
     <div class="grid">
+        <div style="display:grid; gap:24px;">
         <section class="card">
             <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px;">
                 <div>
@@ -110,6 +111,59 @@ textarea { min-height: 120px; resize: vertical; }
                 <div id="status" class="status"></div>
             </form>
         </section>
+
+        <section class="card">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px;">
+                <div>
+                    <h2 style="margin:0; font-family:'Playfair Display', serif;">Store settings</h2>
+                    <p class="muted" style="margin:6px 0 0;">Update the OG Fashions brand and contact details shown on the storefront.</p>
+                </div>
+            </div>
+
+            <form id="settings-form">
+                <div>
+                    <label for="settings-brand-name">Brand name</label>
+                    <input id="settings-brand-name" required>
+                </div>
+                <div>
+                    <label for="settings-tagline">Tagline</label>
+                    <input id="settings-tagline" required>
+                </div>
+                <div>
+                    <label for="settings-hero-title">Hero title</label>
+                    <input id="settings-hero-title" required>
+                </div>
+                <div>
+                    <label for="settings-hero-subtitle">Hero subtitle</label>
+                    <textarea id="settings-hero-subtitle" placeholder="Short storefront introduction" required></textarea>
+                </div>
+                <div>
+                    <label for="settings-address">Store address</label>
+                    <textarea id="settings-address" required></textarea>
+                </div>
+                <div>
+                    <label for="settings-hours">Opening hours</label>
+                    <textarea id="settings-hours" required></textarea>
+                </div>
+                <div>
+                    <label for="settings-phone">Contact phone</label>
+                    <input id="settings-phone" required>
+                </div>
+                <div>
+                    <label for="settings-email">Contact email</label>
+                    <input id="settings-email" type="email" required>
+                </div>
+                <div>
+                    <label for="settings-instagram">Instagram URL</label>
+                    <input id="settings-instagram">
+                </div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" id="settings-submit-btn" type="submit">Save storefront settings</button>
+                </div>
+                <div id="settings-status" class="status"></div>
+            </form>
+        </section>
+        </div>
 
         <section class="card">
             <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap;">

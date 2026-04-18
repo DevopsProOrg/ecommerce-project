@@ -7,10 +7,18 @@ const productsContainer = document.getElementById("products");
 const formMode = document.getElementById("form-mode");
 const submitButton = document.getElementById("submit-btn");
 const adminMeta = document.getElementById("admin-meta");
+const settingsForm = document.getElementById("settings-form");
+const settingsStatusElement = document.getElementById("settings-status");
+const settingsSubmitButton = document.getElementById("settings-submit-btn");
 
 function setStatus(message, type = "") {
     statusElement.textContent = message;
     statusElement.className = `status ${type}`.trim();
+}
+
+function setSettingsStatus(message, type = "") {
+    settingsStatusElement.textContent = message;
+    settingsStatusElement.className = `status ${type}`.trim();
 }
 
 function ensureAdmin() {
@@ -26,7 +34,7 @@ function ensureAdmin() {
 function resetForm() {
     form.reset();
     document.getElementById("product-id").value = "";
-    document.getElementById("image").value = "assets/images/products/shirt1.jpg";
+    document.getElementById("image").value = "assets/images/products/og-shirt-1.svg";
     formMode.textContent = "Create";
     submitButton.textContent = "Save product";
     setStatus("");
@@ -87,10 +95,28 @@ function renderProducts(products) {
     window.catalogProducts = products;
 }
 
+function fillSettingsForm(settings) {
+    document.getElementById("settings-brand-name").value = settings.brandName || "";
+    document.getElementById("settings-tagline").value = settings.tagline || "";
+    document.getElementById("settings-hero-title").value = settings.heroTitle || "";
+    document.getElementById("settings-hero-subtitle").value = settings.heroSubtitle || "";
+    document.getElementById("settings-address").value = settings.storeAddress || "";
+    document.getElementById("settings-hours").value = settings.openingHours || "";
+    document.getElementById("settings-phone").value = settings.contactPhone || "";
+    document.getElementById("settings-email").value = settings.contactEmail || "";
+    document.getElementById("settings-instagram").value = settings.instagramUrl || "";
+}
+
 async function loadProducts() {
     const response = await fetch(`${API_BASE}/products`);
     const products = await response.json();
     renderProducts(products);
+}
+
+async function loadStoreSettings() {
+    const response = await fetch(`${API_BASE}/store-settings`);
+    const settings = await response.json();
+    fillSettingsForm(settings);
 }
 
 function editProduct(id) {
@@ -157,6 +183,47 @@ async function saveProduct(event) {
     }
 }
 
+async function saveStoreSettings(event) {
+    event.preventDefault();
+
+    settingsSubmitButton.disabled = true;
+    setSettingsStatus("Saving storefront settings...");
+
+    try {
+        const response = await fetch(`${API_BASE}/store-settings`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                adminUserId: adminUser.id,
+                brandName: document.getElementById("settings-brand-name").value.trim(),
+                tagline: document.getElementById("settings-tagline").value.trim(),
+                heroTitle: document.getElementById("settings-hero-title").value.trim(),
+                heroSubtitle: document.getElementById("settings-hero-subtitle").value.trim(),
+                storeAddress: document.getElementById("settings-address").value.trim(),
+                openingHours: document.getElementById("settings-hours").value.trim(),
+                contactPhone: document.getElementById("settings-phone").value.trim(),
+                contactEmail: document.getElementById("settings-email").value.trim(),
+                instagramUrl: document.getElementById("settings-instagram").value.trim()
+            })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.message || "Unable to save store settings");
+        }
+
+        fillSettingsForm(data);
+        setSettingsStatus("Storefront settings updated successfully.", "success");
+    } catch (error) {
+        setSettingsStatus(error.message, "error");
+    } finally {
+        settingsSubmitButton.disabled = false;
+    }
+}
+
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("user");
     window.location.href = "login.html";
@@ -165,10 +232,14 @@ document.getElementById("logout-btn").addEventListener("click", () => {
 document.getElementById("refresh-btn").addEventListener("click", loadProducts);
 document.getElementById("reset-btn").addEventListener("click", resetForm);
 form.addEventListener("submit", saveProduct);
+settingsForm.addEventListener("submit", saveStoreSettings);
 
 if (ensureAdmin()) {
     resetForm();
     loadProducts().catch(() => {
         setStatus("Unable to load products. Make sure the backend is running.", "error");
+    });
+    loadStoreSettings().catch(() => {
+        setSettingsStatus("Unable to load storefront settings.", "error");
     });
 }
