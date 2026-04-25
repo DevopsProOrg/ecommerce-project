@@ -4,6 +4,7 @@ public class ContactRequestPayload {
 
     private String name;
     private String email;
+    private String subject;
     private String phone;
     private String orderId;
     private String issue;
@@ -22,6 +23,14 @@ public class ContactRequestPayload {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getPhone() {

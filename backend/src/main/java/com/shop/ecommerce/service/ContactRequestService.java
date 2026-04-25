@@ -2,19 +2,25 @@ package com.shop.ecommerce.service;
 
 import com.shop.ecommerce.dto.ContactRequestPayload;
 import com.shop.ecommerce.dto.ContactRequestResponse;
+import com.shop.ecommerce.dto.TicketArchiveRequest;
+import com.shop.ecommerce.dto.TicketResponseRequest;
 import com.shop.ecommerce.model.ContactRequest;
 import com.shop.ecommerce.model.StoreSettings;
 import com.shop.ecommerce.model.User;
 import com.shop.ecommerce.repository.ContactRequestRepository;
 import com.shop.ecommerce.repository.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ContactRequestService {
@@ -46,77 +52,247 @@ public class ContactRequestService {
         ContactRequest request = new ContactRequest();
         request.setName(requireValue(payload.getName(), "Name"));
         request.setEmail(requireEmail(payload.getEmail()));
+        request.setSubject(requireValue(payload.getSubject(), "Subject"));
         request.setPhone(normalizeOptional(payload.getPhone()));
         request.setOrderId(normalizeOptional(payload.getOrderId()));
         request.setIssue(requireValue(payload.getIssue(), "Issue details"));
-        request.setStatus("RECEIVED");
+        request.setStatus("NEW");
+        request.setPriority("MEDIUM");
+        request.setChannel("WEBSITE");
+        request.setArchived(false);
+        request.setAssigneeName("Support Desk");
         request.setEmailSent(false);
+        request.setCustomerEmailSent(false);
 
         ContactRequest saved = contactRequestRepository.save(request);
+        saved.setTicketNumber(formatTicketNumber(saved.getId()));
+        saved = contactRequestRepository.save(saved);
         StoreSettings settings = storeSettingsService.getSettings();
 
         if (mailEnabled) {
             try {
-                sendEmail(saved, settings);
+                sendStoreEmail(saved, settings);
+                sendCustomerAcknowledgement(saved, settings);
                 saved.setEmailSent(true);
-                saved.setStatus("EMAIL_SENT");
+                saved.setCustomerEmailSent(true);
+                saved.setStatus("NEW");
                 contactRequestRepository.save(saved);
-                return new ContactRequestResponse(saved.getId(), saved.getStatus(), true,
-                        "Your message was submitted and emailed successfully.");
-            } catch (MailException ex) {
-                saved.setStatus("EMAIL_FAILED");
+                return new ContactRequestResponse(saved.getId(), saved.getTicketNumber(), saved.getStatus(), true,
+                        "Support ticket " + saved.getTicketNumber() + " was created and emailed successfully.");
+            } catch (MailException | MessagingException ex) {
+                saved.setStatus("OPEN");
                 contactRequestRepository.save(saved);
-                throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                        "Your request was saved, but email sending failed. Check SMTP settings and try again.");
+                return new ContactRequestResponse(saved.getId(), saved.getTicketNumber(), saved.getStatus(), false,
+                        "Support ticket " + saved.getTicketNumber() + " was saved, but email sending failed. Check SMTP settings.");
             }
         }
 
-        saved.setStatus("SAVED_ONLY");
+        saved.setStatus("NEW");
         contactRequestRepository.save(saved);
-        return new ContactRequestResponse(saved.getId(), saved.getStatus(), false,
-                "Support request submitted successfully. It is saved in the admin inbox and ready for follow-up.");
+        return new ContactRequestResponse(saved.getId(), saved.getTicketNumber(), saved.getStatus(), false,
+                "Support ticket " + saved.getTicketNumber() + " was created and saved in the admin inbox.");
     }
 
-    public List<ContactRequest> listAll(Long adminUserId) {
+    public List<ContactRequest> listAll(Long adminUserId, String status, String priority, Boolean archived, String search) {
         validateAdmin(adminUserId);
+        String normalizedStatus = normalizeFilter(status);
+        String normalizedPriority = normalizeFilter(priority);
+        String normalizedSearch = normalizeSearch(search);
+        boolean includeArchived = archived != null && archived;
+
         return contactRequestRepository.findAll()
                 .stream()
+                .filter(request -> includeArchived || !request.isArchived())
+                .filter(request -> normalizedStatus == null || normalizedStatus.equalsIgnoreCase(request.getStatus()))
+                .filter(request -> normalizedPriority == null || normalizedPriority.equalsIgnoreCase(request.getPriority()))
+                .filter(request -> matchesSearch(request, normalizedSearch))
                 .sorted((left, right) -> right.getCreatedAt().compareTo(left.getCreatedAt()))
                 .toList();
     }
 
-    private void sendEmail(ContactRequest request, StoreSettings settings) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailFrom);
-        message.setTo(settings.getContactEmail());
-        message.setReplyTo(request.getEmail());
-        message.setSubject("OG Fashions contact request #" + request.getId());
-        message.setText(buildMessageBody(request, settings));
+    public ContactRequest respond(Long ticketId, TicketResponseRequest payload) {
+        validateAdmin(payload.getAdminUserId());
+        ContactRequest request = contactRequestRepository.findById(ticketId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
+
+        String nextStatus = normalizeStatus(payload.getStatus());
+        String nextPriority = normalizePriority(payload.getPriority());
+        String responseMessage = requireValue(payload.getResponseMessage(), "Response message");
+
+        request.setAdminReply(responseMessage);
+        request.setStatus(nextStatus);
+        request.setPriority(nextPriority == null ? request.getPriority() : nextPriority);
+        request.setAssigneeName(normalizeOptional(payload.getAssigneeName()).isBlank()
+                ? request.getAssigneeName()
+                : normalizeOptional(payload.getAssigneeName()));
+        request.setInternalNote(normalizeOptional(payload.getInternalNote()));
+        request.setArchived(false);
+        request.setLastRespondedAt(LocalDateTime.now());
+        StoreSettings settings = storeSettingsService.getSettings();
+        if (mailEnabled) {
+            try {
+                sendCustomerReply(request, responseMessage, settings);
+                request.setCustomerEmailSent(true);
+            } catch (MailException | MessagingException ex) {
+                request.setCustomerEmailSent(false);
+            }
+        }
+
+        return contactRequestRepository.save(request);
+    }
+
+    public ContactRequest archive(Long ticketId, TicketArchiveRequest payload) {
+        validateAdmin(payload.getAdminUserId());
+        ContactRequest request = contactRequestRepository.findById(ticketId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
+
+        request.setArchived(payload.isArchived());
+        if (payload.isArchived()) {
+            request.setStatus("CLOSED");
+        }
+        return contactRequestRepository.save(request);
+    }
+
+    private void sendStoreEmail(ContactRequest request, StoreSettings settings) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(mailFrom);
+        helper.setTo(settings.getContactEmail());
+        helper.setReplyTo(request.getEmail());
+        helper.setSubject(settings.getBrandName() + " support ticket " + request.getTicketNumber());
+        helper.setText(buildStoreTicketEmail(request, settings), true);
         mailSender.send(message);
     }
 
-    private String buildMessageBody(ContactRequest request, StoreSettings settings) {
+    private void sendCustomerAcknowledgement(ContactRequest request, StoreSettings settings) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(mailFrom);
+        helper.setTo(request.getEmail());
+        helper.setReplyTo(settings.getContactEmail());
+        helper.setSubject("Your " + settings.getBrandName() + " support ticket " + request.getTicketNumber());
+        helper.setText(buildCustomerTicketEmail(request, settings), true);
+        mailSender.send(message);
+    }
+
+    private void sendCustomerReply(ContactRequest request, String responseMessage, StoreSettings settings) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(mailFrom);
+        helper.setTo(request.getEmail());
+        helper.setReplyTo(settings.getContactEmail());
+        helper.setSubject("Update on ticket " + request.getTicketNumber() + " - " + settings.getBrandName());
+        helper.setText(buildCustomerReplyEmail(request, responseMessage, settings), true);
+        mailSender.send(message);
+    }
+
+    private String buildStoreTicketEmail(ContactRequest request, StoreSettings settings) {
         return """
-                New support request for %s
-
-                Request ID: %s
-                Customer Name: %s
-                Customer Email: %s
-                Customer Phone: %s
-                Order ID: %s
-
-                Issue Details:
-                %s
-
-                This message was sent from the OG Fashions contact form.
+                <div style="font-family:Arial,sans-serif;color:#172033;line-height:1.6;max-width:720px;margin:0 auto;">
+                  <div style="padding:24px;border:1px solid #e5e7eb;border-radius:20px;background:#ffffff;">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.12em;color:#b45309;text-transform:uppercase;">New Support Ticket</div>
+                    <h2 style="margin:8px 0 12px;font-size:28px;">%s</h2>
+                    <div style="margin-bottom:16px;padding:12px 14px;border-radius:14px;background:#f8fafc;">
+                      <strong>Ticket ID:</strong> %s<br>
+                      <strong>Status:</strong> %s<br>
+                      <strong>Priority:</strong> %s<br>
+                      <strong>Channel:</strong> %s<br>
+                      <strong>Customer:</strong> %s<br>
+                      <strong>Email:</strong> %s<br>
+                      <strong>Order ID:</strong> %s
+                    </div>
+                    <div style="margin-bottom:16px;">
+                      <strong>Subject</strong>
+                      <div>%s</div>
+                    </div>
+                    <div>
+                      <strong>Issue details</strong>
+                      <div style="white-space:pre-wrap;">%s</div>
+                    </div>
+                  </div>
+                </div>
                 """.formatted(
-                settings.getBrandName(),
-                request.getId(),
-                request.getName(),
-                request.getEmail(),
-                blankFallback(request.getPhone()),
-                blankFallback(request.getOrderId()),
-                request.getIssue()
+                escapeHtml(settings.getBrandName() + " customer support request"),
+                escapeHtml(request.getTicketNumber()),
+                escapeHtml(request.getStatus()),
+                escapeHtml(request.getPriority()),
+                escapeHtml(request.getChannel()),
+                escapeHtml(request.getName()),
+                escapeHtml(request.getEmail()),
+                escapeHtml(blankFallback(request.getOrderId())),
+                escapeHtml(request.getSubject()),
+                escapeHtml(request.getIssue())
+        );
+    }
+
+    private String buildCustomerTicketEmail(ContactRequest request, StoreSettings settings) {
+        return """
+                <div style="font-family:Arial,sans-serif;color:#172033;line-height:1.6;max-width:720px;margin:0 auto;">
+                  <div style="padding:24px;border:1px solid #e5e7eb;border-radius:20px;background:#ffffff;">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.12em;color:#1d4ed8;text-transform:uppercase;">Ticket Created</div>
+                    <h2 style="margin:8px 0 12px;font-size:28px;">Your support ticket is now live</h2>
+                    <p>Hello %s,</p>
+                    <p>We received your request and created ticket <strong>%s</strong>.</p>
+                    <div style="margin:16px 0;padding:12px 14px;border-radius:14px;background:#f8fafc;">
+                      <strong>Ticket ID:</strong> %s<br>
+                      <strong>Subject:</strong> %s<br>
+                      <strong>Priority:</strong> %s<br>
+                      <strong>Order ID:</strong> %s<br>
+                      <strong>Status:</strong> %s
+                    </div>
+                    <div style="margin-bottom:16px;white-space:pre-wrap;">%s</div>
+                    <p>You can reply to this email or contact us at <a href="mailto:%s">%s</a>.</p>
+                  </div>
+                </div>
+                """.formatted(
+                escapeHtml(request.getName()),
+                escapeHtml(request.getTicketNumber()),
+                escapeHtml(request.getTicketNumber()),
+                escapeHtml(request.getSubject()),
+                escapeHtml(request.getPriority()),
+                escapeHtml(blankFallback(request.getOrderId())),
+                escapeHtml(request.getStatus()),
+                escapeHtml(request.getIssue()),
+                escapeHtml(settings.getContactEmail()),
+                escapeHtml(settings.getContactEmail())
+        );
+    }
+
+    private String buildCustomerReplyEmail(ContactRequest request, String responseMessage, StoreSettings settings) {
+        return """
+                <div style="font-family:Arial,sans-serif;color:#172033;line-height:1.6;max-width:720px;margin:0 auto;">
+                  <div style="padding:24px;border:1px solid #e5e7eb;border-radius:20px;background:#ffffff;">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.12em;color:#1d4ed8;text-transform:uppercase;">Ticket Update</div>
+                    <h2 style="margin:8px 0 12px;font-size:28px;">Ticket %s has a new update</h2>
+                    <p>Hello %s,</p>
+                    <div style="margin:16px 0;padding:12px 14px;border-radius:14px;background:#f8fafc;">
+                      <strong>Status:</strong> %s<br>
+                      <strong>Priority:</strong> %s<br>
+                      <strong>Subject:</strong> %s<br>
+                      <strong>Order ID:</strong> %s
+                    </div>
+                    <div style="margin-bottom:16px;">
+                      <strong>Our response</strong>
+                      <div style="white-space:pre-wrap;">%s</div>
+                    </div>
+                    <div style="margin-bottom:16px;">
+                      <strong>Your original issue</strong>
+                      <div style="white-space:pre-wrap;">%s</div>
+                    </div>
+                    <p>For more help, email <a href="mailto:%s">%s</a>.</p>
+                  </div>
+                </div>
+                """.formatted(
+                escapeHtml(request.getTicketNumber()),
+                escapeHtml(request.getName()),
+                escapeHtml(request.getStatus()),
+                escapeHtml(request.getPriority()),
+                escapeHtml(request.getSubject()),
+                escapeHtml(blankFallback(request.getOrderId())),
+                escapeHtml(responseMessage),
+                escapeHtml(request.getIssue()),
+                escapeHtml(settings.getContactEmail()),
+                escapeHtml(settings.getContactEmail())
         );
     }
 
@@ -139,8 +315,70 @@ public class ContactRequestService {
         return value == null ? "" : value.trim();
     }
 
+    private String formatTicketNumber(Long id) {
+        return String.format(Locale.ENGLISH, "%04d-T-ID", id);
+    }
+
+    private String normalizeStatus(String value) {
+        String normalized = normalizeOptional(value).toUpperCase(Locale.ENGLISH);
+        if (normalized.isBlank()) {
+            return "PENDING";
+        }
+        return switch (normalized) {
+            case "NEW", "OPEN", "PENDING", "HOLD", "RESOLVED", "CLOSED" -> normalized;
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported ticket status");
+        };
+    }
+
+    private String normalizePriority(String value) {
+        String normalized = normalizeOptional(value).toUpperCase(Locale.ENGLISH);
+        if (normalized.isBlank()) {
+            return null;
+        }
+        return switch (normalized) {
+            case "LOW", "MEDIUM", "HIGH", "URGENT" -> normalized;
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported ticket priority");
+        };
+    }
+
+    private String normalizeFilter(String value) {
+        String normalized = normalizeOptional(value).toUpperCase(Locale.ENGLISH);
+        return normalized.isBlank() || "ALL".equals(normalized) ? null : normalized;
+    }
+
+    private String normalizeSearch(String value) {
+        String normalized = normalizeOptional(value).toLowerCase(Locale.ENGLISH);
+        return normalized.isBlank() ? null : normalized;
+    }
+
+    private boolean matchesSearch(ContactRequest request, String search) {
+        if (search == null) {
+            return true;
+        }
+        return containsIgnoreCase(request.getTicketNumber(), search)
+                || containsIgnoreCase(request.getName(), search)
+                || containsIgnoreCase(request.getEmail(), search)
+                || containsIgnoreCase(request.getSubject(), search)
+                || containsIgnoreCase(request.getOrderId(), search)
+                || containsIgnoreCase(request.getIssue(), search)
+                || containsIgnoreCase(request.getAssigneeName(), search);
+    }
+
+    private boolean containsIgnoreCase(String value, String search) {
+        return value != null && value.toLowerCase(Locale.ENGLISH).contains(search);
+    }
+
     private String blankFallback(String value) {
         return value == null || value.isBlank() ? "Not provided" : value;
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) return "";
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 
     private void validateAdmin(Long adminUserId) {

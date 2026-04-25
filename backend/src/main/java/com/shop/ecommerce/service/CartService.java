@@ -10,6 +10,7 @@ import com.shop.ecommerce.repository.ProductRepository;
 import com.shop.ecommerce.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -69,6 +70,7 @@ public class CartService {
         cartRepository.delete(item);
     }
 
+    @Transactional
     public void clearCart(Long userId) {
         validateUser(userId);
         cartRepository.deleteByUserId(userId);

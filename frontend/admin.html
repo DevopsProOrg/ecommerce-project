@@ -3,181 +3,415 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | OG Fashions</title>
+<title>Admin Desk | OG Fashions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root {
-    --bg: #07111f;
-    --card: rgba(10, 20, 36, 0.92);
-    --muted: #8ea0b5;
-    --text: #e8eef5;
-    --line: rgba(255,255,255,0.08);
-    --accent: #d8a56a;
-    --accent-2: #f0c58d;
-    --success: #84cc16;
-    --danger: #fb7185;
+:root{
+    --bg:#06101f;
+    --bg-2:#0b1730;
+    --panel:rgba(8,18,35,.88);
+    --panel-2:rgba(13,24,47,.92);
+    --card:rgba(255,255,255,.05);
+    --line:rgba(255,255,255,.09);
+    --text:#eef4ff;
+    --muted:#8ea0b8;
+    --accent:#ffb56b;
+    --accent-2:#ffd7ab;
+    --blue:#7dd3fc;
+    --green:#86efac;
+    --yellow:#fcd34d;
+    --rose:#fda4af;
+    --slate:#cbd5e1;
+    --shadow:0 30px 70px rgba(0,0,0,.28);
 }
-* { box-sizing: border-box; }
-body {
-    margin: 0;
-    font-family: "Inter", sans-serif;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+    margin:0;
+    font-family:"Inter",sans-serif;
+    color:var(--text);
     background:
-        radial-gradient(circle at top right, rgba(216, 165, 106, 0.18), transparent 28%),
-        radial-gradient(circle at bottom left, rgba(65, 105, 225, 0.12), transparent 32%),
-        linear-gradient(160deg, #020617, #0b1220 52%, #111827);
-    color: var(--text);
+        radial-gradient(circle at top right, rgba(255,181,107,.16), transparent 22%),
+        radial-gradient(circle at left 20%, rgba(125,211,252,.1), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(34,197,94,.08), transparent 26%),
+        linear-gradient(145deg,#030712,#08111f 42%,#111c33);
+    overflow-x:hidden;
 }
-.page { max-width: 1440px; margin: 0 auto; padding: 28px 20px 56px; }
-.topbar, .stats, .layout, .panel-grid, .field-grid, .inventory-grid { display: grid; gap: 18px; }
-.topbar { grid-template-columns: 1.2fr auto; align-items: start; margin-bottom: 22px; }
-.eyebrow { margin: 0 0 8px; color: var(--accent-2); font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; }
-.title { margin: 0; font-family: "Playfair Display", serif; font-size: clamp(2.1rem, 4vw, 3.4rem); }
-.subtle { color: var(--muted); line-height: 1.65; }
-.actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: end; }
-.btn, button, select, input, textarea { font: inherit; }
-.btn, button {
-    border: 0;
-    border-radius: 16px;
-    padding: 13px 18px;
-    cursor: pointer;
-    transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.04;
+    background:url("assets/images/og-logo.svg") center 130px/420px no-repeat;
+    mix-blend-mode:screen;
 }
-.btn:hover, button:hover { transform: translateY(-1px); }
-.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #111827; font-weight: 800; }
-.btn-secondary { background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--line); }
-.stats { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 20px; }
-.stat, .card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.24);
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.page{width:min(1380px,calc(100% - 88px));margin:0 auto;padding:26px 0 56px}
+.hero,.stats-grid,.workspace,.side-stack,.field-grid,.ticket-topline,.mail-grid,.queue-summary,.filter-bar,.catalog-grid{display:grid;gap:18px}
+.hero{grid-template-columns:minmax(0,1.25fr) auto;align-items:start;margin-bottom:22px}
+.hero-card,.surface,.ticket-card,.product-card,.stat-card{
+    border:1px solid var(--line);
+    border-radius:28px;
+    background:var(--panel);
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(16px);
 }
-.stat { padding: 18px 20px; }
-.stat .value { font-size: 1.9rem; font-weight: 800; margin-top: 8px; }
-.layout { grid-template-columns: 420px minmax(0, 1fr); align-items: start; }
-.panel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.card { padding: 22px; }
-.card h2 { margin: 0; font-size: 1.2rem; }
-.card-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 16px; }
-.pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(216, 165, 106, 0.14);
-    color: var(--accent-2);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 11px;
-    font-weight: 700;
+.hero-card{
+    padding:28px;
+    background:
+        radial-gradient(circle at top right, rgba(255,181,107,.18), transparent 28%),
+        linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
+        var(--panel-2);
 }
-form { display: grid; gap: 14px; }
-.field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; color: #c9d5e2; }
-input, textarea, select {
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: var(--text);
-    padding: 12px 14px;
+.eyebrow{
+    margin:0 0 10px;
+    color:var(--accent-2);
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.26em;
+    text-transform:uppercase;
 }
-textarea { min-height: 110px; resize: vertical; }
-input:focus, textarea:focus, select:focus { outline: 2px solid rgba(216, 165, 106, 0.28); border-color: var(--accent); }
-select option { color: #111827; }
-.status { min-height: 22px; font-size: 14px; }
-.status.error { color: var(--danger); }
-.status.success { color: var(--success); }
-.inventory-toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-.inventory-grid { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
-.product-card {
-    display: grid;
-    grid-template-rows: 220px auto;
-    overflow: hidden;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--line);
-    border-radius: 22px;
+.hero h1{
+    margin:0;
+    font-family:"Playfair Display",serif;
+    font-size:clamp(2.3rem,4vw,3.7rem);
+    line-height:1.02;
 }
-.product-card img { width: 100%; height: 220px; object-fit: cover; background: #f5f5f5; }
-.product-body { padding: 18px; display: grid; gap: 14px; }
-.row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
-.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; color: var(--muted); font-size: 13px; }
-.meta-box { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
-.product-actions { display: flex; gap: 10px; }
-.compact { font-size: 13px; color: var(--muted); }
-.switch-row { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; background: rgba(255,255,255,0.04); }
-.switch-row input { width: auto; margin: 0; }
-.support-grid { display: grid; gap: 14px; }
-.support-item { padding: 16px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
-.support-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 10px; }
-@media (max-width: 1180px) {
-    .layout, .panel-grid { grid-template-columns: 1fr; }
+.subtle{color:var(--muted);line-height:1.7}
+.hero-copy{max-width:860px}
+.hero-strip{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:18px;
 }
-@media (max-width: 860px) {
-    .topbar { grid-template-columns: 1fr; }
-    .actions { justify-content: start; }
-    .stats, .field-grid { grid-template-columns: 1fr; }
+.hero-pill,.mini-pill,.status-pill,.priority-pill,.mail-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+}
+.hero-pill{background:rgba(255,181,107,.14);color:var(--accent-2)}
+.mini-pill{background:rgba(125,211,252,.12);color:var(--blue)}
+.hero-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+.btn{
+    border:1px solid transparent;
+    border-radius:16px;
+    padding:13px 18px;
+    transition:transform .2s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 18px 30px rgba(0,0,0,.18)}
+.btn-primary{
+    background:linear-gradient(135deg,var(--accent),#ffc88d);
+    color:#111827;
+    font-weight:800;
+}
+.btn-secondary{
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+    border-color:var(--line);
+}
+.btn-danger{
+    background:rgba(244,63,94,.12);
+    color:#fecdd3;
+    border-color:rgba(244,63,94,.22);
+}
+.stats-grid{
+    grid-template-columns:repeat(8,minmax(0,1fr));
+    margin-bottom:22px;
+}
+.stat-card{padding:18px 18px 16px}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.stat-value{margin-top:10px;font-size:1.95rem;font-weight:800}
+.stat-note{margin-top:6px;font-size:12px;color:var(--muted)}
+.workspace{grid-template-columns:minmax(350px,430px) minmax(0,1fr);align-items:start}
+.side-stack{grid-template-columns:1fr}
+.surface{padding:22px}
+.surface h2{margin:0;font-size:1.2rem}
+.surface-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:18px;
+}
+.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+form{display:grid;gap:14px}
+label{display:grid;gap:8px;font-size:13px;font-weight:700;color:#d4dfec}
+input,select,textarea{
+    width:100%;
+    padding:13px 14px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.11);
+    background:rgba(255,255,255,.05);
+    color:var(--text);
+}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{
+    outline:2px solid rgba(255,181,107,.2);
+    border-color:rgba(255,181,107,.45);
+}
+select option{color:#111827}
+.status{min-height:20px;font-size:14px}
+.status.success{color:var(--green)}
+.status.error{color:var(--rose)}
+.switch-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:13px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+}
+.switch-row input{width:auto;margin:0}
+.guide-stack{display:grid;gap:12px}
+.guide-card,.meta-box{
+    padding:14px 15px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+}
+.guide-card strong,.meta-box strong{display:block;color:#fff;margin-bottom:6px}
+.queue-shell{margin-top:22px}
+.queue-head{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:16px;
+    align-items:end;
+    margin-bottom:18px;
+}
+.queue-head h2{
+    margin:0;
+    font-family:"Playfair Display",serif;
+    font-size:clamp(2rem,3.5vw,3rem);
+}
+.queue-summary{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:18px}
+.queue-card{
+    padding:16px 18px;
+    border-radius:22px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+}
+.queue-card .value{margin-top:8px;font-size:1.55rem;font-weight:800}
+.filter-bar{
+    grid-template-columns:1.1fr repeat(3,minmax(0,180px)) auto auto;
+    align-items:end;
+    margin-bottom:18px;
+}
+.filter-toggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+}
+.filter-toggle input{width:auto;margin:0}
+.support-grid{display:grid;gap:16px}
+.ticket-card{
+    padding:20px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+        var(--panel);
+}
+.ticket-topline{grid-template-columns:1.4fr auto;align-items:start;margin-bottom:14px}
+.ticket-id{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-2)}
+.ticket-title{margin:8px 0 6px;font-size:1.1rem;font-weight:800}
+.ticket-sub{color:var(--muted);font-size:13px}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.status-pill{background:rgba(59,130,246,.12);color:#bfdbfe}
+.status-new{background:rgba(34,197,94,.12);color:#bbf7d0}
+.status-open{background:rgba(59,130,246,.12);color:#bfdbfe}
+.status-pending{background:rgba(245,158,11,.14);color:#fde68a}
+.status-hold{background:rgba(168,85,247,.14);color:#e9d5ff}
+.status-resolved{background:rgba(34,197,94,.14);color:#86efac}
+.status-closed{background:rgba(148,163,184,.16);color:#e2e8f0}
+.priority-low{background:rgba(148,163,184,.16);color:#e2e8f0}
+.priority-medium{background:rgba(59,130,246,.12);color:#bfdbfe}
+.priority-high{background:rgba(245,158,11,.14);color:#fde68a}
+.priority-urgent{background:rgba(244,63,94,.14);color:#fecdd3}
+.priority-unset{background:rgba(148,163,184,.12);color:#cbd5e1}
+.mail-ok{background:rgba(34,197,94,.14);color:#bbf7d0}
+.mail-fail{background:rgba(244,63,94,.14);color:#fecdd3}
+.ticket-panels{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:16px;
+    margin-top:14px;
+}
+.panel-stack{display:grid;gap:12px}
+.mail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mail-box,.info-box{
+    padding:14px;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.06);
+}
+.label-line{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}
+.value-line{margin-top:6px;font-size:14px;line-height:1.6;word-break:break-word}
+.ticket-actions{
+    display:grid;
+    gap:12px;
+}
+.ticket-actions textarea{min-height:96px}
+.ticket-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ticket-action-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+.empty-state{
+    padding:28px;
+    border-radius:24px;
+    border:1px dashed rgba(255,255,255,.12);
+    background:rgba(255,255,255,.03);
+    color:var(--muted);
+}
+.inventory-shell{margin-top:22px}
+.inventory-head{display:flex;justify-content:space-between;gap:14px;align-items:end;margin-bottom:18px}
+.catalog-grid{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.product-card{
+    overflow:hidden;
+    display:grid;
+    grid-template-rows:220px auto;
+    background:rgba(255,255,255,.04);
+}
+.product-card img{width:100%;height:220px;object-fit:cover;background:#f8fafc}
+.product-body{padding:18px;display:grid;gap:14px}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.product-actions{display:flex;gap:10px;flex-wrap:wrap}
+.compact{font-size:13px;color:var(--muted)}
+@media (max-width:1280px){
+    .stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .queue-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .filter-bar{grid-template-columns:1fr repeat(2,minmax(0,180px));}
+}
+@media (max-width:1080px){
+    .workspace,.ticket-panels,.hero,.queue-head{grid-template-columns:1fr}
+    .hero-actions{justify-content:flex-start}
+}
+@media (max-width:860px){
+    .page{width:min(100% - 24px,1380px)}
+    .stats-grid,.field-grid,.ticket-form-grid,.mail-grid,.queue-summary,.filter-bar{grid-template-columns:1fr}
+    .ticket-topline{grid-template-columns:1fr}
+    .pill-row{justify-content:flex-start}
+}
+@media (max-width:640px){
+    body::before{background-size:250px;background-position:center 220px}
+    .hero-card,.surface,.ticket-card,.stat-card{padding:18px}
+    .hero h1{font-size:2.1rem}
+    .inventory-head,.surface-head,.row{flex-direction:column;align-items:flex-start}
+    .btn{width:100%;text-align:center;justify-content:center}
+    .hero-actions,.product-actions,.ticket-action-row{display:grid;grid-template-columns:1fr}
+}
+</style>
+<style>
+html{font-size:15px}
+body{font-size:.96rem}
+.page{width:min(1020px,calc(100% - 220px));margin:0 auto;padding:24px 0 56px}
+.hero-card,.surface,.ticket-card,.product-card,.stat-card{
+    border-radius:26px;
+    box-shadow:0 24px 58px rgba(0,0,0,.22);
+}
+.btn{
+    min-height:40px;
+    padding:8px 14px;
+    border-radius:14px;
+    font-size:.9rem;
+    font-weight:800;
+}
+.hero h1{font-size:clamp(1.75rem,2.6vw,2.5rem)}
+.surface h2{font-size:1rem}
+.stat-value{font-size:1.45rem}
+.stat-label,.stat-note,.eyebrow{font-size:11px}
+input,select,textarea{
+    min-height:40px;
+    padding:8px 11px;
+    border-radius:13px;
+    font-size:.93rem;
+}
+textarea{min-height:98px}
+.btn-primary{
+    background:linear-gradient(135deg,#ffbd74,#ffcf92);
+}
+.btn-secondary{
+    background:rgba(255,255,255,.06);
+    border-color:rgba(255,255,255,.10);
+}
+.surface,.ticket-card,.hero-card{backdrop-filter:blur(18px)}
+@media (max-width:900px){
+    html{font-size:14px}
+    .page{width:min(100% - 56px,1020px)}
+}
+@media (max-width:640px){
+    .page{width:min(100% - 24px,1240px)}
+    .btn{min-height:40px;font-size:13px}
 }
 </style>
 </head>
 <body>
 <div class="page">
-    <div class="topbar">
-        <div>
-            <p class="eyebrow">OG Fashions Marketplace Admin</p>
-            <h1 class="title">Catalog and storefront control center</h1>
-            <p class="subtle" id="admin-meta">Checking admin session...</p>
+    <section class="hero">
+        <div class="hero-card">
+            <p class="eyebrow">OG Fashions Admin Command Center</p>
+            <div class="hero-copy">
+                <h1>Marketplace control, support tickets, and customer mail in one responsive desk.</h1>
+                <p id="admin-meta" class="subtle">Checking admin session...</p>
+            </div>
+            <div class="hero-strip">
+                <span class="hero-pill">Ticket desk</span>
+                <span class="hero-pill">Store settings</span>
+                <span class="hero-pill">Catalog operations</span>
+            </div>
         </div>
-        <div class="actions">
+        <div class="hero-actions">
             <a class="btn btn-secondary" href="index.html">Open storefront</a>
-            <button id="refresh-btn" class="btn btn-secondary" type="button">Refresh catalog</button>
+            <button id="refresh-btn" class="btn btn-secondary" type="button">Refresh workspace</button>
             <button id="logout-btn" class="btn btn-primary" type="button">Logout</button>
         </div>
-    </div>
+    </section>
 
-    <div class="stats">
-        <div class="stat">
-            <div class="compact">Total products</div>
-            <div class="value" id="stat-products">0</div>
-        </div>
-        <div class="stat">
-            <div class="compact">Featured items</div>
-            <div class="value" id="stat-featured">0</div>
-        </div>
-        <div class="stat">
-            <div class="compact">Low stock items</div>
-            <div class="value" id="stat-low-stock">0</div>
-        </div>
-        <div class="stat">
-            <div class="compact">Categories live</div>
-            <div class="value" id="stat-categories">0</div>
-        </div>
-        <div class="stat">
-            <div class="compact">Support requests</div>
-            <div class="value" id="stat-support">0</div>
-        </div>
-    </div>
+    <section class="stats-grid">
+        <article class="stat-card"><div class="stat-label">Total products</div><div class="stat-value" id="stat-products">0</div><div class="stat-note">Live catalog items</div></article>
+        <article class="stat-card"><div class="stat-label">Featured</div><div class="stat-value" id="stat-featured">0</div><div class="stat-note">Homepage priority cards</div></article>
+        <article class="stat-card"><div class="stat-label">Low stock</div><div class="stat-value" id="stat-low-stock">0</div><div class="stat-note">Needs restock soon</div></article>
+        <article class="stat-card"><div class="stat-label">Categories</div><div class="stat-value" id="stat-categories">0</div><div class="stat-note">Distinct shopper lanes</div></article>
+        <article class="stat-card"><div class="stat-label">Tickets visible</div><div class="stat-value" id="stat-support">0</div><div class="stat-note">Current filtered queue</div></article>
+        <article class="stat-card"><div class="stat-label">Open work</div><div class="stat-value" id="stat-open-work">0</div><div class="stat-note">New, open, pending, hold</div></article>
+        <article class="stat-card"><div class="stat-label">Resolved</div><div class="stat-value" id="stat-resolved">0</div><div class="stat-note">Handled by support</div></article>
+        <article class="stat-card"><div class="stat-label">Urgent</div><div class="stat-value" id="stat-urgent">0</div><div class="stat-note">High-priority attention</div></article>
+    </section>
 
-    <div class="layout">
-        <section class="card">
-            <div class="card-head">
+    <section class="workspace">
+        <section class="surface">
+            <div class="surface-head">
                 <div>
-                    <h2>Marketplace product form</h2>
-                    <p class="subtle" style="margin:8px 0 0;">Add fashion, watches, pouches, bags, wallets, or any new sellable item with richer product metadata.</p>
+                    <h2>Marketplace product composer</h2>
+                    <p class="subtle" style="margin:8px 0 0;">Create or edit products with richer storefront content for apparel, accessories, gifting, and lifestyle inventory.</p>
                 </div>
-                <span id="form-mode" class="pill">Create</span>
+                <span id="form-mode" class="mini-pill">Create</span>
             </div>
 
             <form id="product-form">
                 <input id="product-id" type="hidden">
-                <label>
-                    Product name
-                    <input id="name" required>
-                </label>
-
+                <label>Product name<input id="name" required></label>
                 <div class="field-grid">
                     <label>
                         Category
@@ -189,99 +423,37 @@ select option { color: #111827; }
                             <option value="Lifestyle">Lifestyle</option>
                         </select>
                     </label>
-                    <label>
-                        Subcategory
-                        <input id="subcategory" placeholder="Watches, Mobile Pouches, Shirts" required>
-                    </label>
+                    <label>Subcategory<input id="subcategory" placeholder="Shirts, Watches, Wallets" required></label>
                 </div>
-
                 <div class="field-grid">
-                    <label>
-                        Brand
-                        <input id="brand" value="OG Fashions" required>
-                    </label>
-                    <label>
-                        SKU
-                        <input id="sku" placeholder="OG-ACC-WATCH-011">
-                    </label>
+                    <label>Brand<input id="brand" value="OG Fashions" required></label>
+                    <label>SKU<input id="sku" placeholder="OG-FSH-001"></label>
                 </div>
-
-                <label>
-                    Product description
-                    <textarea id="description" placeholder="Write a clear product description" required></textarea>
-                </label>
-
-                <label>
-                    Highlights
-                    <input id="highlights" placeholder="Comma separated highlights for quick bullets">
-                </label>
-
+                <label>Product description<textarea id="description" placeholder="Clear product story for shoppers" required></textarea></label>
+                <label>Highlights<input id="highlights" placeholder="Comma separated shopper highlights"></label>
                 <div class="field-grid">
-                    <label>
-                        Badge
-                        <input id="badge" placeholder="Best Seller, New Arrival, Limited Stock">
-                    </label>
-                    <label>
-                        Image path
-                        <input id="image" placeholder="assets/images/products/og-marketplace-style-1.svg" required>
-                    </label>
+                    <label>Badge<input id="badge" placeholder="Best Seller, Flash Deal"></label>
+                    <label>Image path<input id="image" placeholder="assets/images/products/og-marketplace-style-1.svg" required></label>
                 </div>
-
                 <div class="field-grid">
-                    <label>
-                        Selling price
-                        <input id="price" type="number" min="1" step="0.01" required>
-                    </label>
-                    <label>
-                        Original price
-                        <input id="original-price" type="number" min="1" step="0.01">
-                    </label>
+                    <label>Selling price<input id="price" type="number" min="1" step="0.01" required></label>
+                    <label>Original price<input id="original-price" type="number" min="1" step="0.01"></label>
                 </div>
-
                 <div class="field-grid">
-                    <label>
-                        Stock
-                        <input id="stock" type="number" min="0" step="1" required>
-                    </label>
-                    <label>
-                        Rating
-                        <input id="rating" type="number" min="0" max="5" step="0.1" placeholder="4.5">
-                    </label>
+                    <label>Stock<input id="stock" type="number" min="0" step="1" required></label>
+                    <label>Rating<input id="rating" type="number" min="0" max="5" step="0.1" placeholder="4.5"></label>
                 </div>
-
                 <div class="field-grid">
-                    <label>
-                        Review count
-                        <input id="review-count" type="number" min="0" step="1" placeholder="0">
-                    </label>
-                    <label>
-                        Color
-                        <input id="color" placeholder="Ivory, Black, Tan">
-                    </label>
+                    <label>Review count<input id="review-count" type="number" min="0" step="1" placeholder="0"></label>
+                    <label>Color<input id="color" placeholder="Black, Ivory, Tan"></label>
                 </div>
-
                 <div class="field-grid">
-                    <label>
-                        Material
-                        <input id="material" placeholder="Cotton, Vegan leather, Alloy">
-                    </label>
-                    <label>
-                        Size or fit info
-                        <input id="size-info" placeholder="S / M / L or One size">
-                    </label>
+                    <label>Material<input id="material" placeholder="Cotton, Alloy, Vegan leather"></label>
+                    <label>Size / fit<input id="size-info" placeholder="Standard fit, One size"></label>
                 </div>
-
-                <label>
-                    Delivery info
-                    <input id="delivery-info" placeholder="Ships across India in 3-5 business days.">
-                </label>
-
-                <label class="switch-row">
-                    <input id="featured" type="checkbox">
-                    <span>Mark as featured product on storefront</span>
-                </label>
-
-                <div class="actions" style="justify-content:start;">
+                <label>Delivery info<input id="delivery-info" placeholder="Ships across India in 3-5 business days."></label>
+                <label class="switch-row"><input id="featured" type="checkbox"><span>Mark as featured on the storefront</span></label>
+                <div class="hero-actions" style="justify-content:flex-start;">
                     <button class="btn btn-primary" id="submit-btn" type="submit">Save product</button>
                     <button class="btn btn-secondary" id="reset-btn" type="button">Reset form</button>
                 </div>
@@ -289,104 +461,106 @@ select option { color: #111827; }
             </form>
         </section>
 
-        <div class="panel-grid">
-            <section class="card">
-                <div class="card-head">
+        <div class="side-stack">
+            <section class="surface">
+                <div class="surface-head">
                     <div>
-                        <h2>Storefront settings</h2>
-                        <p class="subtle" style="margin:8px 0 0;">Update messaging, announcement copy, and contact details without editing HTML.</p>
+                        <h2>Storefront settings and contact routing</h2>
+                        <p class="subtle" style="margin:8px 0 0;">Keep the shopper messaging clean while routing every order and ticket through your Gmail inbox.</p>
                     </div>
                 </div>
-
                 <form id="settings-form">
-                    <label>
-                        Brand name
-                        <input id="settings-brand-name" required>
-                    </label>
-                    <label>
-                        Tagline
-                        <input id="settings-tagline" required>
-                    </label>
-                    <label>
-                        Announcement bar
-                        <input id="settings-announcement-bar" required>
-                    </label>
-                    <label>
-                        Hero title
-                        <input id="settings-hero-title" required>
-                    </label>
-                    <label>
-                        Hero subtitle
-                        <textarea id="settings-hero-subtitle" required></textarea>
-                    </label>
-                    <label>
-                        Featured message
-                        <textarea id="settings-featured-message" required></textarea>
-                    </label>
-                    <label>
-                        Store address
-                        <textarea id="settings-address" required></textarea>
-                    </label>
-                    <label>
-                        Opening hours
-                        <textarea id="settings-hours" required></textarea>
-                    </label>
-                    <div class="field-grid">
-                        <label>
-                            Contact phone
-                            <input id="settings-phone" required>
-                        </label>
-                        <label>
-                            Contact email
-                            <input id="settings-email" type="email" required>
-                        </label>
-                    </div>
-                    <label>
-                        Instagram URL
-                        <input id="settings-instagram">
-                    </label>
-                    <div class="actions" style="justify-content:start;">
+                    <label>Brand name<input id="settings-brand-name"></label>
+                    <label>Tagline<input id="settings-tagline"></label>
+                    <label>Announcement bar<input id="settings-announcement-bar"></label>
+                    <label>Hero title<input id="settings-hero-title"></label>
+                    <label>Hero subtitle<textarea id="settings-hero-subtitle"></textarea></label>
+                    <label>Featured message<textarea id="settings-featured-message"></textarea></label>
+                    <label>Store address<textarea id="settings-address"></textarea></label>
+                    <label>Opening hours<textarea id="settings-hours"></textarea></label>
+                    <label>Contact email<input id="settings-email" type="email" required></label>
+                    <label>Instagram URL<input id="settings-instagram"></label>
+                    <div class="hero-actions" style="justify-content:flex-start;">
                         <button class="btn btn-primary" id="settings-submit-btn" type="submit">Save storefront settings</button>
                     </div>
                     <div id="settings-status" class="status"></div>
                 </form>
             </section>
 
-            <section class="card">
-                <div class="card-head">
+            <section class="surface">
+                <div class="surface-head">
                     <div>
-                        <h2>Catalog guidance</h2>
-                        <p class="subtle" style="margin:8px 0 0;">A few org-style rules to keep the marketplace clean as you scale.</p>
+                        <h2>Admin operating notes</h2>
+                        <p class="subtle" style="margin:8px 0 0;">A cleaner workflow for a growing marketplace and support operation.</p>
                     </div>
                 </div>
-                <div class="subtle" style="display:grid; gap:14px;">
-                    <div class="meta-box"><strong style="color:#fff;">Use categories broadly</strong><br>Keep `Fashion`, `Accessories`, `Lifestyle`, and future categories broad, then use subcategory for the exact product family.</div>
-                    <div class="meta-box"><strong style="color:#fff;">Keep SKU stable</strong><br>SKU should stay unique even if the title changes. This helps later when we add orders and reporting.</div>
-                    <div class="meta-box"><strong style="color:#fff;">Write highlights for cards</strong><br>Short comma-separated highlights become bullets in the shopper UI and make each item feel more realistic.</div>
-                    <div class="meta-box"><strong style="color:#fff;">Use featured items carefully</strong><br>Featured products are shown more prominently, so use them for hero launches or high-conversion products.</div>
+                <div class="guide-stack">
+                    <div class="guide-card"><strong>Ticket flow</strong>New issues enter as <code>NEW</code>, then move to <code>OPEN</code>, <code>PENDING</code>, <code>HOLD</code>, <code>RESOLVED</code>, or <code>CLOSED</code> as you work them.</div>
+                    <div class="guide-card"><strong>Archive instead of hard delete</strong>Older tickets can be archived out of the main queue while still staying in the database for audit and follow-up.</div>
+                    <div class="guide-card"><strong>Mail visibility</strong>The desk now shows both the customer email address and the configured store inbox so you can verify who received what.</div>
+                    <div class="guide-card"><strong>Product hygiene</strong>Use subcategory, SKU, and highlights consistently to keep the storefront cards and popup details polished.</div>
                 </div>
             </section>
         </div>
-    </div>
+    </section>
 
-    <section class="card" style="margin-top:22px;">
-        <div class="inventory-toolbar">
+    <section class="queue-shell surface">
+        <div class="queue-head">
             <div>
-                <h2>Support inbox</h2>
-                <p class="subtle" style="margin:8px 0 0;">Every support form submission is stored here even if mail delivery is not configured yet.</p>
+                <p class="eyebrow" style="margin-bottom:6px;">Support Operations</p>
+                <h2>Realtime incident and support ticket desk</h2>
+                <p class="subtle" style="margin:10px 0 0;">Filter the queue, reply from one place, track outgoing customer and store emails, and archive older tickets without losing the records.</p>
             </div>
         </div>
+
+        <div class="queue-summary">
+            <div class="queue-card"><div class="stat-label">New</div><div class="value" id="stat-ticket-new">0</div></div>
+            <div class="queue-card"><div class="stat-label">Open</div><div class="value" id="stat-ticket-open">0</div></div>
+            <div class="queue-card"><div class="stat-label">Pending / Hold</div><div class="value" id="stat-ticket-pending">0</div></div>
+            <div class="queue-card"><div class="stat-label">Closed / Resolved</div><div class="value" id="stat-ticket-closed">0</div></div>
+            <div class="queue-card"><div class="stat-label">Archived</div><div class="value" id="stat-ticket-archived">0</div></div>
+        </div>
+
+        <div class="filter-bar">
+            <label>Search tickets<input id="ticket-search" placeholder="Search by ticket ID, order ID, customer, email, subject"></label>
+            <label>
+                Status
+                <select id="ticket-status-filter">
+                    <option value="ALL">All statuses</option>
+                    <option value="NEW">New</option>
+                    <option value="OPEN">Open</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="HOLD">Hold</option>
+                    <option value="RESOLVED">Resolved</option>
+                    <option value="CLOSED">Closed</option>
+                </select>
+            </label>
+            <label>
+                Priority
+                <select id="ticket-priority-filter">
+                    <option value="ALL">All priorities</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                    <option value="URGENT">Urgent</option>
+                </select>
+            </label>
+            <label class="filter-toggle"><input id="ticket-archive-filter" type="checkbox"><span>Show archived tickets</span></label>
+            <button id="ticket-apply-btn" class="btn btn-secondary" type="button">Apply filters</button>
+            <button id="ticket-reset-filters-btn" class="btn btn-secondary" type="button">Reset</button>
+        </div>
+
         <div id="support-requests" class="support-grid"></div>
     </section>
 
-    <section class="card" style="margin-top:22px;">
-        <div class="inventory-toolbar">
+    <section class="inventory-shell surface">
+        <div class="inventory-head">
             <div>
-                <h2>Live inventory</h2>
-                <p class="subtle" style="margin:8px 0 0;">Database-backed products currently available in the storefront catalog.</p>
+                <h2>Live catalog inventory</h2>
+                <p class="subtle" style="margin:8px 0 0;">Products currently backing the storefront catalog cards and product detail popup.</p>
             </div>
         </div>
-        <div id="products" class="inventory-grid"></div>
+        <div id="products" class="catalog-grid"></div>
     </section>
 </div>
 <script src="js/app-config.js"></script>

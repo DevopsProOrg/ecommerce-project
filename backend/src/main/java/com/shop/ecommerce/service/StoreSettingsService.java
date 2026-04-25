@@ -23,24 +23,25 @@ public class StoreSettingsService {
     }
 
     public StoreSettings getSettings() {
-        return storeSettingsRepository.findById(SETTINGS_ID)
+        StoreSettings settings = storeSettingsRepository.findById(SETTINGS_ID)
                 .orElseGet(this::createDefaultSettings);
+        return normalizeStoredSettings(settings);
     }
 
     public StoreSettings updateSettings(StoreSettingsRequest request) {
         validateAdmin(request.getAdminUserId());
 
         StoreSettings settings = getSettings();
-        settings.setBrandName(requireValue(request.getBrandName(), "Brand name"));
-        settings.setTagline(requireValue(request.getTagline(), "Tagline"));
-        settings.setAnnouncementBar(requireValue(request.getAnnouncementBar(), "Announcement bar"));
-        settings.setHeroTitle(requireValue(request.getHeroTitle(), "Hero title"));
-        settings.setHeroSubtitle(requireValue(request.getHeroSubtitle(), "Hero subtitle"));
-        settings.setFeaturedMessage(requireValue(request.getFeaturedMessage(), "Featured message"));
-        settings.setContactPhone(requireValue(request.getContactPhone(), "Contact phone"));
-        settings.setContactEmail(requireValue(request.getContactEmail(), "Contact email"));
-        settings.setStoreAddress(requireValue(request.getStoreAddress(), "Store address"));
-        settings.setOpeningHours(requireValue(request.getOpeningHours(), "Opening hours"));
+        settings.setBrandName(resolveRequired(request.getBrandName(), settings.getBrandName(), "Brand name"));
+        settings.setTagline(resolveRequired(request.getTagline(), settings.getTagline(), "Tagline"));
+        settings.setAnnouncementBar(resolveRequired(request.getAnnouncementBar(), settings.getAnnouncementBar(), "Announcement bar"));
+        settings.setHeroTitle(resolveRequired(request.getHeroTitle(), settings.getHeroTitle(), "Hero title"));
+        settings.setHeroSubtitle(resolveRequired(request.getHeroSubtitle(), settings.getHeroSubtitle(), "Hero subtitle"));
+        settings.setFeaturedMessage(resolveRequired(request.getFeaturedMessage(), settings.getFeaturedMessage(), "Featured message"));
+        settings.setContactPhone(normalizeOptional(request.getContactPhone()));
+        settings.setContactEmail(resolveRequired(request.getContactEmail(), settings.getContactEmail(), "Contact email"));
+        settings.setStoreAddress(resolveRequired(request.getStoreAddress(), settings.getStoreAddress(), "Store address"));
+        settings.setOpeningHours(resolveRequired(request.getOpeningHours(), settings.getOpeningHours(), "Opening hours"));
         settings.setInstagramUrl(normalizeOptional(request.getInstagramUrl()));
 
         return storeSettingsRepository.save(settings);
@@ -55,12 +56,30 @@ public class StoreSettingsService {
         settings.setHeroTitle("Build your lifestyle catalog with OG Fashions.");
         settings.setHeroSubtitle("Sell fashion, accessories, watches, mobile pouches, and curated everyday essentials from one modern storefront backed by Spring Boot and MySQL.");
         settings.setFeaturedMessage("Launch apparel drops, accessory collections, and gifting picks from one admin-managed marketplace.");
-        settings.setContactPhone("+91 7780139445");
-        settings.setContactEmail("contact@ogfashions.com");
+        settings.setContactPhone("");
+        settings.setContactEmail("contact.ogfashions@gmail.com");
         settings.setStoreAddress("OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India");
         settings.setOpeningHours("Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed");
         settings.setInstagramUrl("https://www.instagram.com/ogfashions");
         return storeSettingsRepository.save(settings);
+    }
+
+    private StoreSettings normalizeStoredSettings(StoreSettings settings) {
+        boolean changed = false;
+        if (settings.getContactEmail() == null
+                || settings.getContactEmail().isBlank()
+                || "contact@ogfashions.com".equalsIgnoreCase(settings.getContactEmail())) {
+            settings.setContactEmail("contact.ogfashions@gmail.com");
+            changed = true;
+        }
+        if (settings.getContactPhone() == null) {
+            settings.setContactPhone("");
+            changed = true;
+        }
+        if (changed) {
+            return storeSettingsRepository.save(settings);
+        }
+        return settings;
     }
 
     private void validateAdmin(Long adminUserId) {
@@ -81,6 +100,13 @@ public class StoreSettingsService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, label + " is required");
         }
         return value.trim();
+    }
+
+    private String resolveRequired(String candidate, String currentValue, String label) {
+        if (candidate != null && !candidate.isBlank()) {
+            return candidate.trim();
+        }
+        return requireValue(currentValue, label);
     }
 
     private String normalizeOptional(String value) {
