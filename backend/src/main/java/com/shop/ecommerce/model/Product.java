@@ -44,6 +44,10 @@ public class Product {
 
     private String deliveryInfo;
 
+    private Boolean deliveryChargeEnabled;
+
+    private Double deliveryChargeAmount;
+
     private Double rating;
 
     private Integer reviewCount;

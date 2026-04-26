@@ -4,6 +4,7 @@ public class RegisterRequest {
 
     private String name;
     private String email;
+    private String mobile;
     private String password;
 
     public String getName() {
@@ -28,5 +29,13 @@ public class RegisterRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 }

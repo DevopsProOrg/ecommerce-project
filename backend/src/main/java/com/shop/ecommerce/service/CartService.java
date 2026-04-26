@@ -95,6 +95,8 @@ public class CartService {
         response.setImage(product.getImage());
         response.setStock(product.getStock());
         response.setQuantity(item.getQuantity());
+        response.setDeliveryChargeEnabled(Boolean.TRUE.equals(product.getDeliveryChargeEnabled()));
+        response.setDeliveryChargeAmount(product.getDeliveryChargeAmount() == null ? 0.0 : product.getDeliveryChargeAmount());
         return response;
     }
 }

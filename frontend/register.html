@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register | OG Fashions</title>
+<link rel="icon" href="assets/images/og-logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
@@ -91,6 +92,21 @@ label {
     font-size: 13px;
     font-weight: 600;
     color: #475569;
+}
+
+.field-help {
+    min-height: 18px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.field-help.error {
+    color: #b91c1c;
+}
+
+.field-help.success {
+    color: #166534;
 }
 
 input {
@@ -189,6 +205,12 @@ button{
             <div>
                 <label for="email">Email address</label>
                 <input id="email" name="email" type="email" placeholder="name@example.com" required>
+                <div id="email-help" class="field-help"></div>
+            </div>
+            <div>
+                <label for="mobile">Mobile number</label>
+                <input id="mobile" name="mobile" type="tel" placeholder="Enter your mobile number" required>
+                <div id="mobile-help" class="field-help"></div>
             </div>
             <div>
                 <label for="password">Password</label>

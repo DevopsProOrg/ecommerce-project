@@ -11,6 +11,8 @@ public class CartItemResponse {
     private String image;
     private Integer stock;
     private Integer quantity;
+    private Boolean deliveryChargeEnabled;
+    private Double deliveryChargeAmount;
 
     public Long getId() {
         return id;
@@ -82,5 +84,21 @@ public class CartItemResponse {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public Boolean getDeliveryChargeEnabled() {
+        return deliveryChargeEnabled;
+    }
+
+    public void setDeliveryChargeEnabled(Boolean deliveryChargeEnabled) {
+        this.deliveryChargeEnabled = deliveryChargeEnabled;
+    }
+
+    public Double getDeliveryChargeAmount() {
+        return deliveryChargeAmount;
+    }
+
+    public void setDeliveryChargeAmount(Double deliveryChargeAmount) {
+        this.deliveryChargeAmount = deliveryChargeAmount;
     }
 }

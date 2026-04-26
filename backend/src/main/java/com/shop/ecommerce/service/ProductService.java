@@ -74,6 +74,13 @@ public class ProductService {
         if (request.getOriginalPrice() != null && request.getOriginalPrice() < request.getPrice()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Original price must be greater than or equal to price");
         }
+        if (Boolean.TRUE.equals(request.getDeliveryChargeEnabled())
+                && (request.getDeliveryChargeAmount() == null || request.getDeliveryChargeAmount() < 0)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery charge amount is required when delivery charge is enabled");
+        }
+        if (request.getDeliveryChargeAmount() != null && request.getDeliveryChargeAmount() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery charge cannot be negative");
+        }
         if (request.getRating() != null && (request.getRating() < 0 || request.getRating() > 5)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rating must be between 0 and 5");
         }
@@ -99,6 +106,10 @@ public class ProductService {
         product.setMaterial(normalizeOptional(request.getMaterial()));
         product.setSizeInfo(normalizeOptional(request.getSizeInfo()));
         product.setDeliveryInfo(normalizeOptional(request.getDeliveryInfo(), "Ships across India in 3-5 business days."));
+        product.setDeliveryChargeEnabled(Boolean.TRUE.equals(request.getDeliveryChargeEnabled()));
+        product.setDeliveryChargeAmount(Boolean.TRUE.equals(request.getDeliveryChargeEnabled())
+                ? (request.getDeliveryChargeAmount() == null ? 0.0 : request.getDeliveryChargeAmount())
+                : 0.0);
         product.setRating(request.getRating() == null ? 4.4 : request.getRating());
         product.setReviewCount(request.getReviewCount() == null ? 0 : request.getReviewCount());
         product.setFeatured(Boolean.TRUE.equals(request.getFeatured()));

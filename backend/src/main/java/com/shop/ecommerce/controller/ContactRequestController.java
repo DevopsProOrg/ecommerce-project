@@ -3,10 +3,13 @@ package com.shop.ecommerce.controller;
 import com.shop.ecommerce.dto.ContactRequestPayload;
 import com.shop.ecommerce.dto.ContactRequestResponse;
 import com.shop.ecommerce.dto.TicketArchiveRequest;
+import com.shop.ecommerce.dto.TicketBulkActionRequest;
 import com.shop.ecommerce.dto.TicketResponseRequest;
 import com.shop.ecommerce.model.ContactRequest;
 import com.shop.ecommerce.service.ContactRequestService;
 import java.util.List;
+import java.util.Map;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,5 +63,22 @@ public class ContactRequestController {
     @PutMapping("/{ticketId}/archive")
     public ContactRequest archive(@PathVariable Long ticketId, @RequestBody TicketArchiveRequest request) {
         return contactRequestService.archive(ticketId, request);
+    }
+
+    @PutMapping("/bulk/archive")
+    public List<ContactRequest> archiveBulk(@RequestBody TicketBulkActionRequest request) {
+        return contactRequestService.archiveBulk(request);
+    }
+
+    @DeleteMapping("/{ticketId}")
+    public Map<String, Object> delete(@PathVariable Long ticketId, @RequestParam Long adminUserId) {
+        contactRequestService.delete(ticketId, adminUserId);
+        return Map.of("deleted", true, "ticketId", ticketId);
+    }
+
+    @DeleteMapping("/bulk")
+    public Map<String, Object> deleteBulk(@RequestBody TicketBulkActionRequest request) {
+        int deletedCount = contactRequestService.deleteBulk(request);
+        return Map.of("deleted", true, "deletedCount", deletedCount);
     }
 }

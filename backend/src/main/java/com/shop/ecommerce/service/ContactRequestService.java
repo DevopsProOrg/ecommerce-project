@@ -3,6 +3,7 @@ package com.shop.ecommerce.service;
 import com.shop.ecommerce.dto.ContactRequestPayload;
 import com.shop.ecommerce.dto.ContactRequestResponse;
 import com.shop.ecommerce.dto.TicketArchiveRequest;
+import com.shop.ecommerce.dto.TicketBulkActionRequest;
 import com.shop.ecommerce.dto.TicketResponseRequest;
 import com.shop.ecommerce.model.ContactRequest;
 import com.shop.ecommerce.model.StoreSettings;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactRequestService {
@@ -151,6 +154,48 @@ public class ContactRequestService {
             request.setStatus("CLOSED");
         }
         return contactRequestRepository.save(request);
+    }
+
+    public List<ContactRequest> archiveBulk(TicketBulkActionRequest payload) {
+        Long adminUserId = payload == null ? null : payload.getAdminUserId();
+        validateAdmin(adminUserId);
+        List<Long> ticketIds = requireTicketIds(payload == null ? null : payload.getTicketIds());
+        boolean archived = payload.getArchived() != null && payload.getArchived();
+
+        List<ContactRequest> requests = contactRequestRepository.findAllById(ticketIds);
+        if (requests.size() != ticketIds.size()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more tickets could not be found");
+        }
+
+        requests.forEach(request -> {
+            request.setArchived(archived);
+            if (archived) {
+                request.setStatus("CLOSED");
+            }
+        });
+        return contactRequestRepository.saveAll(requests);
+    }
+
+    public void delete(Long ticketId, Long adminUserId) {
+        validateAdmin(adminUserId);
+        if (!contactRequestRepository.existsById(ticketId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found");
+        }
+        contactRequestRepository.deleteById(ticketId);
+    }
+
+    public int deleteBulk(TicketBulkActionRequest payload) {
+        Long adminUserId = payload == null ? null : payload.getAdminUserId();
+        validateAdmin(adminUserId);
+        List<Long> ticketIds = requireTicketIds(payload == null ? null : payload.getTicketIds());
+        Set<Long> requestedIds = ticketIds.stream().collect(Collectors.toSet());
+        List<ContactRequest> requests = contactRequestRepository.findAllById(ticketIds);
+        Set<Long> foundIds = requests.stream().map(ContactRequest::getId).collect(Collectors.toSet());
+        if (!foundIds.containsAll(requestedIds)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more tickets could not be found");
+        }
+        contactRequestRepository.deleteAll(requests);
+        return requests.size();
     }
 
     private void sendStoreEmail(ContactRequest request, StoreSettings settings) throws MessagingException {
@@ -362,6 +407,16 @@ public class ContactRequestService {
                 || containsIgnoreCase(request.getOrderId(), search)
                 || containsIgnoreCase(request.getIssue(), search)
                 || containsIgnoreCase(request.getAssigneeName(), search);
+    }
+
+    private List<Long> requireTicketIds(List<Long> ticketIds) {
+        if (ticketIds == null || ticketIds.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Select at least one ticket");
+        }
+        return ticketIds.stream()
+                .filter(id -> id != null && id > 0)
+                .distinct()
+                .toList();
     }
 
     private boolean containsIgnoreCase(String value, String search) {

@@ -858,6 +858,14 @@ function setFormStatus(message, type) {
 }
 
 function setupContactForm() {
+    const supportPrefill = JSON.parse(localStorage.getItem("og_support_prefill") || "null");
+    if (supportPrefill) {
+        document.getElementById("contact-name").value = supportPrefill.name || "";
+        document.getElementById("contact-email").value = supportPrefill.email || "";
+        document.getElementById("contact-order-id").value = supportPrefill.orderId || "";
+        localStorage.removeItem("og_support_prefill");
+    }
+
     document.getElementById("contact-form").addEventListener("submit", async (event) => {
         event.preventDefault();
         const submitButton = document.getElementById("contact-submit-btn");

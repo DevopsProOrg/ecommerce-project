@@ -3,6 +3,8 @@ const AUTH_API = `${(window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "ht
 const form = document.getElementById("auth-form");
 const statusElement = document.getElementById("status");
 const submitButton = document.getElementById("submit-btn");
+const emailHelp = document.getElementById("email-help");
+const mobileHelp = document.getElementById("mobile-help");
 
 function setStatus(message, type = "") {
     if (!statusElement) {
@@ -17,6 +19,47 @@ function getMode() {
     return window.location.pathname.endsWith("register.html") ? "register" : "login";
 }
 
+function setFieldHelp(element, message, type = "") {
+    if (!element) return;
+    element.textContent = message;
+    element.className = `field-help ${type}`.trim();
+}
+
+async function checkAvailability() {
+    if (getMode() !== "register") {
+        return;
+    }
+
+    const email = document.getElementById("email").value.trim();
+    const mobile = document.getElementById("mobile").value.trim();
+    if (!email && !mobile) {
+        setFieldHelp(emailHelp, "");
+        setFieldHelp(mobileHelp, "");
+        return;
+    }
+
+    try {
+        const params = new URLSearchParams();
+        if (email) params.set("email", email);
+        if (mobile) params.set("mobile", mobile);
+
+        const response = await fetch(`${AUTH_API}/availability?${params.toString()}`);
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            return;
+        }
+
+        if (email) {
+            setFieldHelp(emailHelp, data.emailMessage || "", data.emailExists ? "error" : "success");
+        }
+        if (mobile) {
+            setFieldHelp(mobileHelp, data.mobileMessage || "", data.mobileExists ? "error" : "success");
+        }
+    } catch (error) {
+        // Keep registration flow usable even if availability check is temporarily unavailable.
+    }
+}
+
 async function handleSubmit(event) {
     event.preventDefault();
 
@@ -28,6 +71,7 @@ async function handleSubmit(event) {
 
     if (mode === "register") {
         payload.name = document.getElementById("name").value.trim();
+        payload.mobile = document.getElementById("mobile").value.trim();
     }
 
     submitButton.disabled = true;
@@ -71,4 +115,12 @@ async function handleSubmit(event) {
 
 if (form) {
     form.addEventListener("submit", handleSubmit);
+}
+
+if (emailHelp) {
+    document.getElementById("email").addEventListener("blur", checkAvailability);
+}
+
+if (mobileHelp) {
+    document.getElementById("mobile").addEventListener("blur", checkAvailability);
 }

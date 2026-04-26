@@ -14,6 +14,10 @@ public class StoreSettingsRequest {
     private String storeAddress;
     private String openingHours;
     private String instagramUrl;
+    private String paymentQrImageUrl;
+    private String paymentUpiId;
+    private String paymentInstructions;
+    private Boolean cashOnDeliveryEnabled;
 
     public Long getAdminUserId() {
         return adminUserId;
@@ -109,5 +113,37 @@ public class StoreSettingsRequest {
 
     public void setInstagramUrl(String instagramUrl) {
         this.instagramUrl = instagramUrl;
+    }
+
+    public String getPaymentQrImageUrl() {
+        return paymentQrImageUrl;
+    }
+
+    public void setPaymentQrImageUrl(String paymentQrImageUrl) {
+        this.paymentQrImageUrl = paymentQrImageUrl;
+    }
+
+    public String getPaymentUpiId() {
+        return paymentUpiId;
+    }
+
+    public void setPaymentUpiId(String paymentUpiId) {
+        this.paymentUpiId = paymentUpiId;
+    }
+
+    public String getPaymentInstructions() {
+        return paymentInstructions;
+    }
+
+    public void setPaymentInstructions(String paymentInstructions) {
+        this.paymentInstructions = paymentInstructions;
+    }
+
+    public Boolean getCashOnDeliveryEnabled() {
+        return cashOnDeliveryEnabled;
+    }
+
+    public void setCashOnDeliveryEnabled(Boolean cashOnDeliveryEnabled) {
+        this.cashOnDeliveryEnabled = cashOnDeliveryEnabled;
     }
 }

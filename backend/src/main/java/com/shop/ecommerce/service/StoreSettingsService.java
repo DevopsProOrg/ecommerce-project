@@ -43,6 +43,10 @@ public class StoreSettingsService {
         settings.setStoreAddress(resolveRequired(request.getStoreAddress(), settings.getStoreAddress(), "Store address"));
         settings.setOpeningHours(resolveRequired(request.getOpeningHours(), settings.getOpeningHours(), "Opening hours"));
         settings.setInstagramUrl(normalizeOptional(request.getInstagramUrl()));
+        settings.setPaymentQrImageUrl(normalizeOptional(request.getPaymentQrImageUrl()));
+        settings.setPaymentUpiId(normalizeOptional(request.getPaymentUpiId(), "contact.ogfashions@upi"));
+        settings.setPaymentInstructions(normalizeOptional(request.getPaymentInstructions(), "Scan the QR code, complete the payment, and enter your payment reference before placing the order."));
+        settings.setCashOnDeliveryEnabled(request.getCashOnDeliveryEnabled() == null || request.getCashOnDeliveryEnabled());
 
         return storeSettingsRepository.save(settings);
     }
@@ -61,19 +65,75 @@ public class StoreSettingsService {
         settings.setStoreAddress("OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India");
         settings.setOpeningHours("Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed");
         settings.setInstagramUrl("https://www.instagram.com/ogfashions");
+        settings.setPaymentQrImageUrl("");
+        settings.setPaymentUpiId("contact.ogfashions@upi");
+        settings.setPaymentInstructions("Scan the QR code, complete the payment, and enter your payment reference before placing the order.");
+        settings.setCashOnDeliveryEnabled(true);
         return storeSettingsRepository.save(settings);
     }
 
     private StoreSettings normalizeStoredSettings(StoreSettings settings) {
         boolean changed = false;
+        if (settings.getBrandName() == null || settings.getBrandName().isBlank()) {
+            settings.setBrandName("OG Fashions");
+            changed = true;
+        }
+        if (settings.getTagline() == null || settings.getTagline().isBlank()) {
+            settings.setTagline("Signature styles from Hyderabad.");
+            changed = true;
+        }
+        if (settings.getAnnouncementBar() == null || settings.getAnnouncementBar().isBlank()) {
+            settings.setAnnouncementBar("New arrivals, flash sales, fashion essentials, watches, pouches, and gifting picks shipped across India.");
+            changed = true;
+        }
+        if (settings.getHeroTitle() == null || settings.getHeroTitle().isBlank()) {
+            settings.setHeroTitle("Own your everyday style with OG Fashions.");
+            changed = true;
+        }
+        if (settings.getHeroSubtitle() == null || settings.getHeroSubtitle().isBlank()) {
+            settings.setHeroSubtitle("Fresh catalog drops and elevated essentials for Hyderabad shoppers.");
+            changed = true;
+        }
+        if (settings.getFeaturedMessage() == null || settings.getFeaturedMessage().isBlank()) {
+            settings.setFeaturedMessage("Sharper product browsing with richer filters and quick detail views.");
+            changed = true;
+        }
         if (settings.getContactEmail() == null
                 || settings.getContactEmail().isBlank()
                 || "contact@ogfashions.com".equalsIgnoreCase(settings.getContactEmail())) {
             settings.setContactEmail("contact.ogfashions@gmail.com");
             changed = true;
         }
+        if (settings.getStoreAddress() == null || settings.getStoreAddress().isBlank()) {
+            settings.setStoreAddress("OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India");
+            changed = true;
+        }
+        if (settings.getOpeningHours() == null || settings.getOpeningHours().isBlank()) {
+            settings.setOpeningHours("Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed");
+            changed = true;
+        }
         if (settings.getContactPhone() == null) {
             settings.setContactPhone("");
+            changed = true;
+        }
+        if (settings.getInstagramUrl() == null) {
+            settings.setInstagramUrl("");
+            changed = true;
+        }
+        if (settings.getPaymentQrImageUrl() == null) {
+            settings.setPaymentQrImageUrl("");
+            changed = true;
+        }
+        if (settings.getPaymentUpiId() == null || settings.getPaymentUpiId().isBlank()) {
+            settings.setPaymentUpiId("contact.ogfashions@upi");
+            changed = true;
+        }
+        if (settings.getPaymentInstructions() == null || settings.getPaymentInstructions().isBlank()) {
+            settings.setPaymentInstructions("Scan the QR code, complete the payment, and enter your payment reference before placing the order.");
+            changed = true;
+        }
+        if (settings.getCashOnDeliveryEnabled() == null) {
+            settings.setCashOnDeliveryEnabled(true);
             changed = true;
         }
         if (changed) {
@@ -111,5 +171,10 @@ public class StoreSettingsService {
 
     private String normalizeOptional(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private String normalizeOptional(String value, String fallback) {
+        String normalized = normalizeOptional(value);
+        return normalized.isBlank() ? fallback : normalized;
     }
 }

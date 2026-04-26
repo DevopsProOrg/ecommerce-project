@@ -19,6 +19,8 @@ public class ProductRequest {
     private String material;
     private String sizeInfo;
     private String deliveryInfo;
+    private Boolean deliveryChargeEnabled;
+    private Double deliveryChargeAmount;
     private Double rating;
     private Integer reviewCount;
     private Boolean featured;
@@ -157,6 +159,22 @@ public class ProductRequest {
 
     public void setDeliveryInfo(String deliveryInfo) {
         this.deliveryInfo = deliveryInfo;
+    }
+
+    public Boolean getDeliveryChargeEnabled() {
+        return deliveryChargeEnabled;
+    }
+
+    public void setDeliveryChargeEnabled(Boolean deliveryChargeEnabled) {
+        this.deliveryChargeEnabled = deliveryChargeEnabled;
+    }
+
+    public Double getDeliveryChargeAmount() {
+        return deliveryChargeAmount;
+    }
+
+    public void setDeliveryChargeAmount(Double deliveryChargeAmount) {
+        this.deliveryChargeAmount = deliveryChargeAmount;
     }
 
     public Double getRating() {
