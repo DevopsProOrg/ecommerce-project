@@ -183,7 +183,10 @@ or:
 This repo now includes:
 
 - [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile)
+- [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
 - [deploy/jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+- [deploy/jenkins/PIPELINE-STAGES.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/PIPELINE-STAGES.md)
+- [deploy/DEVOPS-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-RUNBOOK.md)
 
 The pipeline is designed for a real-world branch flow:
 
@@ -194,6 +197,19 @@ The pipeline is designed for a real-world branch flow:
    - Docker on EC2
    - Kubernetes
    - both
+
+## Monitoring
+
+The repo now also includes a simple monitoring baseline in:
+
+- [deploy/monitoring/k8s](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/k8s)
+- [deploy/monitoring/README.md](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/README.md)
+
+It includes:
+
+- Prometheus
+- Grafana
+- backend scraping through `/actuator/prometheus`
 
 ## Validation checklist
 
