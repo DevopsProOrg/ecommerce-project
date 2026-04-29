@@ -70,6 +70,8 @@ Important values to set:
 
 - `APP_CORS_ALLOWED_ORIGINS`
   Use your EC2 public URL or real domain
+- `APP_PUBLIC_BASE_URL`
+  Prefer a stable DNS name or AWS Elastic IP so you do not need to keep editing env files after instance replacement
 - `APP_BOOTSTRAP_ADMIN_EMAIL`
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
@@ -92,6 +94,16 @@ This script will:
 - run MySQL with a Docker volume
 - run the backend container
 - run the frontend container
+
+Important real-world note:
+
+- If your EC2 public IP changes often, do not use the raw temporary instance IP in long-term deployment config.
+- Use one of these instead:
+  - AWS Elastic IP
+  - Route53 or another DNS record
+  - Load balancer DNS name
+
+Because the frontend already uses same-origin `/api`, you typically only need a stable public entry point rather than changing application code.
 
 ### 3. Access
 
@@ -148,6 +160,40 @@ Update the host in:
 - [deploy/k8s/ingress.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/ingress.yaml)
 
 Set it to your real domain, then point DNS to your ingress controller/load balancer.
+
+For environment-specific rollout:
+
+- `deploy/k8s/overlays/staging`
+- `deploy/k8s/overlays/production`
+
+You can also use:
+
+```bash
+./deploy/k8s/deploy.sh staging your-registry/ogfashions-backend:tag your-registry/ogfashions-frontend:tag
+```
+
+or:
+
+```bash
+./deploy/k8s/deploy.sh production your-registry/ogfashions-backend:tag your-registry/ogfashions-frontend:tag
+```
+
+## Jenkins pipeline
+
+This repo now includes:
+
+- [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile)
+- [deploy/jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+
+The pipeline is designed for a real-world branch flow:
+
+1. Feature branches validate code only.
+2. `main` / `master` can build and push images.
+3. `release` / `release/*` can deploy to production-style targets.
+4. Jenkins can deploy to:
+   - Docker on EC2
+   - Kubernetes
+   - both
 
 ## Validation checklist
 
