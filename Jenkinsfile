@@ -50,7 +50,7 @@ pipeline {
         stage('Compile Backend') {
             steps {
                 dir('backend') {
-                    bat "mvn %MAVEN_ARGS% -DskipTests compile"
+                    sh "mvn %MAVEN_ARGS% -DskipTests compile"
                 }
             }
         }
@@ -58,23 +58,23 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 dir('backend') {
-                    bat "mvn %MAVEN_ARGS% test"
+                    sh "mvn %MAVEN_ARGS% test"
                 }
             }
         }
 
         stage('Frontend Validation') {
             steps {
-                bat 'node --check frontend\\js\\admin.js'
-                bat 'node --check frontend\\js\\auth.js'
-                bat 'node --check frontend\\js\\app-config.js'
+                sh 'node --check frontend\\js\\admin.js'
+                sh 'node --check frontend\\js\\auth.js'
+                sh 'node --check frontend\\js\\app-config.js'
             }
         }
 
         stage('Integration Smoke Validation') {
             steps {
                 dir('backend') {
-                    bat "mvn %MAVEN_ARGS% -DskipTests package"
+                    sh "mvn %MAVEN_ARGS% -DskipTests package"
                 }
             }
         }
@@ -85,9 +85,9 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    bat '''
-                    if exist "C:\\sonar-scanner\\bin\\sonar-scanner.bat" (
-                      C:\\sonar-scanner\\bin\\sonar-scanner.bat -Dsonar.login=%SONAR_TOKEN%
+                    sh '''
+                    if exist "C:\\sonar-scanner\\bin\\sonar-scanner.sh" (
+                      C:\\sonar-scanner\\bin\\sonar-scanner.sh -Dsonar.login=%SONAR_TOKEN%
                     ) else (
                       echo Sonar scanner not installed on this agent. Skipping explicit scanner execution.
                     )
@@ -101,7 +101,7 @@ pipeline {
                 expression { return params.RUN_TRIVY }
             }
             steps {
-                bat '''
+                sh '''
                 trivy fs --severity HIGH,CRITICAL --exit-code 0 .
                 '''
             }
@@ -109,8 +109,8 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                bat "docker build -t %BACKEND_IMAGE%:%IMAGE_TAG% backend"
-                bat "docker build -t %FRONTEND_IMAGE%:%IMAGE_TAG% frontend"
+                sh "docker build -t %BACKEND_IMAGE%:%IMAGE_TAG% backend"
+                sh "docker build -t %FRONTEND_IMAGE%:%IMAGE_TAG% frontend"
             }
         }
 
@@ -119,7 +119,7 @@ pipeline {
                 expression { return params.RUN_TRIVY }
             }
             steps {
-                bat '''
+                sh '''
                 trivy image --severity HIGH,CRITICAL --exit-code 0 %BACKEND_IMAGE%:%IMAGE_TAG%
                 trivy image --severity HIGH,CRITICAL --exit-code 0 %FRONTEND_IMAGE%:%IMAGE_TAG%
                 '''
@@ -133,7 +133,7 @@ pipeline {
             steps {
                 dir('backend') {
                     withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        bat 'mvn -DskipTests deploy'
+                        sh 'mvn -DskipTests deploy'
                     }
                 }
             }
@@ -148,9 +148,9 @@ pipeline {
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat 'echo %DOCKER_PASS% | docker login %REGISTRY% -u %DOCKER_USER% --password-stdin'
-                    bat 'docker push %BACKEND_IMAGE%:%IMAGE_TAG%'
-                    bat 'docker push %FRONTEND_IMAGE%:%IMAGE_TAG%'
+                    sh 'echo %DOCKER_PASS% | docker login %REGISTRY% -u %DOCKER_USER% --password-stdin'
+                    sh 'docker push %BACKEND_IMAGE%:%IMAGE_TAG%'
+                    sh 'docker push %FRONTEND_IMAGE%:%IMAGE_TAG%'
                 }
             }
         }
@@ -169,7 +169,7 @@ pipeline {
                     }
                     steps {
                         sshagent(credentials: ['ec2-ssh-key']) {
-                            bat """
+                            sh """
                             ssh -o StrictHostKeyChecking=no %EC2_SSH_USER%@%EC2_SSH_HOST% ^
                               "cd /opt/ogfashions && ^
                               IMAGE_TAG=%IMAGE_TAG% BACKEND_IMAGE=%BACKEND_IMAGE%:%IMAGE_TAG% FRONTEND_IMAGE=%FRONTEND_IMAGE%:%IMAGE_TAG% BUILD_IMAGES_LOCALLY=false ./deploy/docker/ec2-registry-deploy.sh ${params.DOCKER_ENV_REMOTE_PATH}"
@@ -183,7 +183,7 @@ pipeline {
                     }
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
-                            bat """
+                            sh """
                             set KUBECONFIG=%KUBECONFIG_FILE%
                             bash deploy/k8s/deploy.sh staging %BACKEND_IMAGE%:%IMAGE_TAG% %FRONTEND_IMAGE%:%IMAGE_TAG%
                             """
@@ -221,7 +221,7 @@ pipeline {
                     }
                     steps {
                         sshagent(credentials: ['ec2-ssh-key']) {
-                            bat """
+                            sh """
                             ssh -o StrictHostKeyChecking=no %EC2_SSH_USER%@%EC2_SSH_HOST% ^
                               "cd /opt/ogfashions && ^
                               IMAGE_TAG=%IMAGE_TAG% BACKEND_IMAGE=%BACKEND_IMAGE%:%IMAGE_TAG% FRONTEND_IMAGE=%FRONTEND_IMAGE%:%IMAGE_TAG% BUILD_IMAGES_LOCALLY=false ./deploy/docker/ec2-registry-deploy.sh ${params.DOCKER_ENV_REMOTE_PATH}"
@@ -235,7 +235,7 @@ pipeline {
                     }
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
-                            bat """
+                            sh """
                             set KUBECONFIG=%KUBECONFIG_FILE%
                             bash deploy/k8s/deploy.sh production %BACKEND_IMAGE%:%IMAGE_TAG% %FRONTEND_IMAGE%:%IMAGE_TAG%
                             """
