@@ -15,6 +15,7 @@ The repository pipeline supports:
 - Kubernetes deployment
 - optional SonarQube, Trivy, and Nexus stages
 - browser-facing smoke checks
+- post-build email notifications for success, failure, unstable, and aborted runs
 
 ## Recommended Jenkins server options
 
@@ -80,6 +81,7 @@ Set these in Jenkins global env vars, folder properties, or job configuration:
 - `REGISTRY`
 - `IMAGE_REPO`
 - `DEPLOY_BASE_URL`
+- `NOTIFY_EMAIL`
 
 Optional:
 
@@ -90,6 +92,61 @@ Optional:
 Examples are available in:
 
 - [jenkins.env.example](./jenkins.env.example)
+
+## Email notifications
+
+The pipeline now sends email on:
+
+- success
+- failure
+- unstable
+- aborted
+
+### Step 1. Install the plugin
+
+Install:
+
+- Email Extension
+
+### Step 2. Configure SMTP in Jenkins
+
+Go to:
+
+- Manage Jenkins
+- System
+- Extended E-mail Notification
+
+Typical Gmail SMTP values:
+
+- SMTP server: `smtp.gmail.com`
+- SMTP port: `587`
+- Use SMTP authentication: enabled
+- Username: your sender mailbox
+- Password: app password
+- Use TLS: enabled
+
+### Step 3. Set recipients
+
+Set `NOTIFY_EMAIL` in Jenkins global environment variables, folder properties, or the multibranch job environment.
+
+Example:
+
+- `contact.ogfashions@gmail.com`
+
+You can also use multiple recipients:
+
+- `contact.ogfashions@gmail.com,team@example.com`
+
+### Step 4. Test a build
+
+Run one build and confirm you receive:
+
+- build result
+- branch name
+- build number
+- deploy target
+- image tags
+- build URL
 
 ## Branch policy
 

@@ -1,85 +1,76 @@
 # Monitoring Stack
 
-This monitoring layout provides Prometheus and Grafana for the ecommerce platform.
+This folder provides Prometheus and Grafana for Docker-based and Kubernetes-based deployments.
 
-## Included
+## Docker monitoring
 
-- Docker monitoring stack for EC2 or local Docker hosts
-- Kubernetes monitoring manifests for cluster deployments
-- Prometheus scrape config for backend metrics
-- Grafana with pre-provisioned datasource and dashboard
+### Step 1. Start monitoring containers
 
-## Default ports
+Linux, Ubuntu, WSL, or Git Bash:
 
-- Prometheus: `9090`
-- Grafana: `3000`
+```bash
+bash deploy/monitoring/docker/run-monitoring.sh
+```
 
-## Primary targets
+Windows PowerShell:
 
-- backend metrics: `/actuator/prometheus`
-- frontend health: `/healthz`
-- backend health: `/actuator/health`
+```powershell
+./deploy/monitoring/docker/run-monitoring.ps1
+```
 
-## Kubernetes usage
+### Step 2. Port behavior
 
-Apply:
+Docker monitoring also supports automatic port conflict handling:
+
+- `PROMETHEUS_HOST_PORT`
+- `GRAFANA_HOST_PORT`
+- `PORT_CONFLICT_STRATEGY`
+- `PORT_SEARCH_LIMIT`
+
+Default strategy is `auto`.
+
+### Step 3. Open the dashboards
+
+Use the printed ports.
+
+Typical defaults:
+
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
+
+## Kubernetes monitoring
+
+### Step 1. Apply the monitoring stack
 
 ```bash
 kubectl apply -k deploy/monitoring/k8s
 ```
 
-Verify:
+### Step 2. Verify pods and services
 
 ```bash
 kubectl get all -n monitoring
 ```
 
-Access Prometheus:
+### Step 3. Port-forward for access
 
 ```bash
 kubectl port-forward svc/prometheus 9090:9090 -n monitoring
-```
-
-Access Grafana:
-
-```bash
 kubectl port-forward svc/grafana 3000:3000 -n monitoring
 ```
 
-Open:
+### Step 4. Check backend metrics
 
-- `http://localhost:9090`
-- `http://localhost:3000`
+Prometheus should scrape:
 
-## Recommended next improvements
+- `/actuator/prometheus`
 
-For a stronger real-world monitoring setup later, add:
+### Step 5. Improve later
+
+Recommended next layers:
 
 - Alertmanager
 - Slack or email alert routing
-- node exporter
 - kube-state-metrics
-- persistent volumes for Prometheus and Grafana
-- custom Grafana dashboards for orders, support tickets, mail delivery, and backend latency
-
-## Troubleshooting
-
-### Prometheus not scraping
-
-Check:
-
-```bash
-kubectl logs deploy/prometheus -n monitoring
-```
-
-### Grafana not opening
-
-Check:
-
-```bash
-kubectl logs deploy/grafana -n monitoring
-```
-
-### No metrics visible
-
-Check the backend metrics endpoint manually from inside the cluster against the target namespace service.
+- persistent volumes
+- custom Grafana dashboards

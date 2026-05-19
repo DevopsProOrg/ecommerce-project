@@ -6,6 +6,33 @@ def runCmd(String unixCommand, String windowsCommand = null) {
     }
 }
 
+def sendBuildNotification(String status) {
+    def recipients = (env.NOTIFY_EMAIL ?: '').trim()
+    if (!recipients) {
+        echo "NOTIFY_EMAIL is not configured. Skipping ${status} notification email."
+        return
+    }
+
+    def lines = [
+        "Build status: ${status}",
+        "Job: ${env.JOB_NAME}",
+        "Build: #${env.BUILD_NUMBER}",
+        "Branch: ${env.BRANCH_NAME ?: 'n/a'}",
+        "Deploy target: ${params.DEPLOY_TARGET}",
+        "K8s overlay: ${params.K8S_OVERLAY}",
+        "Backend image: ${env.BACKEND_IMAGE ?: 'n/a'}:${env.IMAGE_TAG ?: 'n/a'}",
+        "Frontend image: ${env.FRONTEND_IMAGE ?: 'n/a'}:${env.IMAGE_TAG ?: 'n/a'}",
+        "Base URL: ${env.DEPLOY_BASE_URL ?: 'n/a'}",
+        "Build URL: ${env.BUILD_URL ?: 'n/a'}"
+    ]
+
+    emailext(
+        to: recipients,
+        subject: "${status}: ${env.JOB_NAME} #${env.BUILD_NUMBER} [${env.BRANCH_NAME ?: 'n/a'}]",
+        body: lines.join('\n')
+    )
+}
+
 pipeline {
     agent any
 
@@ -339,6 +366,26 @@ pipeline {
     }
 
     post {
+        success {
+            script {
+                sendBuildNotification('SUCCESS')
+            }
+        }
+        failure {
+            script {
+                sendBuildNotification('FAILURE')
+            }
+        }
+        unstable {
+            script {
+                sendBuildNotification('UNSTABLE')
+            }
+        }
+        aborted {
+            script {
+                sendBuildNotification('ABORTED')
+            }
+        }
         always {
             cleanWs(deleteDirs: true, notFailBuild: true)
         }

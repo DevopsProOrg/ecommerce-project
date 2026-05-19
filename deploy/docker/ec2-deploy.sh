@@ -66,6 +66,47 @@ APP_CORS_ALLOWED_ORIGINS="${APP_CORS_ALLOWED_ORIGINS:-${APP_PUBLIC_BASE_URL}}"
 APP_CORS_ALLOWED_ORIGIN_PATTERNS="${APP_CORS_ALLOWED_ORIGIN_PATTERNS:-}"
 BACKEND_HOST_PORT="${BACKEND_HOST_PORT:-8888}"
 FRONTEND_HOST_PORT="${FRONTEND_HOST_PORT:-80}"
+PORT_CONFLICT_STRATEGY="${PORT_CONFLICT_STRATEGY:-fail}"
+PORT_SEARCH_LIMIT="${PORT_SEARCH_LIMIT:-25}"
+
+port_in_use() {
+  local port="$1"
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn "( sport = :${port} )" 2>/dev/null | tail -n +2 | grep -q .
+  elif command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -an 2>/dev/null | grep -E "[:.]${port}[[:space:]].*(LISTEN|LISTENING)" >/dev/null 2>&1
+  else
+    return 1
+  fi
+}
+
+resolve_host_port() {
+  local name="$1"
+  local preferred_port="$2"
+  local strategy="$3"
+  local max_tries="$4"
+  local candidate="$preferred_port"
+  local tries=0
+
+  while port_in_use "$candidate"; do
+    if [[ "$strategy" != "auto" ]]; then
+      echo "Port conflict detected for ${name}: ${candidate} is already in use."
+      echo "Set a different port in your env file or set PORT_CONFLICT_STRATEGY=auto for local development."
+      exit 1
+    fi
+
+    tries=$((tries + 1))
+    if (( tries > max_tries )); then
+      echo "Unable to find a free port for ${name} after ${max_tries} attempts starting from ${preferred_port}."
+      exit 1
+    fi
+    candidate=$((candidate + 1))
+  done
+
+  echo "$candidate"
+}
 
 require_secret MYSQL_ROOT_PASSWORD
 require_secret SPRING_DATASOURCE_PASSWORD
@@ -88,6 +129,13 @@ else
 fi
 
 docker rm -f "$MYSQL_CONTAINER" "$BACKEND_CONTAINER" "$FRONTEND_CONTAINER" >/dev/null 2>&1 || true
+
+BACKEND_HOST_PORT="$(resolve_host_port backend "$BACKEND_HOST_PORT" "$PORT_CONFLICT_STRATEGY" "$PORT_SEARCH_LIMIT")"
+FRONTEND_HOST_PORT="$(resolve_host_port frontend "$FRONTEND_HOST_PORT" "$PORT_CONFLICT_STRATEGY" "$PORT_SEARCH_LIMIT")"
+
+if [[ "$APP_ENV" == "local" && ( -z "$APP_PUBLIC_BASE_URL" || "$APP_PUBLIC_BASE_URL" == http://localhost:* || "$APP_PUBLIC_BASE_URL" == http://127.0.0.1:* ) ]]; then
+  APP_PUBLIC_BASE_URL="http://localhost:${FRONTEND_HOST_PORT}"
+fi
 
 docker run -d \
   --name "$MYSQL_CONTAINER" \
@@ -140,12 +188,14 @@ docker run -d \
 
 echo
 echo "Deployment complete for environment: $APP_ENV"
+echo "Resolved backend host port: ${BACKEND_HOST_PORT}"
+echo "Resolved frontend host port: ${FRONTEND_HOST_PORT}"
 if [[ -n "$APP_PUBLIC_BASE_URL" ]]; then
   echo "Frontend: ${APP_PUBLIC_BASE_URL}/"
   echo "Frontend health: ${APP_PUBLIC_BASE_URL}/healthz"
   echo "Backend health: ${APP_PUBLIC_BASE_URL}/api/actuator/health"
 else
-  echo "Frontend: http://<server-public-ip>/"
-  echo "Frontend health: http://<server-public-ip>/healthz"
-  echo "Backend health: http://<server-public-ip>/api/actuator/health"
+  echo "Frontend: http://<server-public-ip>:${FRONTEND_HOST_PORT}/"
+  echo "Frontend health: http://<server-public-ip>:${FRONTEND_HOST_PORT}/healthz"
+  echo "Backend health: http://<server-public-ip>:${FRONTEND_HOST_PORT}/api/actuator/health"
 fi

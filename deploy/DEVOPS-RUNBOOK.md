@@ -4,20 +4,25 @@ This is the top-level operations guide for the project.
 
 If you are doing the full DevOps setup end to end, follow this document first and then move into the detailed READMEs for each deployment method.
 
+For exact configure-this-then-run-this checklists, start with [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md).
+
 ## 1. Recommended rollout order
 
 Use this order to avoid confusion and reduce rework:
 
 1. local development validation
-2. Docker deployment on EC2
-3. attach Elastic IP
-4. validate application end to end on EC2
-5. Jenkins setup
-6. Jenkins-triggered Docker deployment
-7. Kubernetes setup
-8. Kubernetes deployment
-9. monitoring setup
-10. release branch approval and production flow
+2. local Docker validation
+3. Terraform infrastructure creation
+4. Ansible host configuration
+5. Docker deployment on EC2 or Ubuntu
+6. attach Elastic IP or finalize DNS
+7. validate application end to end on EC2
+8. Jenkins setup
+9. Jenkins-triggered Docker deployment
+10. Kubernetes setup
+11. Kubernetes deployment
+12. monitoring setup
+13. release branch approval and production flow
 
 ## 2. AWS free-tier recommendation
 
@@ -50,6 +55,15 @@ Frontend:
 
 Serve `frontend/` with Live Server or any static server.
 
+Examples:
+
+- VS Code Live Server [example: `http://127.0.0.1:5500`]
+- Python static server [example: `python -m http.server 5500`]
+
+Detailed checklist:
+
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
+
 ### Docker on EC2 or Linux
 
 Use:
@@ -66,6 +80,7 @@ For registry-based rollout:
 
 Detailed guide:
 
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
 - [docker/README.md](./docker/README.md)
 
 ### Kubernetes
@@ -84,6 +99,7 @@ or:
 
 Detailed guide:
 
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
 - [k8s/README.md](./k8s/README.md)
 
 ### Monitoring stack
@@ -96,7 +112,33 @@ kubectl apply -k deploy/monitoring/k8s
 
 Detailed guide:
 
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
 - [monitoring/README.md](./monitoring/README.md)
+
+### Terraform and Ansible
+
+Use Terraform first and Ansible second.
+
+Examples:
+
+```bash
+cd deploy/terraform/environments/lp
+terraform init
+terraform plan
+terraform apply
+```
+
+```bash
+cd deploy/ansible
+ansible -i inventories/lp/hosts.yml all -m ping
+ansible-playbook -i inventories/lp/hosts.yml playbooks/site.yml
+```
+
+Detailed guides:
+
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
+- [terraform/README.md](./terraform/README.md)
+- [ansible/README.md](./ansible/README.md)
 
 ## 4. Jenkins org-level flow
 
@@ -121,6 +163,7 @@ Branch strategy:
 
 Detailed Jenkins docs:
 
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
 - [jenkins/README.md](./jenkins/README.md)
 - [jenkins/PIPELINE-STAGES.md](./jenkins/PIPELINE-STAGES.md)
 
@@ -157,6 +200,8 @@ Placeholders that must be replaced:
 - Docker env values in `deploy/docker/docker.env`
 - Jenkins values in `deploy/jenkins/jenkins.env.example`
 - Kubernetes secret values in `deploy/k8s/secret.yaml`
+- Terraform `terraform.tfvars` values [example: region, subnets, domain, EKS toggle]
+- Ansible inventory and `group_vars` values [example: host IP, SSH user, app directory]
 
 ## 7. Production-style recommendations
 
@@ -171,9 +216,12 @@ For stronger real-world maturity later:
 
 ## 8. Related docs
 
+- [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
 - [README.md](../README.md)
 - [README.md](./README.md)
 - [docker/README.md](./docker/README.md)
+- [terraform/README.md](./terraform/README.md)
+- [ansible/README.md](./ansible/README.md)
 - [k8s/README.md](./k8s/README.md)
 - [monitoring/README.md](./monitoring/README.md)
 - [jenkins/README.md](./jenkins/README.md)

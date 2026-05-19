@@ -1,6 +1,6 @@
 # Docker Deployment
 
-This folder is set up so your long-lived production values can stay in git, while secrets stay only on the server.
+This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell driven Docker deployment.
 
 ## Files
 
@@ -8,103 +8,121 @@ This folder is set up so your long-lived production values can stay in git, whil
   - committed production defaults for `ogstyles.store`
 - `docker.env.example`
   - template for optional non-secret overrides
-- `docker.env`
-  - optional local override file, not tracked by git
-- `docker.secrets.env`
-  - required secrets file, not tracked by git
 - `docker.secrets.env.example`
-  - template for the secrets file
+  - template for secrets
 - `ec2-deploy.sh`
-  - builds locally or pulls images, then runs MySQL, backend, and frontend containers
+  - main Docker deployment script
+- `ec2-deploy.ps1`
+  - PowerShell wrapper for Windows users
 - `ec2-registry-deploy.sh`
-  - wrapper that forces registry-based deployment
+  - registry-image deployment wrapper
 - `ec2-cleanup.sh`
-  - stops containers and removes the Docker network while keeping MySQL data
+  - cleanup helper
 
-## First-time server setup
+## Port behavior
 
-After cloning the repo on EC2:
+The Docker deploy script now supports:
+
+- `PORT_CONFLICT_STRATEGY=fail`
+  - safest for real servers where `80` and `8888` should be intentionally reserved
+- `PORT_CONFLICT_STRATEGY=auto`
+  - useful for local or shared hosts where a fallback port is acceptable
+- `PORT_SEARCH_LIMIT=25`
+  - how many next ports to try in auto mode
+
+Preferred host ports:
+
+- `FRONTEND_HOST_PORT`
+- `BACKEND_HOST_PORT`
+
+## Step-by-step
+
+### Step 1. Clone the repo on the server
 
 ```bash
-cd /ecommerce-project/deploy/docker
-cp docker.secrets.env.example docker.secrets.env
-vi docker.secrets.env
+git clone <YOUR_GIT_URL> /opt/ogfashions
+cd /opt/ogfashions
 ```
 
-Set these real secret values:
+### Step 2. Create the optional override file
+
+```bash
+cp deploy/docker/docker.env.example deploy/docker/docker.env
+```
+
+Edit only if needed.
+
+### Step 3. Create the secrets file
+
+```bash
+cp deploy/docker/docker.secrets.env.example deploy/docker/docker.secrets.env
+vi deploy/docker/docker.secrets.env
+```
+
+Set:
 
 - `MYSQL_ROOT_PASSWORD`
 - `SPRING_DATASOURCE_PASSWORD`
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
 
-Then deploy:
+### Step 4. Choose your port strategy
+
+For internet-facing production:
+
+- keep `PORT_CONFLICT_STRATEGY=fail`
+- keep `FRONTEND_HOST_PORT=80`
+
+For shared or test servers:
+
+- set `PORT_CONFLICT_STRATEGY=auto`
+
+### Step 5. Deploy
+
+Linux, Ubuntu, EC2, WSL, or Git Bash:
 
 ```bash
-cd /ecommerce-project
 chmod +x deploy/docker/ec2-deploy.sh
 ./deploy/docker/ec2-deploy.sh
 ```
 
-## What deploys
+Windows PowerShell:
 
-Containers:
+```powershell
+./deploy/docker/ec2-deploy.ps1
+```
 
-- `ogfashions-mysql`
-- `ogfashions-backend`
-- `ogfashions-frontend`
+### Step 6. Verify containers
 
-Browser URLs:
+```bash
+docker ps
+docker logs ogfashions-mysql --tail 100
+docker logs ogfashions-backend --tail 100
+docker logs ogfashions-frontend --tail 100
+```
+
+### Step 7. Test in browser
+
+If production domain is already routed:
 
 - `https://ogstyles.store/`
 - `https://ogstyles.store/healthz`
 - `https://ogstyles.store/api/actuator/health`
 
-Default host port bindings:
+If testing by host port:
 
-- backend host port: `8888`
-- frontend host port: `80`
+- `http://<server-ip>:<resolved-frontend-port>/`
 
-MySQL is kept inside the Docker network and is not exposed publicly by default.
+### Step 8. Registry-based deployment
 
-## Override behavior
-
-Order of precedence:
-
-1. `docker.env.defaults`
-2. `docker.env`
-3. `docker.secrets.env`
-
-Use `docker.env` only when you want to override a committed default on a specific server without editing git-tracked files.
-
-## Registry-based deployment
-
-Use registry mode for Jenkins-based rollouts or when you build elsewhere and deploy images on the server:
+Use this when Jenkins builds images and the server only needs to pull and run them:
 
 ```bash
 chmod +x deploy/docker/ec2-registry-deploy.sh
 ./deploy/docker/ec2-registry-deploy.sh
 ```
 
-## Verification
-
-Check containers:
-
-```bash
-docker ps
-```
-
-Check logs:
-
-```bash
-docker logs ogfashions-mysql --tail 100
-docker logs ogfashions-backend --tail 100
-docker logs ogfashions-frontend --tail 100
-```
-
-## Cleanup
-
-To stop the application containers but keep the MySQL volume:
+### Step 9. Cleanup
 
 ```bash
 chmod +x deploy/docker/ec2-cleanup.sh
@@ -113,18 +131,21 @@ chmod +x deploy/docker/ec2-cleanup.sh
 
 ## Common issues
 
+### Frontend port already in use
+
+If you want zero manual conflicts on shared hosts, use:
+
+```env
+PORT_CONFLICT_STRATEGY=auto
+```
+
 ### Port 80 not reachable
 
-Check the EC2 security group and allow inbound `80/tcp`.
+Check:
 
-### Port 8888 conflict
-
-Check for another backend process or container:
-
-```bash
-docker ps
-ss -ltnp | grep 8888
-```
+- security group inbound `80`
+- Nginx container running
+- DNS pointing to the right host
 
 ### Mail not sending
 
@@ -141,19 +162,3 @@ Check:
 ```bash
 docker logs ogfashions-mysql --tail 200
 ```
-
-### Permission denied for Docker
-
-Reconnect after:
-
-```bash
-sudo usermod -aG docker <linux-user>
-```
-
-## Jenkins usage
-
-Jenkins uses the same deployment path in registry mode and connects to the EC2 host through SSH to run:
-
-- `deploy/docker/ec2-registry-deploy.sh`
-
-See [../jenkins/README.md](../jenkins/README.md) for the full Jenkins configuration.

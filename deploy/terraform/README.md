@@ -1,6 +1,6 @@
 # Terraform Infrastructure
 
-This structure provisions organization-style infrastructure for the deployment levels:
+This structure provisions organization-style AWS infrastructure for:
 
 - `l1`
 - `l2`
@@ -8,41 +8,68 @@ This structure provisions organization-style infrastructure for the deployment l
 - `l6`
 - `lp`
 
-## Layout
+## Step-by-step
 
-- `stacks/org-platform`
-  - reusable AWS platform stack
-- `environments/l1`
-- `environments/l2`
-- `environments/l3`
-- `environments/l6`
-- `environments/lp`
-  - environment-specific entrypoints and sample tfvars
+### Step 1. Choose the target level
 
-## What the platform stack can create
+Use:
 
-- VPC
-- public and private subnets
-- NAT gateway
-- EC2 app host
-- Elastic IP for the app host
-- security groups
-- optional EKS cluster
-- optional Route53 records
+- `l1`, `l2` for faster EC2-style rollout
+- `l3`, `l6`, `lp` for bigger or Kubernetes-oriented rollout
 
-## Typical pattern
+### Step 2. Open the environment folder
 
-- `l1`, `l2`
-  - EC2 app host for fast iteration
-- `l3`, `l6`, `lp`
-  - EKS-focused environments
-
-## Usage
+Example:
 
 ```bash
 cd deploy/terraform/environments/lp
+```
+
+### Step 3. Create the tfvars file
+
+```bash
 cp terraform.tfvars.example terraform.tfvars
+```
+
+### Step 4. Fill real infrastructure values
+
+Update:
+
+- AWS region
+- VPC CIDR
+- subnet CIDRs
+- instance size
+- domain settings
+- Route53 zone details
+- whether EKS should be enabled
+
+### Step 5. Initialize Terraform
+
+```bash
 terraform init
+```
+
+### Step 6. Review the plan
+
+```bash
 terraform plan
+```
+
+### Step 7. Apply the infrastructure
+
+```bash
 terraform apply
 ```
+
+### Step 8. Save the outputs
+
+Capture:
+
+- EC2 public IP
+- Elastic IP
+- EKS cluster details
+- Route53 outputs
+
+### Step 9. Move to Ansible
+
+After infra exists, use Ansible to configure the hosts.

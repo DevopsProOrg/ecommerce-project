@@ -1,6 +1,6 @@
 # Local Docker Deployment
 
-This path is for a full local container-based run on one machine.
+This path is for a full local container-based run on one machine and is the safest first validation step before EC2, Kubernetes, Terraform, or Ansible.
 
 ## Files
 
@@ -10,37 +10,78 @@ This path is for a full local container-based run on one machine.
 - `local-docker.ps1`
 - `local-docker-cleanup.sh`
 
-## First-time setup
+## Port behavior
+
+Local Docker now supports automatic port conflict handling.
+
+- `PORT_CONFLICT_STRATEGY=auto`
+  - if `8080` or `8888` is busy, the script picks the next free port
+- `PORT_SEARCH_LIMIT=25`
+  - how many next ports to try
+
+The script prints the actual frontend and backend ports after startup, so you do not have to guess.
+
+## Step-by-step
+
+### Step 1. Prepare local env files
 
 ```bash
 cp deploy/local/local-docker.env.example deploy/local/local-docker.env
 cp deploy/local/local-docker.secrets.env.example deploy/local/local-docker.secrets.env
 ```
 
-Update only the secrets file if you want your own local passwords.
+### Step 2. Adjust ports only if you want fixed values
 
-## Run locally
+Default local values:
 
-### Linux / macOS / WSL / Git Bash
+- frontend host port: `8080`
+- backend host port: `8888`
+- port strategy: `auto`
+
+If you want different preferred ports, edit:
+
+- `FRONTEND_HOST_PORT`
+- `BACKEND_HOST_PORT`
+
+### Step 3. Run locally
+
+Linux, Ubuntu, macOS, WSL, or Git Bash:
 
 ```bash
 chmod +x deploy/local/local-docker.sh
 ./deploy/local/local-docker.sh
 ```
 
-### PowerShell
+Windows PowerShell:
 
 ```powershell
 ./deploy/local/local-docker.ps1
 ```
 
-## Local URLs
+### Step 4. Test locally
 
-- Frontend: `http://localhost:8080/`
-- Frontend health: `http://localhost:8080/healthz`
-- Backend health: `http://localhost:8080/api/actuator/health`
+Open the printed frontend URL in browser.
 
-## Cleanup
+Typical default URLs:
+
+- `http://localhost:8080/`
+- `http://localhost:8080/healthz`
+- `http://localhost:8080/api/actuator/health`
+
+If port `8080` was busy, use the printed resolved frontend port instead.
+
+### Step 5. Validate the application
+
+Check:
+
+1. home page loads
+2. login works
+3. product list loads
+4. cart works
+5. admin page loads
+6. backend health returns `UP`
+
+### Step 6. Cleanup
 
 ```bash
 ./deploy/local/local-docker-cleanup.sh

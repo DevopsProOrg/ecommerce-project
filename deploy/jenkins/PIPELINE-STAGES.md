@@ -28,16 +28,23 @@ The current `Jenkinsfile` exposes these parameters:
   - `k8s`
   - `both`
 - `K8S_OVERLAY`
-  - `staging`
-  - `production`
+  - `l1`
+  - `l2`
+  - `l3`
+  - `l6`
+  - `lp`
 - `RUN_SONAR`
   - run SonarQube stage when enabled
 - `RUN_TRIVY`
   - run Trivy file system and image scans when enabled
 - `RUN_NEXUS_PUBLISH`
   - publish Maven artifact to Nexus when enabled
+- `REMOTE_APP_DIR`
+  - remote application checkout directory on the target Docker host
 - `DOCKER_ENV_REMOTE_PATH`
   - remote path for the Docker environment file on the target EC2 or Linux server
+- `DEPLOY_BASE_URL`
+  - base URL used by smoke checks and notification emails
 
 ## Branch behavior
 
@@ -103,7 +110,7 @@ Outputs:
 
 Command:
 
-```bat
+```text
 mvn -q -DskipTests compile
 ```
 
@@ -115,7 +122,7 @@ Purpose:
 
 Command:
 
-```bat
+```text
 mvn -q test
 ```
 
@@ -127,21 +134,21 @@ Purpose:
 
 Commands:
 
-```bat
-node --check frontend\js\admin.js
-node --check frontend\js\auth.js
-node --check frontend\js\app-config.js
+```text
+node --check frontend/js/admin.js
+node --check frontend/js/auth.js
+node --check frontend/js/app-config.js
 ```
 
 Purpose:
 
 - catch broken frontend JavaScript syntax before packaging
 
-### 6. Integration Smoke Validation
+### 6. Package Backend
 
 Command:
 
-```bat
+```text
 mvn -q -DskipTests package
 ```
 
@@ -158,7 +165,7 @@ Runs only when:
 Purpose:
 
 - static quality analysis
-- code smell / maintainability checks
+- code smell and maintainability checks
 
 Requirement:
 
@@ -176,13 +183,6 @@ Purpose:
 - scan repository contents for high and critical issues
 
 ### 9. Build Docker Images
-
-Commands:
-
-```bat
-docker build -t %BACKEND_IMAGE%:%IMAGE_TAG% backend
-docker build -t %FRONTEND_IMAGE%:%IMAGE_TAG% frontend
-```
 
 Purpose:
 
@@ -224,7 +224,7 @@ Runs only for:
 
 Purpose:
 
-- log in to Docker Hub or ECR-compatible registry
+- log in to the container registry
 - push backend image
 - push frontend image
 
@@ -242,7 +242,7 @@ Runs only when:
 Deployment options:
 
 - Docker on EC2
-- Kubernetes staging
+- Kubernetes lower overlay
 - both in parallel
 
 ### 14. Production Approval
@@ -266,47 +266,44 @@ Runs only when:
 Deployment options:
 
 - Docker production
-- Kubernetes production
+- Kubernetes production overlay
 - both in parallel
 
 ### 16. Post Deploy Smoke Check
 
+Purpose:
+
+- verify the deployed entrypoint after Docker or Kubernetes rollout
+
 Current behavior:
 
-- placeholder stage
+- checks `<DEPLOY_BASE_URL>/healthz`
+- checks `<DEPLOY_BASE_URL>/api/actuator/health`
 
-Recommended next improvement:
+### 17. Post-build Email Notification
 
-- add health checks such as:
-  - frontend HTTP 200
-  - backend `/api/actuator/health`
-  - sample order or sample support API verification in lower env
+Purpose:
+
+- send build result emails after every run
+
+Current behavior:
+
+- sends `SUCCESS`, `FAILURE`, `UNSTABLE`, or `ABORTED`
+- uses `NOTIFY_EMAIL`
+- includes branch, build number, deploy target, image tags, base URL, and Jenkins build URL
 
 ## Notifications
 
-### Success
+The pipeline emails on:
 
-The pipeline sends a success email with:
-
-- job name
-- build number
-- branch
-- backend image tag
-- frontend image tag
-- deploy target
-
-### Failure
-
-The pipeline sends a failure email with:
-
-- job name
-- build number
-- branch
-- note to inspect console output
+- success
+- failure
+- unstable
+- aborted
 
 ## Required external tools and services
 
-The pipeline is ready for these enterprise-style integrations, but they must exist in your environment:
+The pipeline is ready for these integrations, but they must exist in your environment:
 
 - GitHub
 - Jenkins
@@ -355,7 +352,7 @@ Behavior:
 - `EC2_SSH_USER`
 - `SONAR_HOST_URL`
 - `NEXUS_MAVEN_REPO_URL`
-- notification email value
+- `NOTIFY_EMAIL`
 
 ## Troubleshooting
 
@@ -375,13 +372,13 @@ Check:
 - kubeconfig credential is valid
 - `kubectl` is installed on Jenkins node
 - cluster is reachable
-- `deploy/k8s/secret.yaml` exists or has already been applied
+- Kubernetes secrets are applied in the target namespace
 
 ### Sonar stage fails
 
 Check:
 
-- `C:\sonar-scanner\bin\sonar-scanner.bat`
+- sonar scanner is installed or intentionally skipped
 - `sonar-token`
 - SonarQube server reachability
 
@@ -390,5 +387,6 @@ Check:
 Check:
 
 - Jenkins SMTP configuration
-- `jenkins-notify-email` credential
+- `NOTIFY_EMAIL` value
 - firewall access to SMTP
+- Gmail app password if using Gmail SMTP
