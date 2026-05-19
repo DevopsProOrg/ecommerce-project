@@ -1,0 +1,29 @@
+---
+- name: Create application root
+  ansible.builtin.file:
+    path: "{{ app_root }}"
+    state: directory
+    mode: "0755"
+
+- name: Clone or update ecommerce repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ app_root }}"
+    version: "{{ repo_branch }}"
+    force: true
+
+- name: Ensure docker deploy directory exists
+  ansible.builtin.file:
+    path: "{{ app_root }}/deploy/docker"
+    state: directory
+    mode: "0755"
+
+- name: Write docker secrets file
+  ansible.builtin.template:
+    src: docker.secrets.env.j2
+    dest: "{{ docker_secrets_file }}"
+    mode: "0600"
+
+- name: Show next deploy command
+  ansible.builtin.debug:
+    msg: "Run {{ app_root }}/deploy/docker/ec2-deploy.sh on the target host to deploy the application."

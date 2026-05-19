@@ -1,0 +1,155 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ogfashions-backend
+spec:
+  selector:
+    app: ogfashions-backend
+  ports:
+    - port: 8888
+      targetPort: 8888
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ogfashions-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ogfashions-backend
+  template:
+    metadata:
+      labels:
+        app: ogfashions-backend
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: backend
+          image: docker.io/yarrav7/ogfashions-backend:latest
+          ports:
+            - containerPort: 8888
+          env:
+            - name: SERVER_PORT
+              value: "8888"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://ogfashions-mysql:3306/ecommerce?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_ENV
+            - name: APP_PUBLIC_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_PUBLIC_BASE_URL
+            - name: APP_CORS_ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_CORS_ALLOWED_ORIGINS
+            - name: APP_CORS_ALLOWED_ORIGIN_PATTERNS
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_CORS_ALLOWED_ORIGIN_PATTERNS
+            - name: APP_BOOTSTRAP_ADMIN_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: APP_BOOTSTRAP_ADMIN_ENABLED
+            - name: APP_BOOTSTRAP_ADMIN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: APP_BOOTSTRAP_ADMIN_NAME
+            - name: APP_BOOTSTRAP_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: APP_BOOTSTRAP_ADMIN_EMAIL
+            - name: APP_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: APP_BOOTSTRAP_ADMIN_PASSWORD
+            - name: APP_MAIL_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_MAIL_ENABLED
+            - name: APP_MAIL_FROM
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: APP_MAIL_FROM
+            - name: SPRING_MAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_MAIL_HOST
+            - name: SPRING_MAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_MAIL_PORT
+            - name: SPRING_MAIL_SMTP_AUTH
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_MAIL_SMTP_AUTH
+            - name: SPRING_MAIL_SMTP_STARTTLS_ENABLE
+              valueFrom:
+                configMapKeyRef:
+                  name: ogfashions-config
+                  key: SPRING_MAIL_SMTP_STARTTLS_ENABLE
+            - name: SPRING_MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_MAIL_USERNAME
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_MAIL_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8888
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8888
+            initialDelaySeconds: 45
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi

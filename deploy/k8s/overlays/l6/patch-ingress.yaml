@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ogfashions-ingress
+spec:
+  rules:
+    - host: l6.ogstyles.store
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ogfashions-frontend
+                port:
+                  number: 80

@@ -1,0 +1,8 @@
+---
+- name: Configure Docker app hosts
+  hosts: app_hosts
+  become: true
+  roles:
+    - common
+    - docker_engine
+    - app_host

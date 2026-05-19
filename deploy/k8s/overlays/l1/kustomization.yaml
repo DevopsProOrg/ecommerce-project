@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ogfashions-l1
+resources:
+  - namespace.yaml
+  - ../../base
+patchesStrategicMerge:
+  - patch-configmap.yaml
+  - patch-ingress.yaml
+  - patch-scale.yaml

@@ -1,1 +1,8 @@
 .env
+deploy/docker/docker.env
+deploy/docker/docker.secrets.env
+deploy/local/local-docker.env
+deploy/local/local-docker.secrets.env
+.terraform/
+*.tfstate
+*.tfstate.backup

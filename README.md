@@ -3,8 +3,12 @@
 OG Fashions is now structured for:
 
 - local development
+- local Docker deployment
 - Docker-first deployment on a real Linux host such as EC2
 - Kubernetes deployment with separate frontend, backend, and MySQL workloads
+- Terraform-based AWS infrastructure
+- Ansible-based server configuration
+- Prometheus and Grafana monitoring
 
 ## Architecture
 
@@ -14,8 +18,20 @@ OG Fashions is now structured for:
   Spring Boot API on port `8888`
 - `deploy/docker/`
   Docker-first deployment assets for EC2 or any Linux server
+- `deploy/local/`
+  Local Docker deployment scripts and env templates
 - `deploy/k8s/`
-  Kubernetes manifests for frontend, backend, and MySQL
+  Organization-style Kubernetes base and overlays
+- `deploy/terraform/`
+  AWS infrastructure provisioning
+- `deploy/ansible/`
+  Host and app configuration management
+- `deploy/monitoring/`
+  Prometheus and Grafana deployment assets
+- `deploy/jenkins/`
+  Jenkins setup references and environment examples
+- `deploy/ORG-PLATFORM-RUNBOOK.md`
+  End-to-end execution guide across all layers
 
 ## Production notes
 
@@ -52,28 +68,43 @@ Backend default URL:
 
 Serve the `frontend` folder with any static web server, or use the frontend Docker image.
 
+## Local Docker deployment
+
+Use:
+
+- [deploy/local/README.md](/E:/Restart/Projects/ecommerce-project/deploy/local/README.md)
+
+This path runs:
+
+- MySQL
+- backend
+- frontend
+
+on one machine with Docker.
+
 ## Docker deployment on EC2 or Linux
 
-### 1. Prepare environment file
+### 1. Prepare secrets once
 
-Copy:
+The repo now includes committed production defaults for `ogstyles.store` in:
 
-- [deploy/docker/docker.env.example](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.example)
+- [deploy/docker/docker.env.defaults](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.defaults)
 
-to:
+Create only the server-local secrets file:
 
-- `deploy/docker/docker.env`
+```bash
+cp deploy/docker/docker.secrets.env.example deploy/docker/docker.secrets.env
+vi deploy/docker/docker.secrets.env
+```
 
-Then replace all placeholder passwords, admin credentials, allowed origins, and Gmail values.
+Set these real values:
 
-Important values to set:
-
-- `APP_CORS_ALLOWED_ORIGINS`
-  Use your EC2 public URL or real domain
-- `APP_BOOTSTRAP_ADMIN_EMAIL`
+- `MYSQL_ROOT_PASSWORD`
+- `SPRING_DATASOURCE_PASSWORD`
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
-  Use a Gmail app password, not a regular Gmail password
+
+This keeps permanent non-secret settings in code and keeps secrets out of git.
 
 ### 2. Deploy
 
@@ -95,8 +126,9 @@ This script will:
 
 ### 3. Access
 
-- Frontend: `http://YOUR_SERVER_PUBLIC_IP/`
-- Backend health: `http://YOUR_SERVER_PUBLIC_IP:8888/actuator/health`
+- Frontend: `https://ogstyles.store/`
+- Frontend health: `https://ogstyles.store/healthz`
+- Backend health: `https://ogstyles.store/api/actuator/health`
 
 ### 4. Cleanup
 
@@ -112,6 +144,10 @@ This removes containers and the network but keeps the MySQL volume.
 Files are in:
 
 - [deploy/k8s](/E:/Restart/Projects/ecommerce-project/deploy/k8s)
+
+Use:
+
+- [deploy/k8s/README.md](/E:/Restart/Projects/ecommerce-project/deploy/k8s/README.md)
 
 ### 1. Build and push images
 
@@ -129,25 +165,69 @@ Example:
 
 Copy:
 
-- [secret.example.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/secret.example.yaml)
+- [ogfashions-secrets.example.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/secrets/ogfashions-secrets.example.yaml)
 
-to a real secret manifest, fill the real values, and apply it first.
+to a real secret manifest, fill the real values, set the target namespace, and apply it first.
 
 ### 3. Apply manifests
 
 ```bash
-kubectl apply -f deploy/k8s/namespace.yaml
-kubectl apply -f deploy/k8s/secret.yaml
-kubectl apply -k deploy/k8s
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 latest
 ```
 
 ### 4. Configure ingress
 
-Update the host in:
+The repo already includes overlays for:
 
-- [deploy/k8s/ingress.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/ingress.yaml)
+- `l1.ogstyles.store`
+- `l2.ogstyles.store`
+- `l3.ogstyles.store`
+- `l6.ogstyles.store`
+- `ogstyles.store`
 
-Set it to your real domain, then point DNS to your ingress controller/load balancer.
+Point DNS to your ingress controller or load balancer.
+
+## Terraform
+
+Use:
+
+- [deploy/terraform/README.md](/E:/Restart/Projects/ecommerce-project/deploy/terraform/README.md)
+
+This provisions AWS infrastructure for:
+
+- network
+- EC2 app hosts
+- optional EKS clusters
+- Route53 records
+
+across `l1`, `l2`, `l3`, `l6`, and `lp`.
+
+## Ansible
+
+Use:
+
+- [deploy/ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
+
+This configures:
+
+- Docker hosts
+- app directories
+- secrets files
+- Node Exporter
+
+after Terraform provisioning.
+
+## Monitoring
+
+Use:
+
+- [deploy/monitoring/README.md](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/README.md)
+
+This includes:
+
+- Docker Prometheus + Grafana
+- Kubernetes Prometheus + Grafana
+- backend metrics scraping through `/actuator/prometheus`
 
 ## Validation checklist
 
@@ -172,3 +252,9 @@ After deployment, verify:
 ## Important production advice
 
 The included MySQL container and StatefulSet are suitable for real testing and controlled deployment work, but for a stronger production setup you should move the database to a managed service such as Amazon RDS. That will reduce operational risk, improve backups, and make upgrades safer.
+
+## Full platform runbook
+
+See:
+
+- [deploy/ORG-PLATFORM-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PLATFORM-RUNBOOK.md)

@@ -1,0 +1,27 @@
+---
+- name: Install Docker on Debian
+  ansible.builtin.apt:
+    name:
+      - docker.io
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install Docker on RedHat
+  ansible.builtin.yum:
+    name:
+      - docker
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Enable Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add remote user to docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user | default('ec2-user') }}"
+    groups: docker
+    append: true
