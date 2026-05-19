@@ -2,28 +2,49 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-config
+  namespace: monitoring
 data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
+      evaluation_interval: 15s
+
     scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+
       - job_name: ogfashions-l1
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["ogfashions-backend.ogfashions-l1.svc.cluster.local:8888"]
+          - targets: ['ogfashions-backend.ogfashions-l1.svc.cluster.local:8888']
+            labels:
+              environment: l1
+
       - job_name: ogfashions-l2
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["ogfashions-backend.ogfashions-l2.svc.cluster.local:8888"]
+          - targets: ['ogfashions-backend.ogfashions-l2.svc.cluster.local:8888']
+            labels:
+              environment: l2
+
       - job_name: ogfashions-l3
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["ogfashions-backend.ogfashions-l3.svc.cluster.local:8888"]
+          - targets: ['ogfashions-backend.ogfashions-l3.svc.cluster.local:8888']
+            labels:
+              environment: l3
+
       - job_name: ogfashions-l6
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["ogfashions-backend.ogfashions-l6.svc.cluster.local:8888"]
+          - targets: ['ogfashions-backend.ogfashions-l6.svc.cluster.local:8888']
+            labels:
+              environment: l6
+
       - job_name: ogfashions-lp
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ["ogfashions-backend.ogfashions-lp.svc.cluster.local:8888"]
+          - targets: ['ogfashions-backend.ogfashions-lp.svc.cluster.local:8888']
+            labels:
+              environment: lp

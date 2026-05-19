@@ -13,13 +13,15 @@ This folder is organized for multi-environment, org-style deployment.
 - `overlays/lp`
   - environment-specific namespaces, domains, replica counts, and ingress rules
 - `scripts/deploy.sh`
-  - applies an overlay and updates the backend/frontend images
+  - applies an overlay and updates the backend and frontend images
 - `secrets/ogfashions-secrets.example.yaml`
   - secret template for any target namespace
 
+Legacy `staging` and `production` overlays are still present for compatibility, but the current platform flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
+
 ## Environment model
 
-You asked for levels:
+The repo now treats these as first-class Kubernetes overlays:
 
 - `l1`
 - `l2`
@@ -27,15 +29,40 @@ You asked for levels:
 - `l6`
 - `lp`
 
-This repo now treats them as first-class Kubernetes overlays.
+## What is deployed
+
+Base components include:
+
+- config map
+- MySQL StatefulSet
+- backend Deployment and Service
+- frontend Deployment and Service
+- ingress
+- backend and frontend HPAs
+- backend and frontend PodDisruptionBudgets
+
+## Prerequisites
+
+You need:
+
+- a working Kubernetes cluster
+- `kubectl`
+- `bash`
+- access to push images to Docker Hub or ECR
+- a real secret manifest based on `secrets/ogfashions-secrets.example.yaml`
+- an ingress controller such as ingress-nginx
+
+Recommended choices:
+
+- learning or low-cost: k3s on EC2
+- AWS managed: EKS
 
 ## First-time setup
 
 1. Install ingress-nginx in the cluster.
-2. Create the namespace and workloads through the overlay.
-3. Copy `secrets/ogfashions-secrets.example.yaml` to a real secret file.
-4. Update the namespace in the secret file to match the overlay.
-5. Apply the secret before or immediately after the first deploy.
+2. Copy `secrets/ogfashions-secrets.example.yaml` to a real secret file.
+3. Update the namespace in the secret file to match the overlay.
+4. Apply the secret before or immediately after the first deploy.
 
 ## Example deploy
 
@@ -55,3 +82,63 @@ That deploys:
 - `l3`: `l3.ogstyles.store`
 - `l6`: `l6.ogstyles.store`
 - `lp`: `ogstyles.store`
+
+## Validation
+
+Render an overlay before applying it:
+
+```bash
+kubectl kustomize deploy/k8s/overlays/lp
+```
+
+Check resources after deploy:
+
+```bash
+kubectl get all -n ogfashions-lp
+```
+
+Check backend logs:
+
+```bash
+kubectl logs deploy/ogfashions-backend -n ogfashions-lp
+```
+
+Check frontend logs:
+
+```bash
+kubectl logs deploy/ogfashions-frontend -n ogfashions-lp
+```
+
+## Ingress and DNS
+
+Point DNS to your ingress controller or load balancer.
+
+For a real internet-facing setup:
+
+1. add the DNS record
+2. point it to the ingress controller or load balancer
+3. enable HTTPS
+
+## Database note
+
+The current Kubernetes setup uses MySQL as a StatefulSet. This is fine for learning, staging, and controlled testing.
+
+For stronger production readiness later, move to:
+
+- Amazon RDS for MySQL
+
+That will simplify backups, upgrades, and high availability.
+
+## Jenkins usage
+
+The Jenkins pipeline deploys Kubernetes through:
+
+- `deploy/k8s/scripts/deploy.sh`
+
+Jenkins must have:
+
+- `kubectl`
+- a valid kubeconfig credential
+- access to the cluster
+
+See [../jenkins/README.md](../jenkins/README.md) and [../jenkins/PIPELINE-STAGES.md](../jenkins/PIPELINE-STAGES.md).

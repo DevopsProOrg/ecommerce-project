@@ -1,11 +1,11 @@
 # OG Fashions Deployment Guide
 
-OG Fashions is now structured for:
+OG Fashions is structured for:
 
 - local development
 - local Docker deployment
-- Docker-first deployment on a real Linux host such as EC2
-- Kubernetes deployment with separate frontend, backend, and MySQL workloads
+- Docker-first deployment on a Linux host such as EC2
+- Kubernetes deployment with frontend, backend, and MySQL workloads
 - Terraform-based AWS infrastructure
 - Ansible-based server configuration
 - Prometheus and Grafana monitoring
@@ -35,16 +35,16 @@ OG Fashions is now structured for:
 
 ## Production notes
 
-The app no longer needs your laptop MySQL to run in deployed environments.
+The app no longer depends on your laptop MySQL in deployed environments.
 
 For Docker and Kubernetes:
 
 - MySQL runs as its own workload with persistent storage
 - frontend proxies `/api` traffic to the backend
 - backend health endpoints are available through Spring Boot Actuator
-- Gmail SMTP stays external and is supplied through secrets/env vars
+- Gmail SMTP stays external and is supplied through secrets or env vars
 
-Recommended real production direction:
+Recommended production direction:
 
 1. Use EC2 + Docker for the first internet-facing deployment.
 2. Move MySQL to Amazon RDS when you want a stronger production database setup.
@@ -74,19 +74,15 @@ Use:
 
 - [deploy/local/README.md](/E:/Restart/Projects/ecommerce-project/deploy/local/README.md)
 
-This path runs:
-
-- MySQL
-- backend
-- frontend
-
-on one machine with Docker.
+This path runs MySQL, backend, and frontend on one machine with Docker.
 
 ## Docker deployment on EC2 or Linux
 
-### 1. Prepare secrets once
+Use:
 
-The repo now includes committed production defaults for `ogstyles.store` in:
+- [deploy/docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
+
+The repo includes committed production defaults for `ogstyles.store` in:
 
 - [deploy/docker/docker.env.defaults](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.defaults)
 
@@ -104,40 +100,18 @@ Set these real values:
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
 
-This keeps permanent non-secret settings in code and keeps secrets out of git.
-
-### 2. Deploy
-
-On Linux or EC2:
+Then deploy:
 
 ```bash
 chmod +x deploy/docker/ec2-deploy.sh
 ./deploy/docker/ec2-deploy.sh
 ```
 
-This script will:
-
-- build the backend image
-- build the frontend image
-- create a Docker network
-- run MySQL with a Docker volume
-- run the backend container
-- run the frontend container
-
-### 3. Access
+Access:
 
 - Frontend: `https://ogstyles.store/`
 - Frontend health: `https://ogstyles.store/healthz`
 - Backend health: `https://ogstyles.store/api/actuator/health`
-
-### 4. Cleanup
-
-```bash
-chmod +x deploy/docker/ec2-cleanup.sh
-./deploy/docker/ec2-cleanup.sh
-```
-
-This removes containers and the network but keeps the MySQL volume.
 
 ## Kubernetes deployment
 
@@ -149,35 +123,13 @@ Use:
 
 - [deploy/k8s/README.md](/E:/Restart/Projects/ecommerce-project/deploy/k8s/README.md)
 
-### 1. Build and push images
-
-Replace the placeholder image names in:
-
-- [backend-deployment.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/backend-deployment.yaml)
-- [frontend-deployment.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/frontend-deployment.yaml)
-
-Example:
-
-- `your-dockerhub-or-ecr-user/ogfashions-backend:latest`
-- `your-dockerhub-or-ecr-user/ogfashions-frontend:latest`
-
-### 2. Create secret file
-
-Copy:
-
-- [ogfashions-secrets.example.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/secrets/ogfashions-secrets.example.yaml)
-
-to a real secret manifest, fill the real values, set the target namespace, and apply it first.
-
-### 3. Apply manifests
+Example apply:
 
 ```bash
 bash deploy/k8s/scripts/deploy.sh lp yarrav7 latest
 ```
 
-### 4. Configure ingress
-
-The repo already includes overlays for:
+This repo includes overlays for:
 
 - `l1.ogstyles.store`
 - `l2.ogstyles.store`
@@ -185,7 +137,7 @@ The repo already includes overlays for:
 - `l6.ogstyles.store`
 - `ogstyles.store`
 
-Point DNS to your ingress controller or load balancer.
+Legacy `staging` and `production` manifests are still present for compatibility, but the current org-level flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
 
 ## Terraform
 
@@ -229,6 +181,23 @@ This includes:
 - Kubernetes Prometheus + Grafana
 - backend metrics scraping through `/actuator/prometheus`
 
+## Jenkins pipeline
+
+This repo includes:
+
+- [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile)
+- [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
+- [deploy/jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+- [deploy/jenkins/PIPELINE-STAGES.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/PIPELINE-STAGES.md)
+- [deploy/DEVOPS-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-RUNBOOK.md)
+
+The pipeline is designed for a real branch flow:
+
+1. Feature branches validate code only.
+2. `main` and `master` can build and push images.
+3. `release` and `release/*` can deploy to production-style targets.
+4. Jenkins can deploy to Docker on EC2, Kubernetes, or both.
+
 ## Validation checklist
 
 After deployment, verify:
@@ -240,18 +209,6 @@ After deployment, verify:
 5. Support tickets are saved in MySQL.
 6. Order emails and support emails are delivered.
 7. Backend health is `UP`.
-
-## Current implementation details
-
-- `docker-compose.yml` was removed as requested
-- backend Docker build is now multi-stage
-- frontend Nginx now supports configurable backend upstream
-- backend now exposes health endpoints for container probes
-- deployment assets are split into Docker-first and Kubernetes-ready folders
-
-## Important production advice
-
-The included MySQL container and StatefulSet are suitable for real testing and controlled deployment work, but for a stronger production setup you should move the database to a managed service such as Amazon RDS. That will reduce operational risk, improve backups, and make upgrades safer.
 
 ## Full platform runbook
 

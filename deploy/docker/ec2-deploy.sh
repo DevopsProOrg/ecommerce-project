@@ -14,7 +14,7 @@ fi
 set -a
 source "$DEFAULTS_FILE"
 if [[ -f "$ENV_FILE" ]]; then
-source "$ENV_FILE"
+  source "$ENV_FILE"
 fi
 if [[ -f "$SECRETS_FILE" ]]; then
   source "$SECRETS_FILE"
