@@ -6,3 +6,5 @@ deploy/local/local-docker.secrets.env
 .terraform/
 *.tfstate
 *.tfstate.backup
+.git-index-temp
+.git-index-temp.lock
