@@ -9,8 +9,8 @@ Use [PIPELINE-STAGES.md](./PIPELINE-STAGES.md) for the detailed stage-by-stage p
 The repository pipeline supports:
 
 - validation on feature branches
-- lower-environment deploy from `main` or `master`
-- approval-gated production deploy from `release` or `release/*`
+- deployment from any branch when deployment parameters are explicitly chosen
+- approval-gated production deploy to `lp`
 - Docker deployment on EC2
 - Kubernetes deployment
 - optional SonarQube, Trivy, and Nexus stages
@@ -148,17 +148,29 @@ Run one build and confirm you receive:
 - image tags
 - build URL
 
-## Branch policy
+## Branch and deployment policy
 
-- feature branches:
-  - validate only
-- `main` and `master`:
-  - push images
-  - deploy lower environment
-- `release` and `release/*`:
-  - push images
-  - require approval
-  - deploy production
+Branch names can be anything.
+
+Examples:
+
+- `main`
+- `master`
+- `release`
+- `venky`
+- `abcd`
+- `defect-102`
+
+Pipeline behavior is now parameter-driven:
+
+- if `DEPLOY_TARGET=none`
+  - the build validates only
+- if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL` is chosen
+  - the pipeline can push images and deploy from that branch
+- if `DEPLOY_LEVEL=lp`
+  - Jenkins requires manual approval before production deployment
+- if `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
+  - deployment can proceed without production approval
 
 ## Suggested pipeline parameters
 
@@ -167,6 +179,13 @@ Run one build and confirm you receive:
   - `docker`
   - `k8s`
   - `both`
+- `DEPLOY_LEVEL`
+  - `none`
+  - `l1`
+  - `l2`
+  - `l3`
+  - `l6`
+  - `lp`
 - `K8S_OVERLAY`
   - `l1`
   - `l2`
@@ -208,8 +227,21 @@ After deploy, Jenkins checks:
 4. Add credentials and environment variables.
 5. Configure the webhook.
 6. Create the multibranch pipeline.
-7. Trigger `main` first.
-8. Later enable Sonar, Trivy, Nexus, and Kubernetes.
+7. Trigger any branch first with `DEPLOY_TARGET=none`.
+8. Trigger a lower environment using `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`.
+9. Trigger production using `DEPLOY_LEVEL=lp`.
+10. Later enable Sonar, Trivy, Nexus, and Kubernetes.
+
+## Recommended org-level build policy
+
+Use this policy to reduce deployment issues:
+
+1. run validation on every branch
+2. push immutable image tags
+3. deploy the same image tag across all levels
+4. run smoke checks after every deploy
+5. require approval only for `lp`
+6. keep the previous good image tag for rollback
 
 ## Related docs
 

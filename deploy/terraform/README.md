@@ -1,6 +1,8 @@
 # Terraform Infrastructure
 
-This structure provisions organization-style AWS infrastructure for:
+This Terraform layout is for creating AWS resources level by level.
+
+It supports:
 
 - `l1`
 - `l2`
@@ -8,18 +10,134 @@ This structure provisions organization-style AWS infrastructure for:
 - `l6`
 - `lp`
 
-## Step-by-step
+## 1. What Terraform can create
 
-### Step 1. Choose the target level
+The shared stack in [stacks/org-platform](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform) can create:
 
-Use:
+- VPC
+- public subnets
+- private subnets
+- NAT gateway
+- EC2 application host
+- Elastic IP
+- optional EKS cluster
+- optional internet-facing Application Load Balancer
+- optional Route53 records
 
-- `l1`, `l2` for faster EC2-style rollout
-- `l3`, `l6`, `lp` for bigger or Kubernetes-oriented rollout
+## 2. Environment model
 
-### Step 2. Open the environment folder
+Recommended usage in this project:
+
+- `l1`, `l2`
+  lower Docker or EC2-style environments, usually without public domain
+- `l3`, `l6`
+  higher test or pre-production environments, often Kubernetes-oriented
+- `lp`
+  production
+
+Access model:
+
+- `l1`, `l2`, `l3`, `l6`
+  use public IP, Elastic IP, ingress address, or load balancer address
+- `lp`
+  use `ogstyles.store`
+
+## 3. What to do first
+
+Before running Terraform, prepare these AWS items:
+
+1. AWS account access
+2. AWS CLI or credentials configured
+3. region chosen [example: `ap-south-1`]
+4. EC2 key pair created [example: `ogstyles-lp-key`]
+5. Route53 hosted zone ready if production DNS is needed
+6. ACM certificate created if production HTTPS ALB is needed
+
+Production extras:
+
+1. domain `ogstyles.store` available in Route53 or delegated there
+2. ACM certificate issued for `ogstyles.store`
+3. optionally certificate also covers `www.ogstyles.store`
+
+## 4. Choose the target environment
+
+Examples:
+
+- [environments/l1](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l1)
+- [environments/l2](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l2)
+- [environments/l3](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l3)
+- [environments/l6](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l6)
+- [environments/lp](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/lp)
+
+## 5. Step-by-step for lower levels
+
+Use this flow for `l1`, `l2`, `l3`, or `l6`.
+
+### Step 1. Open the environment folder
 
 Example:
+
+```bash
+cd deploy/terraform/environments/l1
+```
+
+### Step 2. Create the tfvars file
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+```
+
+### Step 3. Fill the values
+
+Typical values:
+
+- `hosted_zone_id = null`
+- `key_pair_name = "ogstyles-l1-key"` [example]
+
+The environment variables file already contains:
+
+- environment CIDRs
+- default region
+- domain placeholder
+
+### Step 4. Run Terraform
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+### Step 5. Save the outputs
+
+Keep:
+
+- VPC ID
+- app host public IP
+- app URL
+- generated Ansible inventory snippet
+
+### Step 6. Use the outputs
+
+Lower-level examples:
+
+- `http://<elastic-ip>/`
+- `http://<elastic-ip>/healthz`
+- `http://<elastic-ip>/api/actuator/health`
+
+## 6. Step-by-step for production
+
+Use this flow for `lp`.
+
+### Step 1. Prepare DNS and certificate
+
+You need:
+
+1. Route53 hosted zone for `ogstyles.store`
+2. ACM certificate ARN for `ogstyles.store`
+3. EC2 key pair
+
+### Step 2. Open the production folder
 
 ```bash
 cd deploy/terraform/environments/lp
@@ -31,45 +149,86 @@ cd deploy/terraform/environments/lp
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-### Step 4. Fill real infrastructure values
+### Step 4. Fill the production values
 
-Update:
+Examples:
 
-- AWS region
-- VPC CIDR
-- subnet CIDRs
-- instance size
-- domain settings
-- Route53 zone details
-- whether EKS should be enabled
+```hcl
+hosted_zone_id      = "ZXXXXXXXXXXXXX"
+key_pair_name       = "ogstyles-lp-key"
+alb_certificate_arn = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
+```
 
-### Step 5. Initialize Terraform
+### Step 5. Run Terraform
 
 ```bash
 terraform init
-```
-
-### Step 6. Review the plan
-
-```bash
 terraform plan
-```
-
-### Step 7. Apply the infrastructure
-
-```bash
 terraform apply
 ```
 
-### Step 8. Save the outputs
+### Step 6. What production creates
 
-Capture:
+The `lp` environment now defaults to:
 
-- EC2 public IP
+- EC2 app host
 - Elastic IP
-- EKS cluster details
-- Route53 outputs
+- EKS cluster
+- internet-facing ALB
+- public DNS record
+- `www` alias if enabled
 
-### Step 9. Move to Ansible
+### Step 7. Production traffic flow
 
-After infra exists, use Ansible to configure the hosts.
+Typical flow:
+
+1. browser opens `https://ogstyles.store`
+2. Route53 points to ALB
+3. ALB terminates HTTPS
+4. ALB forwards traffic to EC2 app host on port `80`
+5. frontend container serves UI
+6. frontend proxies `/api/*` to backend container
+
+## 7. Load balancer notes
+
+The Terraform stack now supports:
+
+- HTTP listener on port `80`
+- HTTPS listener on port `443` when `alb_certificate_arn` is set
+- redirect from `80` to `443` when certificate is configured
+- target group health check on `/healthz`
+
+This makes the `lp` stack suitable for a production-style internet-facing ecommerce path.
+
+## 8. After Terraform
+
+Run these next:
+
+1. Ansible
+2. Docker deploy or Jenkins deploy
+3. production validation
+
+Suggested order:
+
+1. [../ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
+2. [../docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
+3. [../jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+
+## 9. Real-world production checklist
+
+For `lp`, confirm all of these:
+
+1. ALB DNS name exists
+2. Route53 record points to ALB
+3. HTTPS certificate is valid
+4. security groups allow `80` and `443`
+5. EC2 app host is healthy
+6. backend health works through frontend
+7. Jenkins `DEPLOY_BASE_URL` is set to `https://ogstyles.store`
+
+## 10. Related files
+
+- [stacks/org-platform/main.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/main.tf)
+- [stacks/org-platform/variables.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/variables.tf)
+- [stacks/org-platform/outputs.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/outputs.tf)
+- [../DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)

@@ -103,6 +103,41 @@ resource "aws_security_group" "app_host" {
   tags = local.common_tags
 }
 
+resource "aws_security_group" "alb" {
+  count       = var.enable_alb ? 1 : 0
+  name        = "${local.name_prefix}-alb"
+  description = "Security group for the ecommerce application load balancer"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    for_each = var.alb_certificate_arn != null ? [1] : []
+    content {
+      description = "HTTPS"
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = local.common_tags
+}
+
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -142,6 +177,94 @@ resource "aws_eip" "app_host" {
   })
 }
 
+resource "aws_lb" "app" {
+  count              = var.enable_alb ? 1 : 0
+  name               = substr("${local.name_prefix}-alb", 0, 32)
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb[0].id]
+  subnets            = module.vpc.public_subnets
+
+  tags = merge(local.common_tags, {
+    Name = "${local.name_prefix}-alb"
+  })
+}
+
+resource "aws_lb_target_group" "app" {
+  count       = var.enable_alb ? 1 : 0
+  name        = substr("${local.name_prefix}-app", 0, 32)
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "instance"
+  vpc_id      = module.vpc.vpc_id
+
+  health_check {
+    enabled             = true
+    protocol            = "HTTP"
+    path                = "/healthz"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+  }
+
+  tags = local.common_tags
+}
+
+resource "aws_lb_target_group_attachment" "app_host" {
+  count            = var.enable_alb && var.create_app_host ? 1 : 0
+  target_group_arn = aws_lb_target_group.app[0].arn
+  target_id        = aws_instance.app_host[0].id
+  port             = 80
+}
+
+resource "aws_lb_listener" "http" {
+  count             = var.enable_alb ? 1 : 0
+  load_balancer_arn = aws_lb.app[0].arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = var.alb_certificate_arn != null ? "redirect" : "forward"
+
+    dynamic "redirect" {
+      for_each = var.alb_certificate_arn != null ? [1] : []
+      content {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+
+    dynamic "forward" {
+      for_each = var.alb_certificate_arn == null ? [1] : []
+      content {
+        target_group {
+          arn = aws_lb_target_group.app[0].arn
+        }
+      }
+    }
+  }
+}
+
+resource "aws_lb_listener" "https" {
+  count             = var.enable_alb && var.alb_certificate_arn != null ? 1 : 0
+  load_balancer_arn = aws_lb.app[0].arn
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn   = var.alb_certificate_arn
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+
+  default_action {
+    type = "forward"
+
+    target_group {
+      arn = aws_lb_target_group.app[0].arn
+    }
+  }
+}
+
 module "eks" {
   count   = var.create_eks ? 1 : 0
   source  = "terraform-aws-modules/eks/aws"
@@ -169,7 +292,7 @@ module "eks" {
 }
 
 resource "aws_route53_record" "app_host" {
-  count   = var.hosted_zone_id != null && var.create_app_host ? 1 : 0
+  count   = var.hosted_zone_id != null && var.create_app_host && !var.enable_alb && var.create_public_dns_record ? 1 : 0
   zone_id = var.hosted_zone_id
   name    = local.fqdn
   type    = "A"
@@ -177,8 +300,21 @@ resource "aws_route53_record" "app_host" {
   records = [aws_eip.app_host[0].public_ip]
 }
 
+resource "aws_route53_record" "app_alb" {
+  count   = var.hosted_zone_id != null && var.enable_alb && var.create_public_dns_record ? 1 : 0
+  zone_id = var.hosted_zone_id
+  name    = local.fqdn
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.app[0].dns_name
+    zone_id                = aws_lb.app[0].zone_id
+    evaluate_target_health = true
+  }
+}
+
 resource "aws_route53_record" "www" {
-  count   = var.hosted_zone_id != null && var.create_www_record && var.create_app_host ? 1 : 0
+  count   = var.hosted_zone_id != null && var.create_www_record && var.create_public_dns_record ? 1 : 0
   zone_id = var.hosted_zone_id
   name    = "www.${var.domain_name}"
   type    = "CNAME"

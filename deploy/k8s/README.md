@@ -11,7 +11,7 @@ This folder is organized for multi-environment, org-style deployment.
 - `overlays/l3`
 - `overlays/l6`
 - `overlays/lp`
-  - environment-specific namespaces, domains, replica counts, and ingress rules
+  - environment-specific namespaces, access model, replica counts, and ingress rules
 - `scripts/deploy.sh`
   - applies an overlay and updates the backend and frontend images
 - `secrets/ogfashions-secrets.example.yaml`
@@ -28,6 +28,15 @@ The repo now treats these as first-class Kubernetes overlays:
 - `l3`
 - `l6`
 - `lp`
+
+Meaning:
+
+- `l1`, `l2`, `l3`
+  lower environments such as dev and testing
+- `l6`
+  pre-production or staging
+- `lp`
+  production
 
 ## What is deployed
 
@@ -64,6 +73,14 @@ Recommended choices:
 3. Update the namespace in the secret file to match the overlay.
 4. Apply the secret before or immediately after the first deploy.
 
+## Preflight
+
+Run:
+
+```bash
+bash deploy/scripts/preflight-check.sh k8s
+```
+
 ## Example deploy
 
 ```bash
@@ -75,13 +92,14 @@ That deploys:
 - backend image: `docker.io/yarrav7/ogfashions-backend:release-12`
 - frontend image: `docker.io/yarrav7/ogfashions-frontend:release-12`
 
-## Domains
+## Access model
 
-- `l1`: `l1.ogstyles.store`
-- `l2`: `l2.ogstyles.store`
-- `l3`: `l3.ogstyles.store`
-- `l6`: `l6.ogstyles.store`
-- `lp`: `ogstyles.store`
+- `l1`, `l2`, `l3`, `l6`
+  use IP address, load balancer address, or server address
+- `lp`
+  uses the permanent production domain `ogstyles.store`
+
+For lower levels, the overlay ingress rules are intentionally hostless so you can access them by load balancer IP or DNS without needing subdomains.
 
 ## Validation
 
@@ -109,9 +127,17 @@ Check frontend logs:
 kubectl logs deploy/ogfashions-frontend -n ogfashions-lp
 ```
 
+Run smoke check if the ingress URL is reachable:
+
+```bash
+bash deploy/scripts/http-smoke.sh https://ogstyles.store
+```
+
 ## Ingress and DNS
 
-Point DNS to your ingress controller or load balancer.
+For lower levels, you can directly use the ingress or load balancer IP.
+
+For production, point DNS to your ingress controller or load balancer.
 
 For a real internet-facing setup:
 

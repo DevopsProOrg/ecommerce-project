@@ -15,7 +15,7 @@ This path is for a full local container-based run on one machine and is the safe
 Local Docker now supports automatic port conflict handling.
 
 - `PORT_CONFLICT_STRATEGY=auto`
-  - if `8080` or `8888` is busy, the script picks the next free port
+  - if `8081` or `8888` is busy, the script picks the next free port
 - `PORT_SEARCH_LIMIT=25`
   - how many next ports to try
 
@@ -34,7 +34,7 @@ cp deploy/local/local-docker.secrets.env.example deploy/local/local-docker.secre
 
 Default local values:
 
-- frontend host port: `8080`
+- frontend host port: `8081`
 - backend host port: `8888`
 - port strategy: `auto`
 
@@ -64,11 +64,11 @@ Open the printed frontend URL in browser.
 
 Typical default URLs:
 
-- `http://localhost:8080/`
-- `http://localhost:8080/healthz`
-- `http://localhost:8080/api/actuator/health`
+- `http://localhost:8081/`
+- `http://localhost:8081/healthz`
+- `http://localhost:8081/api/actuator/health`
 
-If port `8080` was busy, use the printed resolved frontend port instead.
+If port `8081` was busy, use the printed resolved frontend port instead.
 
 ### Step 5. Validate the application
 

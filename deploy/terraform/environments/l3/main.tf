@@ -10,7 +10,9 @@ module "platform" {
   private_subnets  = var.private_subnets
   domain_name      = var.domain_name
   hosted_zone_id   = var.hosted_zone_id
-  app_subdomain    = "l3"
+  app_subdomain    = ""
+  create_public_dns_record = false
+  enable_alb       = false
   create_app_host  = false
   create_eks       = true
   key_pair_name    = var.key_pair_name

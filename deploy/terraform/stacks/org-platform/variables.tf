@@ -63,6 +63,24 @@ variable "create_www_record" {
   default     = false
 }
 
+variable "enable_alb" {
+  type        = bool
+  description = "Whether to create an internet-facing Application Load Balancer."
+  default     = false
+}
+
+variable "alb_certificate_arn" {
+  type        = string
+  description = "ACM certificate ARN for HTTPS listener on the ALB."
+  default     = null
+}
+
+variable "create_public_dns_record" {
+  type        = bool
+  description = "Whether to create a Route53 alias for the application FQDN."
+  default     = false
+}
+
 variable "create_app_host" {
   type        = bool
   description = "Whether to create an EC2 app host."

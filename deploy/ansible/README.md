@@ -23,6 +23,11 @@ cd deploy/ansible
 vi inventories/lp/hosts.yml
 ```
 
+Use:
+
+- real server IPs for `l1`, `l2`, `l3`, and `l6`
+- production IP or production DNS for `lp`
+
 ### Step 3. Review shared variables
 
 Edit:

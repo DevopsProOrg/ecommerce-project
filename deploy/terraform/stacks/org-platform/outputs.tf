@@ -7,7 +7,23 @@ output "app_host_public_ip" {
 }
 
 output "app_url" {
-  value = var.create_app_host ? "http://${local.fqdn}" : null
+  value = var.enable_alb ? (
+    var.create_public_dns_record ? (
+      var.alb_certificate_arn != null ? "https://${local.fqdn}" : "http://${local.fqdn}"
+    ) : (
+      var.alb_certificate_arn != null ? "https://${aws_lb.app[0].dns_name}" : "http://${aws_lb.app[0].dns_name}"
+    )
+  ) : (
+    var.create_public_dns_record ? "http://${local.fqdn}" : (var.create_app_host ? "http://${aws_eip.app_host[0].public_ip}" : null)
+  )
+}
+
+output "alb_dns_name" {
+  value = var.enable_alb ? aws_lb.app[0].dns_name : null
+}
+
+output "alb_zone_id" {
+  value = var.enable_alb ? aws_lb.app[0].zone_id : null
 }
 
 output "eks_cluster_name" {
@@ -21,6 +37,6 @@ output "eks_cluster_endpoint" {
 output "ansible_inventory_app_host" {
   value = var.create_app_host ? <<-EOT
     [app_hosts]
-    ${local.fqdn} ansible_host=${aws_eip.app_host[0].public_ip}
+    ${var.create_public_dns_record ? local.fqdn : aws_eip.app_host[0].public_ip} ansible_host=${aws_eip.app_host[0].public_ip}
   EOT : null
 }

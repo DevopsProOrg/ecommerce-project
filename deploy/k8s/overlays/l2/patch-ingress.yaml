@@ -4,8 +4,7 @@ metadata:
   name: ogfashions-ingress
 spec:
   rules:
-    - host: l2.ogstyles.store
-      http:
+    - http:
         paths:
           - path: /
             pathType: Prefix

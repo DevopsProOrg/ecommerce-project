@@ -19,7 +19,8 @@ def sendBuildNotification(String status) {
         "Build: #${env.BUILD_NUMBER}",
         "Branch: ${env.BRANCH_NAME ?: 'n/a'}",
         "Deploy target: ${params.DEPLOY_TARGET}",
-        "K8s overlay: ${params.K8S_OVERLAY}",
+        "Deploy level: ${env.DEPLOY_LEVEL ?: 'n/a'}",
+        "K8s overlay: ${env.DEPLOY_LEVEL ?: params.K8S_OVERLAY}",
         "Backend image: ${env.BACKEND_IMAGE ?: 'n/a'}:${env.IMAGE_TAG ?: 'n/a'}",
         "Frontend image: ${env.FRONTEND_IMAGE ?: 'n/a'}:${env.IMAGE_TAG ?: 'n/a'}",
         "Base URL: ${env.DEPLOY_BASE_URL ?: 'n/a'}",
@@ -46,6 +47,7 @@ pipeline {
 
     parameters {
         choice(name: 'DEPLOY_TARGET', choices: ['none', 'docker', 'k8s', 'both'], description: 'Choose deployment target.')
+        choice(name: 'DEPLOY_LEVEL', choices: ['none', 'l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose deployment environment level. Use none for validation-only builds.')
         choice(name: 'K8S_OVERLAY', choices: ['l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose Kubernetes overlay.')
         booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarQube analysis if configured.')
         booleanParam(name: 'RUN_TRIVY', defaultValue: true, description: 'Run Trivy filesystem and image scans if installed.')
@@ -86,8 +88,13 @@ pipeline {
                         env.IMAGE_TAG = "${safeBranch}-${env.BUILD_NUMBER}"
                         env.REMOTE_REPO_URL = env.GIT_URL ?: 'https://github.com/DevopsProOrg/ecommerce-project.git'
                         env.DEPLOY_BASE_URL = params.DEPLOY_BASE_URL?.trim() ?: 'https://ogstyles.store'
+                        env.DEPLOY_LEVEL = params.DEPLOY_LEVEL != 'none' ? params.DEPLOY_LEVEL : (params.DEPLOY_TARGET != 'none' ? params.K8S_OVERLAY : 'none')
                         env.IS_RELEASE_BRANCH = (env.BRANCH_NAME == 'release' || (env.BRANCH_NAME ?: '').startsWith('release/')) ? 'true' : 'false'
                         env.IS_MAINLINE = ['main', 'master'].contains(env.BRANCH_NAME ?: '') ? 'true' : 'false'
+                        env.HAS_DEPLOY_REQUEST = (params.DEPLOY_TARGET != 'none' && params.DEPLOY_LEVEL != 'none') ? 'true' : 'false'
+                        env.IS_PRODUCTION_LEVEL = (env.DEPLOY_LEVEL == 'lp') ? 'true' : 'false'
+                        env.IS_PREPROD_LEVEL = (env.DEPLOY_LEVEL == 'l6') ? 'true' : 'false'
+                        env.ALLOW_IMAGE_PUSH = (env.HAS_DEPLOY_REQUEST == 'true' || env.IS_MAINLINE == 'true' || env.IS_RELEASE_BRANCH == 'true') ? 'true' : 'false'
                     }
                 }
             }
@@ -201,10 +208,7 @@ pipeline {
 
         stage('Push Images To Registry') {
             when {
-                anyOf {
-                    expression { return env.IS_MAINLINE == 'true' }
-                    expression { return env.IS_RELEASE_BRANCH == 'true' }
-                }
+                expression { return env.ALLOW_IMAGE_PUSH == 'true' }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
@@ -217,15 +221,12 @@ pipeline {
             }
         }
 
-        stage('Deploy Lower Environment') {
+        stage('Deploy Selected Non-Prod Environment') {
             when {
-                allOf {
-                    expression { return env.IS_MAINLINE == 'true' }
-                    expression { return params.DEPLOY_TARGET != 'none' }
-                }
+                expression { return env.HAS_DEPLOY_REQUEST == 'true' && env.IS_PRODUCTION_LEVEL != 'true' }
             }
             parallel {
-                stage('Docker Lower') {
+                stage('Docker Non-Prod') {
                     when {
                         expression { return params.DEPLOY_TARGET == 'docker' || params.DEPLOY_TARGET == 'both' }
                     }
@@ -260,14 +261,14 @@ pipeline {
                         }
                     }
                 }
-                stage('K8s Lower') {
+                stage('K8s Non-Prod') {
                     when {
                         expression { return params.DEPLOY_TARGET == 'k8s' || params.DEPLOY_TARGET == 'both' }
                     }
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
                             script {
-                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${params.K8S_OVERLAY} ${env.IMAGE_REPO} ${env.IMAGE_TAG}")
+                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
                             }
                         }
                     }
@@ -277,24 +278,18 @@ pipeline {
 
         stage('Production Approval') {
             when {
-                allOf {
-                    expression { return env.IS_RELEASE_BRANCH == 'true' }
-                    expression { return params.DEPLOY_TARGET != 'none' }
-                }
+                expression { return env.HAS_DEPLOY_REQUEST == 'true' && env.IS_PRODUCTION_LEVEL == 'true' }
             }
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
-                    input message: "Approve production deployment for ${env.BRANCH_NAME} build ${env.BUILD_NUMBER}?", ok: 'Deploy'
+                    input message: "Approve production deployment for ${env.BRANCH_NAME} build ${env.BUILD_NUMBER} to ${env.DEPLOY_LEVEL}?", ok: 'Deploy'
                 }
             }
         }
 
         stage('Deploy Production') {
             when {
-                allOf {
-                    expression { return env.IS_RELEASE_BRANCH == 'true' }
-                    expression { return params.DEPLOY_TARGET != 'none' }
-                }
+                expression { return env.HAS_DEPLOY_REQUEST == 'true' && env.IS_PRODUCTION_LEVEL == 'true' }
             }
             parallel {
                 stage('Docker Production') {
@@ -339,7 +334,7 @@ pipeline {
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
                             script {
-                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${params.K8S_OVERLAY} ${env.IMAGE_REPO} ${env.IMAGE_TAG}")
+                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
                             }
                         }
                     }
@@ -353,13 +348,10 @@ pipeline {
             }
             steps {
                 script {
-                    def frontendHealthUrl = "${env.DEPLOY_BASE_URL}/healthz"
-                    def backendHealthUrl = "${env.DEPLOY_BASE_URL}/api/actuator/health"
                     echo "Frontend URL: ${env.DEPLOY_BASE_URL}/"
-                    echo "Frontend health URL: ${frontendHealthUrl}"
-                    echo "Backend health URL: ${backendHealthUrl}"
-                    runCmd("curl -fsS ${frontendHealthUrl}")
-                    runCmd("curl -fsS ${backendHealthUrl}")
+                    echo "Frontend health URL: ${env.DEPLOY_BASE_URL}/healthz"
+                    echo "Backend health URL: ${env.DEPLOY_BASE_URL}/api/actuator/health"
+                    runCmd("bash deploy/scripts/http-smoke.sh '${env.DEPLOY_BASE_URL}'")
                 }
             }
         }

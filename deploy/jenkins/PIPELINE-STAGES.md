@@ -17,6 +17,7 @@ This allows Jenkins to automatically discover and build:
 - `master`
 - `release`
 - `release/*`
+- custom branches such as `venky`, `abcd`, or `defect-102`
 
 ## Pipeline parameters
 
@@ -27,6 +28,13 @@ The current `Jenkinsfile` exposes these parameters:
   - `docker`
   - `k8s`
   - `both`
+- `DEPLOY_LEVEL`
+  - `none`
+  - `l1`
+  - `l2`
+  - `l3`
+  - `l6`
+  - `lp`
 - `K8S_OVERLAY`
   - `l1`
   - `l2`
@@ -48,37 +56,29 @@ The current `Jenkinsfile` exposes these parameters:
 
 ## Branch behavior
 
-### Feature branches
+Branch names are no longer the deployment gate.
 
-Expected behavior:
+Any branch can:
 
-- validate code
-- compile backend
-- run tests
-- validate frontend JS
-- package backend
-- optionally run Sonar and Trivy
-- do not push images
-- do not deploy
-
-### `main` or `master`
-
-Expected behavior:
-
-- validate code
-- build Docker images
-- push images to registry
-- deploy lower environment if `DEPLOY_TARGET` is not `none`
-
-### `release` or `release/*`
-
-Expected behavior:
-
-- validate code
-- build images
+- validate only
 - push images
-- wait for manual approval
-- deploy production if approved
+- deploy to lower levels
+- deploy to `l6`
+- request deployment to `lp`
+
+What decides the behavior is:
+
+- `DEPLOY_TARGET`
+- `DEPLOY_LEVEL`
+
+Examples:
+
+- branch `venky` with `DEPLOY_TARGET=none`
+  - validation only
+- branch `defect-102` with `DEPLOY_TARGET=docker` and `DEPLOY_LEVEL=l2`
+  - push image and deploy to `l2`
+- branch `release` with `DEPLOY_TARGET=both` and `DEPLOY_LEVEL=lp`
+  - push image, wait for approval, deploy production
 
 ## Stage-by-stage breakdown
 
@@ -94,17 +94,17 @@ Purpose:
 
 - generate image names
 - generate image tag
-- detect whether the branch is:
-  - mainline
-  - release
+- detect deployment intent from parameters
 
 Outputs:
 
 - `BACKEND_IMAGE`
 - `FRONTEND_IMAGE`
 - `IMAGE_TAG`
-- `IS_MAINLINE`
-- `IS_RELEASE_BRANCH`
+- `DEPLOY_LEVEL`
+- `HAS_DEPLOY_REQUEST`
+- `IS_PRODUCTION_LEVEL`
+- `ALLOW_IMAGE_PUSH`
 
 ### 3. Compile Backend
 
@@ -215,12 +215,10 @@ Requirement:
 
 ### 12. Push Images To Registry
 
-Runs only for:
+Runs when:
 
-- `main`
-- `master`
-- `release`
-- `release/*`
+- deployment is requested for any branch
+- or the branch is `main`, `master`, `release`, or `release/*`
 
 Purpose:
 
@@ -232,25 +230,25 @@ Requirement:
 
 - `docker-registry-creds`
 
-### 13. Deploy Lower Environment
+### 13. Deploy Selected Non-Prod Environment
 
 Runs only when:
 
-- branch is `main` or `master`
 - `DEPLOY_TARGET != none`
+- `DEPLOY_LEVEL` is `l1`, `l2`, `l3`, or `l6`
 
 Deployment options:
 
-- Docker on EC2
-- Kubernetes lower overlay
+- Docker on EC2 or Linux
+- Kubernetes selected overlay
 - both in parallel
 
 ### 14. Production Approval
 
 Runs only when:
 
-- branch is `release` or `release/*`
 - `DEPLOY_TARGET != none`
+- `DEPLOY_LEVEL=lp`
 
 Purpose:
 
@@ -260,7 +258,7 @@ Purpose:
 
 Runs only when:
 
-- branch is `release` or `release/*`
+- `DEPLOY_LEVEL=lp`
 - approval is granted
 
 Deployment options:
@@ -321,20 +319,20 @@ The pipeline is ready for these integrations, but they must exist in your enviro
 
 Use:
 
-- `main` or `master`
+- any branch with `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
 
 Behavior:
 
-- auto build
-- auto validate
-- auto push
-- auto deploy
+- build
+- validate
+- push
+- deploy
 
 ### Production
 
 Use:
 
-- `release/*`
+- any branch with `DEPLOY_LEVEL=lp`
 
 Behavior:
 

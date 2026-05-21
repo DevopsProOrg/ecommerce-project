@@ -52,6 +52,15 @@ Suggested example mapping:
 - `l6` [example: pre-production]
 - `lp` [example: production]
 
+Recommended access model:
+
+- `l1`, `l2`, `l3`
+  lower environments such as dev and testing, usually without domain
+- `l6`
+  pre-production or staging, usually accessed by IP or load balancer address
+- `lp`
+  production, accessed by permanent domain
+
 If your company uses different meanings, keep the same folder names in the repo and map them internally.
 
 ## 3. Global configuration checklist
@@ -64,6 +73,11 @@ Configure these once before serious deployments:
 2. default branch is known [example: `master`].
 3. release branch strategy is known [example: `release`].
 
+Branch naming note:
+
+- branch names can be anything [example: `main`, `master`, `release`, `venky`, `abcd`, `defect-102`]
+- Jenkins deployment behavior is controlled by pipeline parameters, not by branch name alone
+
 ### Container registry
 
 1. create Docker Hub or ECR namespace
@@ -74,8 +88,15 @@ Configure these once before serious deployments:
 ### Domain and DNS
 
 1. permanent domain chosen [example: `ogstyles.store`]
-2. subdomain model chosen [example: `l1.ogstyles.store`, `l2.ogstyles.store`, `l3.ogstyles.store`, `l6.ogstyles.store`]
+2. decide which levels use domain and which use IP or load balancer address
 3. DNS provider known [example: GoDaddy or Route53]
+
+Recommended for this project:
+
+- `l1`, `l2`, `l3`, `l6`
+  use IP address or load balancer address
+- `lp`
+  use `ogstyles.store`
 
 ### Email and notifications
 
@@ -91,6 +112,9 @@ Configure these once before serious deployments:
 3. VPC CIDR chosen [example: `10.20.0.0/16`]
 4. public subnet CIDRs chosen [example: `10.20.1.0/24`, `10.20.2.0/24`]
 5. private subnet CIDRs chosen if needed [example: `10.20.11.0/24`, `10.20.12.0/24`]
+6. EC2 key pair created [example: `ogstyles-lp-key`]
+7. Route53 hosted zone ready if production DNS is needed
+8. ACM certificate ARN ready if production ALB HTTPS is needed
 
 ### Security and secrets
 
@@ -178,7 +202,7 @@ cp deploy/local/local-docker.secrets.env.example deploy/local/local-docker.secre
 
 Example values:
 
-- `FRONTEND_HOST_PORT=8080` [example]
+- `FRONTEND_HOST_PORT=8081` [example]
 - `BACKEND_HOST_PORT=8888` [example]
 - `PORT_CONFLICT_STRATEGY=auto` [recommended for local]
 
@@ -204,11 +228,11 @@ Windows PowerShell:
 
 Examples:
 
-- `http://localhost:8080/`
-- `http://localhost:8080/healthz`
-- `http://localhost:8080/api/actuator/health`
+- `http://localhost:8081/`
+- `http://localhost:8081/healthz`
+- `http://localhost:8081/api/actuator/health`
 
-If port `8080` is already used, use the printed replacement port.
+If port `8081` is already used, use the printed replacement port.
 
 ## 6. Terraform checklist
 
@@ -330,7 +354,8 @@ cp deploy/docker/docker.secrets.env.example deploy/docker/docker.secrets.env
 
 Important values:
 
-- `APP_PUBLIC_BASE_URL=https://ogstyles.store`
+- `APP_PUBLIC_BASE_URL=https://ogstyles.store` [example for `lp`]
+- `APP_PUBLIC_BASE_URL=http://<server-ip>` [example for `l1`, `l2`, `l3`, `l6`]
 - `MYSQL_ROOT_PASSWORD=<real value>`
 - `SPRING_DATASOURCE_PASSWORD=<real value>`
 - `APP_BOOTSTRAP_ADMIN_EMAIL=contact.ogfashions@gmail.com`
@@ -429,12 +454,43 @@ Create credentials for:
 Important items:
 
 - `IMAGE_REPO=yarrav7` [example]
-- `DEPLOY_BASE_URL=https://ogstyles.store`
+- `DEPLOY_BASE_URL=http://<lower-env-ip>` [example for `l1`, `l2`, `l3`, `l6`]
+- `DEPLOY_BASE_URL=https://ogstyles.store` [example for `lp`]
 - `EC2_SSH_HOST=44.208.191.131` [example]
 - `EC2_SSH_USER=ec2-user` [example]
 - `REMOTE_APP_DIR=/opt/ogfashions`
 - `DOCKER_ENV_REMOTE_PATH=/opt/ogfashions/deploy/docker/docker.env`
 - `NOTIFY_EMAIL=contact.ogfashions@gmail.com`
+
+### Branch and parameter model
+
+Use any branch name you want.
+
+Examples:
+
+- `main`
+- `master`
+- `release`
+- `venky`
+- `abcd`
+- `defect-102`
+
+Deployment is controlled by:
+
+- `DEPLOY_TARGET`
+- `DEPLOY_LEVEL`
+
+Examples:
+
+- validation only
+  - `DEPLOY_TARGET=none`
+- deploy lower environment from any branch
+  - `DEPLOY_TARGET=docker`
+  - `DEPLOY_LEVEL=l2`
+- deploy production from any branch
+  - `DEPLOY_TARGET=both`
+  - `DEPLOY_LEVEL=lp`
+  - manual approval still required
 
 ### Run the flow
 
@@ -493,13 +549,12 @@ Overlay examples:
 - `l6` [example: pre-prod]
 - `lp` [example: prod]
 
-Domain examples:
+Access examples:
 
-- `l1.ogstyles.store`
-- `l2.ogstyles.store`
-- `l3.ogstyles.store`
-- `l6.ogstyles.store`
-- `ogstyles.store`
+- `l1`, `l2`, `l3`, `l6`
+  use load balancer IP, ingress IP, or server IP
+- `lp`
+  use `https://ogstyles.store`
 
 ### Run
 

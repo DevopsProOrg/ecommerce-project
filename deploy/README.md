@@ -10,15 +10,21 @@ Use these documents in order:
    Use this for the overall DevOps rollout order.
 3. [ORG-PLATFORM-RUNBOOK.md](./ORG-PLATFORM-RUNBOOK.md)
    Use this for the organization-style platform sequence across Docker, Terraform, Ansible, Jenkins, Kubernetes, and monitoring.
-4. [docker/README.md](./docker/README.md)
+4. [ORG-PRODUCTION-PLAYBOOK.md](./ORG-PRODUCTION-PLAYBOOK.md)
+   Use this for preflight, smoke checks, promotion rules, rollback thinking, and production operations.
+5. [DEVOPS-OPERATIONS-HANDBOOK.md](./DEVOPS-OPERATIONS-HANDBOOK.md)
+   Use this as the day-to-day DevOps operating handbook for the project.
+6. [ENVIRONMENT-MATRIX.md](./ENVIRONMENT-MATRIX.md)
+   Use this to understand level purpose, access model, and promotion order.
+7. [docker/README.md](./docker/README.md)
    Use this for local Docker or EC2 Docker deployment.
-5. [jenkins/README.md](./jenkins/README.md)
+8. [jenkins/README.md](./jenkins/README.md)
    Use this for Jenkins server setup, credentials, webhooks, multibranch pipeline configuration, and email notifications.
-6. [jenkins/PIPELINE-STAGES.md](./jenkins/PIPELINE-STAGES.md)
+9. [jenkins/PIPELINE-STAGES.md](./jenkins/PIPELINE-STAGES.md)
    Use this to understand the pipeline stages, branch strategy, approvals, and failure handling.
-7. [k8s/README.md](./k8s/README.md)
+10. [k8s/README.md](./k8s/README.md)
    Use this for Kubernetes cluster deployment.
-8. [monitoring/README.md](./monitoring/README.md)
+11. [monitoring/README.md](./monitoring/README.md)
    Use this for Prometheus and Grafana setup.
 
 ## Recommended read order
@@ -26,13 +32,16 @@ Use these documents in order:
 If you want the safest full path, follow this order:
 
 1. [DEPLOYMENT-CHECKLISTS.md](./DEPLOYMENT-CHECKLISTS.md)
-2. [local/README.md](./local/README.md)
-3. [terraform/README.md](./terraform/README.md)
-4. [ansible/README.md](./ansible/README.md)
-5. [docker/README.md](./docker/README.md)
-6. [jenkins/README.md](./jenkins/README.md)
-7. [k8s/README.md](./k8s/README.md)
-8. [monitoring/README.md](./monitoring/README.md)
+2. [ORG-PRODUCTION-PLAYBOOK.md](./ORG-PRODUCTION-PLAYBOOK.md)
+3. [DEVOPS-OPERATIONS-HANDBOOK.md](./DEVOPS-OPERATIONS-HANDBOOK.md)
+4. [ENVIRONMENT-MATRIX.md](./ENVIRONMENT-MATRIX.md)
+5. [local/README.md](./local/README.md)
+6. [terraform/README.md](./terraform/README.md)
+7. [ansible/README.md](./ansible/README.md)
+8. [docker/README.md](./docker/README.md)
+9. [jenkins/README.md](./jenkins/README.md)
+10. [k8s/README.md](./k8s/README.md)
+11. [monitoring/README.md](./monitoring/README.md)
 
 ## Quick path by deployment type
 
@@ -55,6 +64,10 @@ Read in this order:
 4. [monitoring/README.md](./monitoring/README.md)
 5. [jenkins/README.md](./jenkins/README.md)
 6. [jenkins/PIPELINE-STAGES.md](./jenkins/PIPELINE-STAGES.md)
+
+For `l1`, `l2`, `l3`, and `l6`, plan to use IP address or load balancer address.
+
+For `lp`, plan to use the production domain `ogstyles.store`.
 
 ### Jenkins CI/CD
 

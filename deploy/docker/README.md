@@ -37,6 +37,12 @@ Preferred host ports:
 
 ## Step-by-step
 
+### Step 0. Run preflight
+
+```bash
+bash deploy/scripts/preflight-check.sh docker
+```
+
 ### Step 1. Clone the repo on the server
 
 ```bash
@@ -51,6 +57,11 @@ cp deploy/docker/docker.env.example deploy/docker/docker.env
 ```
 
 Edit only if needed.
+
+For lower environments such as `l1`, `l2`, `l3`, or `l6`, you can:
+
+- set `APP_PUBLIC_BASE_URL` to a server IP or load balancer URL [example: `http://44.208.191.131`]
+- or leave it empty and access through the resolved frontend port
 
 ### Step 3. Create the secrets file
 
@@ -112,6 +123,13 @@ If production domain is already routed:
 If testing by host port:
 
 - `http://<server-ip>:<resolved-frontend-port>/`
+- `http://<load-balancer-ip>/` [example for lower environments]
+
+### Step 7A. Run smoke check
+
+```bash
+bash deploy/scripts/http-smoke.sh https://ogstyles.store
+```
 
 ### Step 8. Registry-based deployment
 

@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENV_FILE="${1:-$ROOT_DIR/deploy/docker/docker.env}"
 DEFAULTS_FILE="${DOCKER_DEFAULTS_FILE:-$ROOT_DIR/deploy/docker/docker.env.defaults}"
 SECRETS_FILE="${DOCKER_SECRETS_FILE:-$ROOT_DIR/deploy/docker/docker.secrets.env}"
+SMOKE_SCRIPT="$ROOT_DIR/deploy/scripts/http-smoke.sh"
 
 if [[ ! -f "$DEFAULTS_FILE" ]]; then
   echo "Missing defaults file: $DEFAULTS_FILE"
@@ -68,6 +69,7 @@ BACKEND_HOST_PORT="${BACKEND_HOST_PORT:-8888}"
 FRONTEND_HOST_PORT="${FRONTEND_HOST_PORT:-80}"
 PORT_CONFLICT_STRATEGY="${PORT_CONFLICT_STRATEGY:-fail}"
 PORT_SEARCH_LIMIT="${PORT_SEARCH_LIMIT:-25}"
+DO_POST_DEPLOY_SMOKE="${DO_POST_DEPLOY_SMOKE:-true}"
 
 port_in_use() {
   local port="$1"
@@ -194,6 +196,9 @@ if [[ -n "$APP_PUBLIC_BASE_URL" ]]; then
   echo "Frontend: ${APP_PUBLIC_BASE_URL}/"
   echo "Frontend health: ${APP_PUBLIC_BASE_URL}/healthz"
   echo "Backend health: ${APP_PUBLIC_BASE_URL}/api/actuator/health"
+  if [[ "$DO_POST_DEPLOY_SMOKE" == "true" && -f "$SMOKE_SCRIPT" ]]; then
+    bash "$SMOKE_SCRIPT" "$APP_PUBLIC_BASE_URL"
+  fi
 else
   echo "Frontend: http://<server-public-ip>:${FRONTEND_HOST_PORT}/"
   echo "Frontend health: http://<server-public-ip>:${FRONTEND_HOST_PORT}/healthz"

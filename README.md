@@ -76,6 +76,8 @@ Use:
 
 This path runs MySQL, backend, and frontend on one machine with Docker.
 
+Local Docker now prefers frontend port `8081` by default so Jenkins can keep using `8080`.
+
 ## Docker deployment on EC2 or Linux
 
 Use:
@@ -131,11 +133,27 @@ bash deploy/k8s/scripts/deploy.sh lp yarrav7 latest
 
 This repo includes overlays for:
 
-- `l1.ogstyles.store`
-- `l2.ogstyles.store`
-- `l3.ogstyles.store`
-- `l6.ogstyles.store`
-- `ogstyles.store`
+- `l1`
+- `l2`
+- `l3`
+- `l6`
+- `lp`
+
+Environment model:
+
+- `l1`, `l2`, `l3`
+  lower environments such as dev and test
+- `l6`
+  pre-production or staging
+- `lp`
+  production
+
+Access model:
+
+- `l1`, `l2`, `l3`, `l6`
+  use IP address, load balancer address, or server address
+- `lp`
+  uses the permanent production domain `ogstyles.store`
 
 Legacy `staging` and `production` manifests are still present for compatibility, but the current org-level flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
 
@@ -193,10 +211,20 @@ This repo includes:
 
 The pipeline is designed for a real branch flow:
 
-1. Feature branches validate code only.
-2. `main` and `master` can build and push images.
-3. `release` and `release/*` can deploy to production-style targets.
+1. Any branch can validate code.
+2. Any branch can deploy when Jenkins deployment parameters are explicitly chosen.
+3. `DEPLOY_LEVEL=lp` requires manual approval before production deployment.
 4. Jenkins can deploy to Docker on EC2, Kubernetes, or both.
+
+## DevOps documentation
+
+For end-to-end DevOps ownership of this project, start here:
+
+1. [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
+2. [deploy/DEVOPS-OPERATIONS-HANDBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-OPERATIONS-HANDBOOK.md)
+3. [deploy/ENVIRONMENT-MATRIX.md](/E:/Restart/Projects/ecommerce-project/deploy/ENVIRONMENT-MATRIX.md)
+4. [deploy/DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)
+5. [deploy/ORG-PRODUCTION-PLAYBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PRODUCTION-PLAYBOOK.md)
 
 ## Validation checklist
 

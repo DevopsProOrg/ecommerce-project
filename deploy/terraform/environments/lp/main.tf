@@ -11,7 +11,10 @@ module "platform" {
   domain_name        = var.domain_name
   hosted_zone_id     = var.hosted_zone_id
   app_subdomain      = ""
+  create_public_dns_record = true
   create_www_record  = true
+  enable_alb         = true
+  alb_certificate_arn = var.alb_certificate_arn
   create_app_host    = true
   create_eks         = true
   key_pair_name      = var.key_pair_name
