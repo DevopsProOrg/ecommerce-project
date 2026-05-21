@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: ogfashions
+    orgId: 1
+    folder: OG Fashions
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

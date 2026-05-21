@@ -1,129 +1,76 @@
-# Monitoring Setup Guide
+# Monitoring Stack
 
-This folder contains the Kubernetes monitoring baseline for OG Fashions.
+This folder provides Prometheus and Grafana for Docker-based and Kubernetes-based deployments.
 
-It includes:
+## Docker monitoring
 
-- Prometheus
-- Grafana
-- backend metrics scraping through Spring Boot Actuator
+### Step 1. Start monitoring containers
 
-## Folder structure
+Linux, Ubuntu, WSL, or Git Bash:
 
-- [k8s](./k8s)
-  Kubernetes manifests for monitoring
+```bash
+bash deploy/monitoring/docker/run-monitoring.sh
+```
 
-## What is monitored
+Windows PowerShell:
 
-The backend exposes:
+```powershell
+./deploy/monitoring/docker/run-monitoring.ps1
+```
 
-- `/actuator/health`
-- `/actuator/info`
-- `/actuator/prometheus`
+### Step 2. Port behavior
 
-Prometheus is configured to scrape backend metrics from the staging and production service names defined in the manifests.
+Docker monitoring also supports automatic port conflict handling:
 
-## Prerequisites
+- `PROMETHEUS_HOST_PORT`
+- `GRAFANA_HOST_PORT`
+- `PORT_CONFLICT_STRATEGY`
+- `PORT_SEARCH_LIMIT`
 
-You need:
+Default strategy is `auto`.
 
-- a Kubernetes cluster
-- `kubectl`
-- the OG Fashions backend deployed in Kubernetes
+### Step 3. Open the dashboards
 
-## 1. Deploy monitoring stack
+Use the printed ports.
+
+Typical defaults:
+
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
+
+## Kubernetes monitoring
+
+### Step 1. Apply the monitoring stack
 
 ```bash
 kubectl apply -k deploy/monitoring/k8s
 ```
 
-## 2. Verify resources
+### Step 2. Verify pods and services
 
 ```bash
-kubectl get all -n ogfashions-monitoring
+kubectl get all -n monitoring
 ```
 
-## 3. Access Prometheus
-
-Example port-forward:
+### Step 3. Port-forward for access
 
 ```bash
-kubectl port-forward svc/prometheus 9090:9090 -n ogfashions-monitoring
+kubectl port-forward svc/prometheus 9090:9090 -n monitoring
+kubectl port-forward svc/grafana 3000:3000 -n monitoring
 ```
 
-Open:
+### Step 4. Check backend metrics
 
-- `http://localhost:9090`
+Prometheus should scrape:
 
-## 4. Access Grafana
+- `/actuator/prometheus`
 
-Example port-forward:
+### Step 5. Improve later
 
-```bash
-kubectl port-forward svc/grafana 3000:3000 -n ogfashions-monitoring
-```
-
-Open:
-
-- `http://localhost:3000`
-
-Default credentials from the current manifest:
-
-- user: `admin`
-- password: `admin123`
-
-Change the password immediately after first login.
-
-## 5. What is already included
-
-The monitoring manifests already provide:
-
-- Prometheus deployment
-- Grafana deployment
-- starter dashboard provisioning
-- datasource provisioning
-
-## 6. Recommended next improvements
-
-For a stronger real-world monitoring setup later, add:
+Recommended next layers:
 
 - Alertmanager
 - Slack or email alert routing
-- node exporter
 - kube-state-metrics
-- persistent volumes for Prometheus and Grafana
-- custom Grafana dashboards for:
-  - orders
-  - support tickets
-  - mail delivery success/failure
-  - backend response times
-
-## 7. Troubleshooting
-
-### Prometheus not scraping
-
-Check:
-
-```bash
-kubectl logs deploy/prometheus -n ogfashions-monitoring
-```
-
-Also confirm backend service names still match the scrape targets in:
-
-- [k8s/prometheus-configmap.yaml](./k8s/prometheus-configmap.yaml)
-
-### Grafana not opening
-
-Check:
-
-```bash
-kubectl logs deploy/grafana -n ogfashions-monitoring
-```
-
-### No metrics visible
-
-Check backend metrics endpoint manually:
-
-```bash
-kubectl exec -it deploy/prometheus -n ogfashions-monitoring -- wget -qO- http://ogfashions-backend.ogfashions-staging.svc.cluster.local:8888/actuator/prometheus
-```
+- persistent volumes
+- custom Grafana dashboards

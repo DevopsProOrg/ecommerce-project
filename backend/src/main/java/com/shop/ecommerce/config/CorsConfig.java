@@ -45,7 +45,7 @@ public class CorsConfig {
     private String[] parseAllowedOriginPatterns() {
         return Arrays.stream(allowedOriginPatterns.split(","))
                 .map(String::trim)
-                .filter(origin -> !origin.isBlank())
+                .filter(pattern -> !pattern.isBlank())
                 .toArray(String[]::new);
     }
 }

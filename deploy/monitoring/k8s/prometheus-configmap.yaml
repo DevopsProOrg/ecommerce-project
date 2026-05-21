@@ -14,12 +14,37 @@ data:
         static_configs:
           - targets: ['localhost:9090']
 
-      - job_name: ogfashions-backend
+      - job_name: ogfashions-l1
         metrics_path: /actuator/prometheus
         static_configs:
-          - targets: ['ogfashions-backend.ogfashions-staging.svc.cluster.local:8888']
+          - targets: ['ogfashions-backend.ogfashions-l1.svc.cluster.local:8888']
             labels:
-              environment: staging
-          - targets: ['ogfashions-backend.ogfashions-production.svc.cluster.local:8888']
+              environment: l1
+
+      - job_name: ogfashions-l2
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['ogfashions-backend.ogfashions-l2.svc.cluster.local:8888']
             labels:
-              environment: production
+              environment: l2
+
+      - job_name: ogfashions-l3
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['ogfashions-backend.ogfashions-l3.svc.cluster.local:8888']
+            labels:
+              environment: l3
+
+      - job_name: ogfashions-l6
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['ogfashions-backend.ogfashions-l6.svc.cluster.local:8888']
+            labels:
+              environment: l6
+
+      - job_name: ogfashions-lp
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['ogfashions-backend.ogfashions-lp.svc.cluster.local:8888']
+            labels:
+              environment: lp

@@ -1,10 +1,14 @@
 # OG Fashions Deployment Guide
 
-OG Fashions is now structured for:
+OG Fashions is structured for:
 
 - local development
-- Docker-first deployment on a real Linux host such as EC2
-- Kubernetes deployment with separate frontend, backend, and MySQL workloads
+- local Docker deployment
+- Docker-first deployment on a Linux host such as EC2
+- Kubernetes deployment with frontend, backend, and MySQL workloads
+- Terraform-based AWS infrastructure
+- Ansible-based server configuration
+- Prometheus and Grafana monitoring
 
 ## Architecture
 
@@ -14,21 +18,33 @@ OG Fashions is now structured for:
   Spring Boot API on port `8888`
 - `deploy/docker/`
   Docker-first deployment assets for EC2 or any Linux server
+- `deploy/local/`
+  Local Docker deployment scripts and env templates
 - `deploy/k8s/`
-  Kubernetes manifests for frontend, backend, and MySQL
+  Organization-style Kubernetes base and overlays
+- `deploy/terraform/`
+  AWS infrastructure provisioning
+- `deploy/ansible/`
+  Host and app configuration management
+- `deploy/monitoring/`
+  Prometheus and Grafana deployment assets
+- `deploy/jenkins/`
+  Jenkins setup references and environment examples
+- `deploy/ORG-PLATFORM-RUNBOOK.md`
+  End-to-end execution guide across all layers
 
 ## Production notes
 
-The app no longer needs your laptop MySQL to run in deployed environments.
+The app no longer depends on your laptop MySQL in deployed environments.
 
 For Docker and Kubernetes:
 
 - MySQL runs as its own workload with persistent storage
 - frontend proxies `/api` traffic to the backend
 - backend health endpoints are available through Spring Boot Actuator
-- Gmail SMTP stays external and is supplied through secrets/env vars
+- Gmail SMTP stays external and is supplied through secrets or env vars
 
-Recommended real production direction:
+Recommended production direction:
 
 1. Use EC2 + Docker for the first internet-facing deployment.
 2. Move MySQL to Amazon RDS when you want a stronger production database setup.
@@ -52,72 +68,52 @@ Backend default URL:
 
 Serve the `frontend` folder with any static web server, or use the frontend Docker image.
 
+## Local Docker deployment
+
+Use:
+
+- [deploy/local/README.md](/E:/Restart/Projects/ecommerce-project/deploy/local/README.md)
+
+This path runs MySQL, backend, and frontend on one machine with Docker.
+
+Local Docker now prefers frontend port `8081` by default so Jenkins can keep using `8080`.
+
 ## Docker deployment on EC2 or Linux
 
-### 1. Prepare environment file
+Use:
 
-Copy:
+- [deploy/docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
 
-- [deploy/docker/docker.env.example](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.example)
+The repo includes committed production defaults for `ogstyles.store` in:
 
-to:
+- [deploy/docker/docker.env.defaults](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.defaults)
 
-- `deploy/docker/docker.env`
+Create only the server-local secrets file:
 
-Then replace all placeholder passwords, admin credentials, allowed origins, and Gmail values.
+```bash
+cp deploy/docker/docker.secrets.env.example deploy/docker/docker.secrets.env
+vi deploy/docker/docker.secrets.env
+```
 
-Important values to set:
+Set these real values:
 
-- `APP_CORS_ALLOWED_ORIGINS`
-  Use your EC2 public URL or real domain
-- `APP_PUBLIC_BASE_URL`
-  Prefer a stable DNS name or AWS Elastic IP so you do not need to keep editing env files after instance replacement
-- `APP_BOOTSTRAP_ADMIN_EMAIL`
+- `MYSQL_ROOT_PASSWORD`
+- `SPRING_DATASOURCE_PASSWORD`
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
-  Use a Gmail app password, not a regular Gmail password
 
-### 2. Deploy
-
-On Linux or EC2:
+Then deploy:
 
 ```bash
 chmod +x deploy/docker/ec2-deploy.sh
 ./deploy/docker/ec2-deploy.sh
 ```
 
-This script will:
+Access:
 
-- build the backend image
-- build the frontend image
-- create a Docker network
-- run MySQL with a Docker volume
-- run the backend container
-- run the frontend container
-
-Important real-world note:
-
-- If your EC2 public IP changes often, do not use the raw temporary instance IP in long-term deployment config.
-- Use one of these instead:
-  - AWS Elastic IP
-  - Route53 or another DNS record
-  - Load balancer DNS name
-
-Because the frontend already uses same-origin `/api`, you typically only need a stable public entry point rather than changing application code.
-
-### 3. Access
-
-- Frontend: `http://YOUR_SERVER_PUBLIC_IP/`
-- Backend health: `http://YOUR_SERVER_PUBLIC_IP:8888/actuator/health`
-
-### 4. Cleanup
-
-```bash
-chmod +x deploy/docker/ec2-cleanup.sh
-./deploy/docker/ec2-cleanup.sh
-```
-
-This removes containers and the network but keeps the MySQL volume.
+- Frontend: `https://ogstyles.store/`
+- Frontend health: `https://ogstyles.store/healthz`
+- Backend health: `https://ogstyles.store/api/actuator/health`
 
 ## Kubernetes deployment
 
@@ -125,62 +121,87 @@ Files are in:
 
 - [deploy/k8s](/E:/Restart/Projects/ecommerce-project/deploy/k8s)
 
-### 1. Build and push images
+Use:
 
-Replace the placeholder image names in:
+- [deploy/k8s/README.md](/E:/Restart/Projects/ecommerce-project/deploy/k8s/README.md)
 
-- [backend-deployment.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/backend-deployment.yaml)
-- [frontend-deployment.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/frontend-deployment.yaml)
-
-Example:
-
-- `your-dockerhub-or-ecr-user/ogfashions-backend:latest`
-- `your-dockerhub-or-ecr-user/ogfashions-frontend:latest`
-
-### 2. Create secret file
-
-Copy:
-
-- [secret.example.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/secret.example.yaml)
-
-to a real secret manifest, fill the real values, and apply it first.
-
-### 3. Apply manifests
+Example apply:
 
 ```bash
-kubectl apply -f deploy/k8s/namespace.yaml
-kubectl apply -f deploy/k8s/secret.yaml
-kubectl apply -k deploy/k8s
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 latest
 ```
 
-### 4. Configure ingress
+This repo includes overlays for:
 
-Update the host in:
+- `l1`
+- `l2`
+- `l3`
+- `l6`
+- `lp`
 
-- [deploy/k8s/ingress.yaml](/E:/Restart/Projects/ecommerce-project/deploy/k8s/ingress.yaml)
+Environment model:
 
-Set it to your real domain, then point DNS to your ingress controller/load balancer.
+- `l1`, `l2`, `l3`
+  lower environments such as dev and test
+- `l6`
+  pre-production or staging
+- `lp`
+  production
 
-For environment-specific rollout:
+Access model:
 
-- `deploy/k8s/overlays/staging`
-- `deploy/k8s/overlays/production`
+- `l1`, `l2`, `l3`, `l6`
+  use IP address, load balancer address, or server address
+- `lp`
+  uses the permanent production domain `ogstyles.store`
 
-You can also use:
+Legacy `staging` and `production` manifests are still present for compatibility, but the current org-level flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
 
-```bash
-./deploy/k8s/deploy.sh staging your-registry/ogfashions-backend:tag your-registry/ogfashions-frontend:tag
-```
+## Terraform
 
-or:
+Use:
 
-```bash
-./deploy/k8s/deploy.sh production your-registry/ogfashions-backend:tag your-registry/ogfashions-frontend:tag
-```
+- [deploy/terraform/README.md](/E:/Restart/Projects/ecommerce-project/deploy/terraform/README.md)
+
+This provisions AWS infrastructure for:
+
+- network
+- EC2 app hosts
+- optional EKS clusters
+- Route53 records
+
+across `l1`, `l2`, `l3`, `l6`, and `lp`.
+
+## Ansible
+
+Use:
+
+- [deploy/ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
+
+This configures:
+
+- Docker hosts
+- app directories
+- secrets files
+- Node Exporter
+
+after Terraform provisioning.
+
+## Monitoring
+
+Use:
+
+- [deploy/monitoring/README.md](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/README.md)
+
+This includes:
+
+- Docker Prometheus + Grafana
+- Kubernetes Prometheus + Grafana
+- backend metrics scraping through `/actuator/prometheus`
 
 ## Jenkins pipeline
 
-This repo now includes:
+This repo includes:
 
 - [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile)
 - [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
@@ -188,28 +209,22 @@ This repo now includes:
 - [deploy/jenkins/PIPELINE-STAGES.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/PIPELINE-STAGES.md)
 - [deploy/DEVOPS-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-RUNBOOK.md)
 
-The pipeline is designed for a real-world branch flow:
+The pipeline is designed for a real branch flow:
 
-1. Feature branches validate code only.
-2. `main` / `master` can build and push images.
-3. `release` / `release/*` can deploy to production-style targets.
-4. Jenkins can deploy to:
-   - Docker on EC2
-   - Kubernetes
-   - both
+1. Any branch can validate code.
+2. Any branch can deploy when Jenkins deployment parameters are explicitly chosen.
+3. `DEPLOY_LEVEL=lp` requires manual approval before production deployment.
+4. Jenkins can deploy to Docker on EC2, Kubernetes, or both.
 
-## Monitoring
+## DevOps documentation
 
-The repo now also includes a simple monitoring baseline in:
+For end-to-end DevOps ownership of this project, start here:
 
-- [deploy/monitoring/k8s](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/k8s)
-- [deploy/monitoring/README.md](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/README.md)
-
-It includes:
-
-- Prometheus
-- Grafana
-- backend scraping through `/actuator/prometheus`
+1. [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
+2. [deploy/DEVOPS-OPERATIONS-HANDBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-OPERATIONS-HANDBOOK.md)
+3. [deploy/ENVIRONMENT-MATRIX.md](/E:/Restart/Projects/ecommerce-project/deploy/ENVIRONMENT-MATRIX.md)
+4. [deploy/DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)
+5. [deploy/ORG-PRODUCTION-PLAYBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PRODUCTION-PLAYBOOK.md)
 
 ## Validation checklist
 
@@ -223,14 +238,8 @@ After deployment, verify:
 6. Order emails and support emails are delivered.
 7. Backend health is `UP`.
 
-## Current implementation details
+## Full platform runbook
 
-- `docker-compose.yml` was removed as requested
-- backend Docker build is now multi-stage
-- frontend Nginx now supports configurable backend upstream
-- backend now exposes health endpoints for container probes
-- deployment assets are split into Docker-first and Kubernetes-ready folders
+See:
 
-## Important production advice
-
-The included MySQL container and StatefulSet are suitable for real testing and controlled deployment work, but for a stronger production setup you should move the database to a managed service such as Amazon RDS. That will reduce operational risk, improve backups, and make upgrades safer.
+- [deploy/ORG-PLATFORM-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PLATFORM-RUNBOOK.md)

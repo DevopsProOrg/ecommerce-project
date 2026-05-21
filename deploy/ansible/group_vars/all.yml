@@ -1,0 +1,13 @@
+---
+repo_url: "https://github.com/DevopsProOrg/ecommerce-project.git"
+repo_branch: "release"
+app_root: "/opt/ogfashions"
+docker_defaults_file: "{{ app_root }}/deploy/docker/docker.env.defaults"
+docker_override_file: "{{ app_root }}/deploy/docker/docker.env"
+docker_secrets_file: "{{ app_root }}/deploy/docker/docker.secrets.env"
+docker_secrets:
+  MYSQL_ROOT_PASSWORD: "replace-me"
+  SPRING_DATASOURCE_PASSWORD: "replace-me"
+  APP_BOOTSTRAP_ADMIN_PASSWORD: "replace-me"
+  SPRING_MAIL_PASSWORD: "replace-me"
+node_exporter_version: "1.8.1"

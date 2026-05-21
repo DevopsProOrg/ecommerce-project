@@ -1,10 +1,12 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: ogfashions
 resources:
-  - namespace.yaml
   - configmap.yaml
-  - mysql-statefulset.yaml
-  - backend-deployment.yaml
-  - frontend-deployment.yaml
+  - mysql.yaml
+  - backend.yaml
+  - frontend.yaml
   - ingress.yaml
+  - pdb-backend.yaml
+  - pdb-frontend.yaml
+  - hpa-backend.yaml
+  - hpa-frontend.yaml

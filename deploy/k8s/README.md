@@ -1,30 +1,54 @@
-# Kubernetes Deployment Guide
+# Kubernetes Deployment
 
-This guide explains how to deploy OG Fashions to Kubernetes using the manifests and overlays in this repository.
+This folder is organized for multi-environment, org-style deployment.
 
-## Folder structure
+## Layout
 
-- [base](./base)
-  Shared base manifests
-- [overlays/staging](./overlays/staging)
-  Staging-specific patch set
-- [overlays/production](./overlays/production)
-  Production-specific patch set
-- [deploy.sh](./deploy.sh)
-  Helper script to deploy an overlay with real image tags
-- [secret.example.yaml](./secret.example.yaml)
-  Template for runtime secrets
+- `base/`
+  - shared workloads and services
+- `overlays/l1`
+- `overlays/l2`
+- `overlays/l3`
+- `overlays/l6`
+- `overlays/lp`
+  - environment-specific namespaces, access model, replica counts, and ingress rules
+- `scripts/deploy.sh`
+  - applies an overlay and updates the backend and frontend images
+- `secrets/ogfashions-secrets.example.yaml`
+  - secret template for any target namespace
+
+Legacy `staging` and `production` overlays are still present for compatibility, but the current platform flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
+
+## Environment model
+
+The repo now treats these as first-class Kubernetes overlays:
+
+- `l1`
+- `l2`
+- `l3`
+- `l6`
+- `lp`
+
+Meaning:
+
+- `l1`, `l2`, `l3`
+  lower environments such as dev and testing
+- `l6`
+  pre-production or staging
+- `lp`
+  production
 
 ## What is deployed
 
-Base components:
+Base components include:
 
-- namespace
 - config map
 - MySQL StatefulSet
 - backend Deployment and Service
 - frontend Deployment and Service
 - ingress
+- backend and frontend HPAs
+- backend and frontend PodDisruptionBudgets
 
 ## Prerequisites
 
@@ -34,174 +58,94 @@ You need:
 - `kubectl`
 - `bash`
 - access to push images to Docker Hub or ECR
-- a real `deploy/k8s/secret.yaml`
+- a real secret manifest based on `secrets/ogfashions-secrets.example.yaml`
+- an ingress controller such as ingress-nginx
 
 Recommended choices:
 
-- learning / low-cost: k3s on EC2
+- learning or low-cost: k3s on EC2
 - AWS managed: EKS
 
-## 1. Build and push Docker images
+## First-time setup
 
-You must push both images before deploying.
+1. Install ingress-nginx in the cluster.
+2. Copy `secrets/ogfashions-secrets.example.yaml` to a real secret file.
+3. Update the namespace in the secret file to match the overlay.
+4. Apply the secret before or immediately after the first deploy.
 
-Example:
+## Preflight
+
+Run:
 
 ```bash
-docker build -t docker.io/YOUR_DOCKER_USER/ogfashions-backend:latest backend
-docker build -t docker.io/YOUR_DOCKER_USER/ogfashions-frontend:latest frontend
-docker push docker.io/YOUR_DOCKER_USER/ogfashions-backend:latest
-docker push docker.io/YOUR_DOCKER_USER/ogfashions-frontend:latest
+bash deploy/scripts/preflight-check.sh k8s
 ```
 
-For traceable releases, prefer versioned tags:
+## Example deploy
 
 ```bash
-docker build -t docker.io/YOUR_DOCKER_USER/ogfashions-backend:release-1 backend
-docker build -t docker.io/YOUR_DOCKER_USER/ogfashions-frontend:release-1 frontend
-docker push docker.io/YOUR_DOCKER_USER/ogfashions-backend:release-1
-docker push docker.io/YOUR_DOCKER_USER/ogfashions-frontend:release-1
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 release-12
 ```
 
-## 2. Create the Kubernetes secret manifest
+That deploys:
 
-Copy:
+- backend image: `docker.io/yarrav7/ogfashions-backend:release-12`
+- frontend image: `docker.io/yarrav7/ogfashions-frontend:release-12`
+
+## Access model
+
+- `l1`, `l2`, `l3`, `l6`
+  use IP address, load balancer address, or server address
+- `lp`
+  uses the permanent production domain `ogstyles.store`
+
+For lower levels, the overlay ingress rules are intentionally hostless so you can access them by load balancer IP or DNS without needing subdomains.
+
+## Validation
+
+Render an overlay before applying it:
 
 ```bash
-cp deploy/k8s/secret.example.yaml deploy/k8s/secret.yaml
+kubectl kustomize deploy/k8s/overlays/lp
 ```
 
-Edit the real values:
+Check resources after deploy:
 
 ```bash
-vi deploy/k8s/secret.yaml
-```
-
-Replace placeholders for:
-
-- MySQL password
-- admin bootstrap password
-- Gmail password
-- any other secret runtime values
-
-Do not commit `deploy/k8s/secret.yaml` with real secrets.
-
-## 3. Validate the manifests
-
-Check staging:
-
-```bash
-kubectl kustomize deploy/k8s/overlays/staging
-```
-
-Check production:
-
-```bash
-kubectl kustomize deploy/k8s/overlays/production
-```
-
-## 4. Deploy staging
-
-```bash
-bash deploy/k8s/deploy.sh staging docker.io/YOUR_DOCKER_USER/ogfashions-backend:release-1 docker.io/YOUR_DOCKER_USER/ogfashions-frontend:release-1
-```
-
-What the script does:
-
-1. applies namespace
-2. applies `deploy/k8s/secret.yaml`
-3. renders the selected overlay
-4. replaces placeholder backend and frontend image names
-5. applies the rendered manifests
-
-## 5. Deploy production
-
-```bash
-bash deploy/k8s/deploy.sh production docker.io/YOUR_DOCKER_USER/ogfashions-backend:release-1 docker.io/YOUR_DOCKER_USER/ogfashions-frontend:release-1
-```
-
-## 6. Verify deployment
-
-Check namespace resources:
-
-```bash
-kubectl get all -n ogfashions
-```
-
-Check pods:
-
-```bash
-kubectl get pods -n ogfashions
-```
-
-Describe any failing pod:
-
-```bash
-kubectl describe pod <pod-name> -n ogfashions
+kubectl get all -n ogfashions-lp
 ```
 
 Check backend logs:
 
 ```bash
-kubectl logs deploy/ogfashions-backend -n ogfashions
+kubectl logs deploy/ogfashions-backend -n ogfashions-lp
 ```
 
 Check frontend logs:
 
 ```bash
-kubectl logs deploy/ogfashions-frontend -n ogfashions
+kubectl logs deploy/ogfashions-frontend -n ogfashions-lp
 ```
 
-## 7. Access the application
-
-If you do not have a domain yet:
-
-- use ingress/controller external IP or load balancer DNS
-- or use `kubectl port-forward` temporarily
-
-Example port-forward:
+Run smoke check if the ingress URL is reachable:
 
 ```bash
-kubectl port-forward svc/ogfashions-frontend 8080:80 -n ogfashions
+bash deploy/scripts/http-smoke.sh https://ogstyles.store
 ```
 
-Then open:
+## Ingress and DNS
 
-- `http://localhost:8080/`
+For lower levels, you can directly use the ingress or load balancer IP.
 
-## 8. Environment overlays
+For production, point DNS to your ingress controller or load balancer.
 
-### Staging overlay
+For a real internet-facing setup:
 
-Use staging for:
-
-- lower-environment validation
-- frequent deployments
-- testing integration
-
-### Production overlay
-
-Use production for:
-
-- controlled releases
-- approval-based deploys
-- larger replica counts or stricter settings later
-
-## 9. Ingress notes
-
-Current manifests are usable without a domain for basic testing, but for a real internet-facing setup later:
-
-1. add a DNS name
-2. point the DNS to the ingress controller or load balancer
+1. add the DNS record
+2. point it to the ingress controller or load balancer
 3. enable HTTPS
 
-If no domain exists yet, keep using:
-
-- load balancer DNS
-- ingress external IP
-- port-forward for validation
-
-## 10. Database note
+## Database note
 
 The current Kubernetes setup uses MySQL as a StatefulSet. This is fine for learning, staging, and controlled testing.
 
@@ -209,17 +153,13 @@ For stronger production readiness later, move to:
 
 - Amazon RDS for MySQL
 
-That will simplify:
+That will simplify backups, upgrades, and high availability.
 
-- backups
-- upgrades
-- high availability
-
-## 11. Jenkins usage with Kubernetes deployment
+## Jenkins usage
 
 The Jenkins pipeline deploys Kubernetes through:
 
-- `deploy/k8s/deploy.sh`
+- `deploy/k8s/scripts/deploy.sh`
 
 Jenkins must have:
 

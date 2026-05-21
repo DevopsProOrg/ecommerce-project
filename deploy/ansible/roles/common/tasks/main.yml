@@ -1,0 +1,21 @@
+---
+- name: Install common packages on Debian
+  ansible.builtin.apt:
+    name:
+      - git
+      - curl
+      - unzip
+      - ca-certificates
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Install common packages on RedHat
+  ansible.builtin.yum:
+    name:
+      - git
+      - curl
+      - unzip
+      - ca-certificates
+    state: present
+  when: ansible_os_family == "RedHat"

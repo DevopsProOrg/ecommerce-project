@@ -1,0 +1,9 @@
+---
+- name: Configure ecommerce platform hosts
+  hosts: app_hosts
+  become: true
+  roles:
+    - common
+    - docker_engine
+    - app_host
+    - node_exporter

@@ -1,44 +1,35 @@
 # Jenkins CI/CD Setup
 
-This guide explains how to set up Jenkins for this project from scratch and connect it to the repository `Jenkinsfile`.
-
-Use this file for:
-
-- Jenkins installation planning
-- plugins
-- tools
-- credentials
-- environment variables
-- GitHub webhook setup
-- multibranch pipeline configuration
+This guide explains how to set up Jenkins for this project and connect it to the repository [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile).
 
 Use [PIPELINE-STAGES.md](./PIPELINE-STAGES.md) for the detailed stage-by-stage pipeline behavior.
 
-## 1. What this Jenkins setup supports
+## What this Jenkins setup supports
 
-The repository `Jenkinsfile` supports:
+The repository pipeline supports:
 
 - validation on feature branches
-- lower-environment deploy from `main` / `master`
-- approval-gated production deploy from `release` / `release/*`
+- deployment from any branch when deployment parameters are explicitly chosen
+- approval-gated production deploy to `lp`
 - Docker deployment on EC2
 - Kubernetes deployment
 - optional SonarQube, Trivy, and Nexus stages
-- success and failure email notifications
+- browser-facing smoke checks
+- post-build email notifications for success, failure, unstable, and aborted runs
 
-## 2. Recommended Jenkins server options
+## Recommended Jenkins server options
 
-You can host Jenkins in one of these ways:
+You can host Jenkins on:
 
-- separate EC2 instance
-- same EC2 host as Docker app deployment for learning and cost-saving
-- on-prem or local VM
+- a separate EC2 instance
+- the same EC2 host as the Docker app deployment for learning and cost-saving
+- on-prem or a local VM
 
 For cleaner production-style separation, prefer a separate Jenkins host.
 
-## 3. Required Jenkins plugins
+## Required Jenkins plugins
 
-Install these plugins:
+Install:
 
 - Pipeline
 - Git
@@ -55,9 +46,9 @@ Recommended optional plugins:
 - Docker Pipeline
 - Warnings Next Generation
 
-## 4. Required tools on the Jenkins agent
+## Required tools on the Jenkins agent
 
-Install and make available in PATH:
+Install and make available in `PATH`:
 
 - Java 17+
 - Maven
@@ -71,78 +62,26 @@ Optional but recommended:
 - Sonar Scanner
 - Trivy
 
-## 5. Jenkins credentials to create
+## Suggested Jenkins credentials
 
-Create these credentials in Jenkins global credentials:
+Create these in Jenkins global credentials:
 
-### `docker-registry-creds`
+- `docker-registry-creds`
+- `ec2-ssh-key`
+- `kubeconfig-credential`
+- `sonar-token`
+- `nexus-creds`
 
-Type:
+## Suggested Jenkins environment variables
 
-- Username with password
-
-Purpose:
-
-- Docker Hub or ECR push
-
-### `ec2-ssh-key`
-
-Type:
-
-- SSH Username with private key
-
-Purpose:
-
-- connect Jenkins to the EC2 Docker host
-
-### `kubeconfig-credential`
-
-Type:
-
-- Secret file
-
-Purpose:
-
-- provide kubeconfig to deployment stages
-
-### `sonar-token`
-
-Type:
-
-- Secret text
-
-Purpose:
-
-- authenticate SonarQube scan
-
-### `nexus-creds`
-
-Type:
-
-- Username with password
-
-Purpose:
-
-- publish Maven artifact to Nexus
-
-### `jenkins-notify-email`
-
-Type:
-
-- Secret text
-
-Purpose:
-
-- notification email address or email distribution list
-
-## 6. Jenkins environment variables
-
-Set these in Jenkins global environment variables, folder properties, or job environment:
+Set these in Jenkins global env vars, folder properties, or job configuration:
 
 - `EC2_SSH_HOST`
 - `EC2_SSH_USER`
 - `REGISTRY`
 - `IMAGE_REPO`
+- `DEPLOY_BASE_URL`
+- `NOTIFY_EMAIL`
 
 Optional:
 
@@ -150,11 +89,26 @@ Optional:
 - `NEXUS_MAVEN_REPO_URL`
 - `TRIVY_SEVERITY`
 
-Example values are available in:
+Examples are available in:
 
 - [jenkins.env.example](./jenkins.env.example)
 
-## 7. Jenkins email configuration
+## Email notifications
+
+The pipeline now sends email on:
+
+- success
+- failure
+- unstable
+- aborted
+
+### Step 1. Install the plugin
+
+Install:
+
+- Email Extension
+
+### Step 2. Configure SMTP in Jenkins
 
 Go to:
 
@@ -162,18 +116,87 @@ Go to:
 - System
 - Extended E-mail Notification
 
-Recommended Gmail SMTP values:
+Typical Gmail SMTP values:
 
 - SMTP server: `smtp.gmail.com`
 - SMTP port: `587`
-- Authentication: enabled
-- Username: `contact.ogfashions@gmail.com`
-- Password: Gmail app password
-- TLS: enabled
+- Use SMTP authentication: enabled
+- Username: your sender mailbox
+- Password: app password
+- Use TLS: enabled
 
-Test the email configuration before using pipeline notifications.
+### Step 3. Set recipients
 
-## 8. GitHub webhook setup
+Set `NOTIFY_EMAIL` in Jenkins global environment variables, folder properties, or the multibranch job environment.
+
+Example:
+
+- `contact.ogfashions@gmail.com`
+
+You can also use multiple recipients:
+
+- `contact.ogfashions@gmail.com,team@example.com`
+
+### Step 4. Test a build
+
+Run one build and confirm you receive:
+
+- build result
+- branch name
+- build number
+- deploy target
+- image tags
+- build URL
+
+## Branch and deployment policy
+
+Branch names can be anything.
+
+Examples:
+
+- `main`
+- `master`
+- `release`
+- `venky`
+- `abcd`
+- `defect-102`
+
+Pipeline behavior is now parameter-driven:
+
+- if `DEPLOY_TARGET=none`
+  - the build validates only
+- if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL` is chosen
+  - the pipeline can push images and deploy from that branch
+- if `DEPLOY_LEVEL=lp`
+  - Jenkins requires manual approval before production deployment
+- if `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
+  - deployment can proceed without production approval
+
+## Suggested pipeline parameters
+
+- `DEPLOY_TARGET`
+  - `none`
+  - `docker`
+  - `k8s`
+  - `both`
+- `DEPLOY_LEVEL`
+  - `none`
+  - `l1`
+  - `l2`
+  - `l3`
+  - `l6`
+  - `lp`
+- `K8S_OVERLAY`
+  - `l1`
+  - `l2`
+  - `l3`
+  - `l6`
+  - `lp`
+- `REMOTE_APP_DIR`
+- `DOCKER_ENV_REMOTE_PATH`
+- `DEPLOY_BASE_URL`
+
+## GitHub webhook setup
 
 Configure the repository webhook to point to:
 
@@ -185,58 +208,42 @@ Recommended event:
 
 - push event
 
-## 9. Recommended Jenkins job type
+## Recommended Jenkins job type
 
-Use a:
+Use a multibranch pipeline. It matches the branch-driven behavior already coded in the `Jenkinsfile`.
 
-- Multibranch Pipeline
+## Smoke test URLs
 
-This is the best match for the branch-driven behavior already coded in the `Jenkinsfile`.
+After deploy, Jenkins checks:
 
-## 10. Multibranch pipeline configuration
+- `<DEPLOY_BASE_URL>/healthz`
+- `<DEPLOY_BASE_URL>/api/actuator/health`
 
-When creating the Jenkins job:
+## Recommended setup order
 
-1. choose `Multibranch Pipeline`
-2. add GitHub as the branch source
-3. configure credentials if the repository is private
-4. keep the script path as:
+1. Deploy the application manually with Docker on EC2.
+2. Confirm the application works.
+3. Install Jenkins.
+4. Add credentials and environment variables.
+5. Configure the webhook.
+6. Create the multibranch pipeline.
+7. Trigger any branch first with `DEPLOY_TARGET=none`.
+8. Trigger a lower environment using `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`.
+9. Trigger production using `DEPLOY_LEVEL=lp`.
+10. Later enable Sonar, Trivy, Nexus, and Kubernetes.
 
-```text
-Jenkinsfile
-```
+## Recommended org-level build policy
 
-5. enable webhook-based triggering
+Use this policy to reduce deployment issues:
 
-## 11. First recommended pipeline run
+1. run validation on every branch
+2. push immutable image tags
+3. deploy the same image tag across all levels
+4. run smoke checks after every deploy
+5. require approval only for `lp`
+6. keep the previous good image tag for rollback
 
-Use a `main` branch build first with:
-
-- `DEPLOY_TARGET=docker`
-- `RUN_SONAR=false` if Sonar is not ready
-- `RUN_TRIVY=false` if Trivy is not ready
-- `RUN_NEXUS_PUBLISH=false` if Nexus is not ready
-
-This gives you the simplest first successful org-style rollout.
-
-## 12. AWS free-tier recommendation
-
-If you stop and start EC2 and the public IP changes, attach an **Elastic IP**.
-
-That keeps Jenkins variables stable and avoids changing deployment config repeatedly.
-
-## 13. Recommended setup order
-
-1. Deploy application manually with Docker on EC2
-2. Confirm the application works
-3. Install Jenkins
-4. Add credentials and environment variables
-5. Configure webhook
-6. Create multibranch pipeline
-7. Trigger `main`
-8. Later enable Sonar, Trivy, Nexus, and Kubernetes
-
-## 14. Related docs
+## Related docs
 
 - [PIPELINE-STAGES.md](./PIPELINE-STAGES.md)
 - [../docker/README.md](../docker/README.md)
