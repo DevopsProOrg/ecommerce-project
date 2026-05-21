@@ -167,10 +167,14 @@ Pipeline behavior is now parameter-driven:
   - the build validates only
 - if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL` is chosen
   - the pipeline can push images and deploy from that branch
+- if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL=none`
+  - the pipeline now fails fast with a clear validation error
 - if `DEPLOY_LEVEL=lp`
   - Jenkins requires manual approval before production deployment
 - if `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
   - deployment can proceed without production approval
+- if `DEPLOY_TARGET` includes Kubernetes
+  - `K8S_OVERLAY` must match `DEPLOY_LEVEL`
 
 ## Suggested pipeline parameters
 

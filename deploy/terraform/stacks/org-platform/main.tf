@@ -45,52 +45,70 @@ resource "aws_security_group" "app_host" {
   description = "Security group for the ecommerce app host"
   vpc_id      = module.vpc.vpc_id
 
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.ssh_ingress_cidrs
+    content {
+      description = "SSH"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.enable_alb ? [] : var.public_app_ingress_cidrs
+    content {
+      description = "HTTP direct"
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
-  ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.enable_alb && var.create_app_host ? [1] : []
+    content {
+      description     = "HTTP from ALB"
+      from_port       = 80
+      to_port         = 80
+      protocol        = "tcp"
+      security_groups = [aws_security_group.alb[0].id]
+    }
   }
 
-  ingress {
-    description = "Backend health"
-    from_port   = 8888
-    to_port     = 8888
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.backend_health_ingress_cidrs
+    content {
+      description = "Backend health"
+      from_port   = 8888
+      to_port     = 8888
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
-  ingress {
-    description = "Grafana"
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.monitoring_ingress_cidrs
+    content {
+      description = "Grafana"
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
-  ingress {
-    description = "Prometheus"
-    from_port   = 9090
-    to_port     = 9090
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.monitoring_ingress_cidrs
+    content {
+      description = "Prometheus"
+      from_port   = 9090
+      to_port     = 9090
+      protocol    = "tcp"
+      cidr_blocks = [ingress.value]
+    }
   }
 
   egress {

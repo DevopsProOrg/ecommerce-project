@@ -15,6 +15,9 @@ module "platform" {
   create_www_record  = true
   enable_alb         = true
   alb_certificate_arn = var.alb_certificate_arn
+  ssh_ingress_cidrs = var.ssh_ingress_cidrs
+  monitoring_ingress_cidrs = var.monitoring_ingress_cidrs
+  backend_health_ingress_cidrs = var.backend_health_ingress_cidrs
   create_app_host    = true
   create_eks         = true
   key_pair_name      = var.key_pair_name

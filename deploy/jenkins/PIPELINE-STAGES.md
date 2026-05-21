@@ -106,6 +106,17 @@ Outputs:
 - `IS_PRODUCTION_LEVEL`
 - `ALLOW_IMAGE_PUSH`
 
+### 2A. Validate Deployment Parameters
+
+Purpose:
+
+- fail early when deployment intent is incomplete or contradictory
+
+Current behavior:
+
+- fails if `DEPLOY_TARGET != none` and `DEPLOY_LEVEL = none`
+- fails if Kubernetes deployment is requested and `K8S_OVERLAY` does not match `DEPLOY_LEVEL`
+
 ### 3. Compile Backend
 
 Command:

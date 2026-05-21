@@ -100,6 +100,22 @@ pipeline {
             }
         }
 
+        stage('Validate Deployment Parameters') {
+            when {
+                expression { return params.DEPLOY_TARGET != 'none' }
+            }
+            steps {
+                script {
+                    if (params.DEPLOY_LEVEL == 'none') {
+                        error('DEPLOY_LEVEL must be set when DEPLOY_TARGET is not none.')
+                    }
+                    if ((params.DEPLOY_TARGET == 'k8s' || params.DEPLOY_TARGET == 'both') && params.K8S_OVERLAY != params.DEPLOY_LEVEL) {
+                        error("K8S_OVERLAY (${params.K8S_OVERLAY}) must match DEPLOY_LEVEL (${params.DEPLOY_LEVEL}) for Kubernetes deployments.")
+                    }
+                }
+            }
+        }
+
         stage('Compile Backend') {
             steps {
                 dir('backend') {
@@ -154,6 +170,14 @@ pipeline {
                             else
                               echo "Sonar scanner not installed on this agent. Skipping explicit scanner execution."
                             fi
+                            '''.stripIndent().trim(),
+                            '''
+                            where sonar-scanner >nul 2>nul
+                            if %ERRORLEVEL% EQU 0 (
+                              sonar-scanner -Dsonar.login=%SONAR_TOKEN%
+                            ) else (
+                              echo Sonar scanner not installed on this agent. Skipping explicit scanner execution.
+                            )
                             '''.stripIndent().trim()
                         )
                     }
@@ -344,7 +368,7 @@ pipeline {
 
         stage('Post Deploy Smoke Check') {
             when {
-                expression { return params.DEPLOY_TARGET != 'none' }
+                expression { return env.HAS_DEPLOY_REQUEST == 'true' }
             }
             steps {
                 script {

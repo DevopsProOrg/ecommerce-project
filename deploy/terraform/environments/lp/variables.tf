@@ -5,6 +5,9 @@ variable "domain_name" { type = string default = "ogstyles.store" }
 variable "hosted_zone_id" { type = string default = null }
 variable "alb_certificate_arn" { type = string default = null }
 variable "key_pair_name" { type = string default = null }
+variable "ssh_ingress_cidrs" { type = list(string) default = [] }
+variable "monitoring_ingress_cidrs" { type = list(string) default = [] }
+variable "backend_health_ingress_cidrs" { type = list(string) default = [] }
 variable "vpc_cidr" { type = string default = "10.20.0.0/16" }
 variable "public_subnets" { type = list(string) default = ["10.20.1.0/24", "10.20.2.0/24"] }
 variable "private_subnets" { type = list(string) default = ["10.20.11.0/24", "10.20.12.0/24"] }

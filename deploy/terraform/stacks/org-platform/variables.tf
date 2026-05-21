@@ -63,6 +63,30 @@ variable "create_www_record" {
   default     = false
 }
 
+variable "ssh_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to SSH to the app host."
+  default     = []
+}
+
+variable "public_app_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach the app host directly over HTTP when no ALB is used."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "backend_health_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach the backend port directly."
+  default     = []
+}
+
+variable "monitoring_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach Prometheus and Grafana on the app host."
+  default     = []
+}
+
 variable "enable_alb" {
   type        = bool
   description = "Whether to create an internet-facing Application Load Balancer."

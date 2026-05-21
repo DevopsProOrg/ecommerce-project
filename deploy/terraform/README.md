@@ -93,6 +93,8 @@ Typical values:
 
 - `hosted_zone_id = null`
 - `key_pair_name = "ogstyles-l1-key"` [example]
+- `ssh_ingress_cidrs = ["203.0.113.10/32"]` [example]
+- `monitoring_ingress_cidrs = ["203.0.113.10/32"]` [example]
 
 The environment variables file already contains:
 
@@ -157,6 +159,8 @@ Examples:
 hosted_zone_id      = "ZXXXXXXXXXXXXX"
 key_pair_name       = "ogstyles-lp-key"
 alb_certificate_arn = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
+ssh_ingress_cidrs   = ["203.0.113.10/32"]
+monitoring_ingress_cidrs = ["203.0.113.10/32"]
 ```
 
 ### Step 5. Run Terraform
@@ -177,6 +181,15 @@ The `lp` environment now defaults to:
 - internet-facing ALB
 - public DNS record
 - `www` alias if enabled
+
+### Step 6A. Understand the new security defaults
+
+The stack now behaves more safely:
+
+1. SSH stays closed unless you explicitly allow CIDRs
+2. Prometheus and Grafana stay closed unless you explicitly allow CIDRs
+3. backend port `8888` stays closed unless you explicitly allow CIDRs
+4. when ALB is enabled, the instance accepts app traffic from the ALB security group instead of the internet
 
 ### Step 7. Production traffic flow
 

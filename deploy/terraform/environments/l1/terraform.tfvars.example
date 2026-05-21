@@ -1,2 +1,4 @@
 hosted_zone_id = null
 key_pair_name  = "ogstyles-l1-key"
+ssh_ingress_cidrs = ["203.0.113.10/32"]
+monitoring_ingress_cidrs = ["203.0.113.10/32"]

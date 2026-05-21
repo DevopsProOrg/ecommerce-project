@@ -13,6 +13,9 @@ module "platform" {
   app_subdomain    = ""
   create_public_dns_record = false
   enable_alb       = false
+  ssh_ingress_cidrs = var.ssh_ingress_cidrs
+  monitoring_ingress_cidrs = var.monitoring_ingress_cidrs
+  backend_health_ingress_cidrs = var.backend_health_ingress_cidrs
   create_app_host  = false
   create_eks       = true
   key_pair_name    = var.key_pair_name
