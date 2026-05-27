@@ -16,6 +16,9 @@ The repository pipeline supports:
 - optional SonarQube, Trivy, and Nexus stages
 - browser-facing smoke checks
 - post-build email notifications for success, failure, unstable, and aborted runs
+- release notes artifact generation
+- deployment summary artifact generation
+- rollback by immutable image tag
 
 ## Recommended Jenkins server options
 
@@ -147,6 +150,8 @@ Run one build and confirm you receive:
 - deploy target
 - image tags
 - build URL
+- release notes
+- deployment summary
 
 ## Branch and deployment policy
 
@@ -199,6 +204,9 @@ Pipeline behavior is now parameter-driven:
 - `REMOTE_APP_DIR`
 - `DOCKER_ENV_REMOTE_PATH`
 - `DEPLOY_BASE_URL`
+- `ROLLBACK_IMAGE_TAG`
+- `CHANGE_TICKET`
+- `RELEASE_NOTES_MAX_COMMITS`
 
 ## GitHub webhook setup
 
@@ -246,6 +254,7 @@ Use this policy to reduce deployment issues:
 4. run smoke checks after every deploy
 5. require approval only for `lp`
 6. keep the previous good image tag for rollback
+7. use `CHANGE_TICKET` for auditable production deployments
 
 ## Related docs
 

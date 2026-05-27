@@ -3,6 +3,11 @@ kind: Kustomization
 namespace: monitoring
 resources:
   - namespace.yaml
+  - alertmanager-configmap.yaml
+  - alertmanager.yaml
+  - loki-configmap.yaml
+  - loki.yaml
   - prometheus-configmap.yaml
   - prometheus.yaml
+  - promtail.yaml
   - grafana.yaml

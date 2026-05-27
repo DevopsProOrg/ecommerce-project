@@ -16,6 +16,8 @@ This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell dri
   - PowerShell wrapper for Windows users
 - `ec2-registry-deploy.sh`
   - registry-image deployment wrapper
+- `ec2-rollback.sh`
+  - rollback helper for previous image tags
 - `ec2-cleanup.sh`
   - cleanup helper
 
@@ -77,6 +79,8 @@ Set:
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
 - `SPRING_MAIL_PASSWORD`
 
+If you use managed RDS later, keep `SPRING_DATASOURCE_PASSWORD` here and set `USE_EXTERNAL_DB=true` plus `SPRING_DATASOURCE_URL` in `docker.env`.
+
 ### Step 4. Choose your port strategy
 
 For internet-facing production:
@@ -112,6 +116,8 @@ docker logs ogfashions-backend --tail 100
 docker logs ogfashions-frontend --tail 100
 ```
 
+If `USE_EXTERNAL_DB=true`, you should not expect `ogfashions-mysql` to run locally on that host.
+
 ### Step 7. Test in browser
 
 If production domain is already routed:
@@ -139,6 +145,15 @@ Use this when Jenkins builds images and the server only needs to pull and run th
 chmod +x deploy/docker/ec2-registry-deploy.sh
 ./deploy/docker/ec2-registry-deploy.sh
 ```
+
+### Step 8A. Roll back to a previous image
+
+```bash
+chmod +x deploy/docker/ec2-rollback.sh
+./deploy/docker/ec2-rollback.sh deploy/docker/docker.env release-42
+```
+
+This redeploys the selected immutable image tag without rebuilding locally.
 
 ### Step 9. Cleanup
 
@@ -179,4 +194,13 @@ Check:
 
 ```bash
 docker logs ogfashions-mysql --tail 200
+```
+
+### Move to managed RDS
+
+Set:
+
+```env
+USE_EXTERNAL_DB=true
+SPRING_DATASOURCE_URL=jdbc:mysql://<rds-endpoint>:3306/ecommerce?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 ```

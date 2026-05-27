@@ -23,6 +23,7 @@ The shared stack in [stacks/org-platform](/E:/Restart/Projects/ecommerce-project
 - optional EKS cluster
 - optional internet-facing Application Load Balancer
 - optional Route53 records
+- optional RDS for MySQL
 
 ## 2. Environment model
 
@@ -52,6 +53,7 @@ Before running Terraform, prepare these AWS items:
 4. EC2 key pair created [example: `ogstyles-lp-key`]
 5. Route53 hosted zone ready if production DNS is needed
 6. ACM certificate created if production HTTPS ALB is needed
+7. decide whether you want container MySQL or managed RDS
 
 Production extras:
 
@@ -127,6 +129,11 @@ Lower-level examples:
 - `http://<elastic-ip>/healthz`
 - `http://<elastic-ip>/api/actuator/health`
 
+If you enable RDS, also save:
+
+- RDS endpoint
+- generated `spring_datasource_url`
+
 ## 6. Step-by-step for production
 
 Use this flow for `lp`.
@@ -181,6 +188,7 @@ The `lp` environment now defaults to:
 - internet-facing ALB
 - public DNS record
 - `www` alias if enabled
+- optional MySQL RDS instance
 
 ### Step 6A. Understand the new security defaults
 
@@ -220,6 +228,11 @@ Run these next:
 1. Ansible
 2. Docker deploy or Jenkins deploy
 3. production validation
+
+If you created RDS, set Docker or application runtime to:
+
+- `USE_EXTERNAL_DB=true`
+- `SPRING_DATASOURCE_URL=<terraform-output-spring-datasource-url>`
 
 Suggested order:
 

@@ -1,6 +1,14 @@
 # Monitoring Stack
 
-This folder provides Prometheus and Grafana for Docker-based and Kubernetes-based deployments.
+This folder provides:
+
+- Prometheus
+- Grafana
+- Loki
+- Promtail
+- Alertmanager
+
+for Docker-based and Kubernetes-based deployments.
 
 ## Docker monitoring
 
@@ -17,6 +25,20 @@ Windows PowerShell:
 ```powershell
 ./deploy/monitoring/docker/run-monitoring.ps1
 ```
+
+### Step 1A. Configure runtime alert email
+
+```bash
+cp deploy/monitoring/docker/alertmanager.env.example deploy/monitoring/docker/alertmanager.env
+```
+
+Set:
+
+- `SMTP_SMARTHOST`
+- `SMTP_FROM`
+- `SMTP_AUTH_USERNAME`
+- `SMTP_AUTH_PASSWORD`
+- `ALERT_EMAIL_TO`
 
 ### Step 2. Port behavior
 
@@ -37,6 +59,13 @@ Typical defaults:
 
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3000`
+- Alertmanager: `http://localhost:9093`
+- Loki: `http://localhost:3100`
+
+Grafana now has:
+
+- Prometheus datasource
+- Loki datasource
 
 ## Kubernetes monitoring
 
@@ -57,6 +86,8 @@ kubectl get all -n monitoring
 ```bash
 kubectl port-forward svc/prometheus 9090:9090 -n monitoring
 kubectl port-forward svc/grafana 3000:3000 -n monitoring
+kubectl port-forward svc/alertmanager 9093:9093 -n monitoring
+kubectl port-forward svc/loki 3100:3100 -n monitoring
 ```
 
 ### Step 4. Check backend metrics
@@ -69,8 +100,8 @@ Prometheus should scrape:
 
 Recommended next layers:
 
-- Alertmanager
-- Slack or email alert routing
-- kube-state-metrics
-- persistent volumes
-- custom Grafana dashboards
+1. replace placeholder SMTP values in `deploy/monitoring/k8s/alertmanager-configmap.yaml`
+2. add persistent volumes for Grafana, Prometheus, and Loki
+3. add kube-state-metrics and node exporter
+4. route alerts to Slack or Teams
+5. add retention tuning for logs and metrics

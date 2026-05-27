@@ -62,6 +62,8 @@ IMAGE_TAG="${IMAGE_TAG:-latest}"
 BACKEND_IMAGE="${BACKEND_IMAGE:-${APP_NAME}-backend:${IMAGE_TAG}}"
 FRONTEND_IMAGE="${FRONTEND_IMAGE:-${APP_NAME}-frontend:${IMAGE_TAG}}"
 BUILD_IMAGES_LOCALLY="${BUILD_IMAGES_LOCALLY:-true}"
+USE_EXTERNAL_DB="${USE_EXTERNAL_DB:-false}"
+SPRING_DATASOURCE_URL="${SPRING_DATASOURCE_URL:-}"
 APP_PUBLIC_BASE_URL="${APP_PUBLIC_BASE_URL:-}"
 APP_CORS_ALLOWED_ORIGINS="${APP_CORS_ALLOWED_ORIGINS:-${APP_PUBLIC_BASE_URL}}"
 APP_CORS_ALLOWED_ORIGIN_PATTERNS="${APP_CORS_ALLOWED_ORIGIN_PATTERNS:-}"
@@ -110,17 +112,21 @@ resolve_host_port() {
   echo "$candidate"
 }
 
-require_secret MYSQL_ROOT_PASSWORD
 require_secret SPRING_DATASOURCE_PASSWORD
 require_secret APP_BOOTSTRAP_ADMIN_PASSWORD
 require_secret SPRING_MAIL_PASSWORD
+if [[ "$USE_EXTERNAL_DB" != "true" ]]; then
+  require_secret MYSQL_ROOT_PASSWORD
+fi
 
 if [[ -n "$APP_PUBLIC_BASE_URL" ]]; then
   APP_CORS_ALLOWED_ORIGINS="${APP_CORS_ALLOWED_ORIGINS#,}"
 fi
 
 docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || docker network create "$NETWORK_NAME"
-docker volume inspect "$MYSQL_VOLUME" >/dev/null 2>&1 || docker volume create "$MYSQL_VOLUME"
+if [[ "$USE_EXTERNAL_DB" != "true" ]]; then
+  docker volume inspect "$MYSQL_VOLUME" >/dev/null 2>&1 || docker volume create "$MYSQL_VOLUME"
+fi
 
 if [[ "$BUILD_IMAGES_LOCALLY" == "true" ]]; then
   docker build -t "$BACKEND_IMAGE" "$ROOT_DIR/backend"
@@ -139,19 +145,30 @@ if [[ "$APP_ENV" == "local" && ( -z "$APP_PUBLIC_BASE_URL" || "$APP_PUBLIC_BASE_
   APP_PUBLIC_BASE_URL="http://localhost:${FRONTEND_HOST_PORT}"
 fi
 
-docker run -d \
-  --name "$MYSQL_CONTAINER" \
-  --network "$NETWORK_NAME" \
-  --restart unless-stopped \
-  -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
-  -e MYSQL_DATABASE="$MYSQL_DATABASE" \
-  -v "${MYSQL_VOLUME}:/var/lib/mysql" \
-  mysql:8.4
+if [[ "$USE_EXTERNAL_DB" == "true" ]]; then
+  if is_placeholder "$SPRING_DATASOURCE_URL"; then
+    echo "USE_EXTERNAL_DB=true requires a real SPRING_DATASOURCE_URL value."
+    exit 1
+  fi
+  EFFECTIVE_DATASOURCE_URL="$SPRING_DATASOURCE_URL"
+  echo "Using external database connection for backend deployment."
+else
+  EFFECTIVE_DATASOURCE_URL="jdbc:mysql://${MYSQL_CONTAINER}:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 
-echo "Waiting for MySQL to accept connections..."
-until docker exec "$MYSQL_CONTAINER" mysqladmin ping -h 127.0.0.1 -p"$MYSQL_ROOT_PASSWORD" --silent >/dev/null 2>&1; do
-  sleep 4
-done
+  docker run -d \
+    --name "$MYSQL_CONTAINER" \
+    --network "$NETWORK_NAME" \
+    --restart unless-stopped \
+    -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+    -e MYSQL_DATABASE="$MYSQL_DATABASE" \
+    -v "${MYSQL_VOLUME}:/var/lib/mysql" \
+    mysql:8.4
+
+  echo "Waiting for MySQL to accept connections..."
+  until docker exec "$MYSQL_CONTAINER" mysqladmin ping -h 127.0.0.1 -p"$MYSQL_ROOT_PASSWORD" --silent >/dev/null 2>&1; do
+    sleep 4
+  done
+fi
 
 docker run -d \
   --name "$BACKEND_CONTAINER" \
@@ -159,7 +176,7 @@ docker run -d \
   --restart unless-stopped \
   -p "${BACKEND_HOST_PORT}:8888" \
   -e SERVER_PORT=8888 \
-  -e SPRING_DATASOURCE_URL="jdbc:mysql://${MYSQL_CONTAINER}:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" \
+  -e SPRING_DATASOURCE_URL="$EFFECTIVE_DATASOURCE_URL" \
   -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
   -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
   -e SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE="${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:-10}" \
@@ -192,6 +209,7 @@ echo
 echo "Deployment complete for environment: $APP_ENV"
 echo "Resolved backend host port: ${BACKEND_HOST_PORT}"
 echo "Resolved frontend host port: ${FRONTEND_HOST_PORT}"
+echo "External database mode: ${USE_EXTERNAL_DB}"
 if [[ -n "$APP_PUBLIC_BASE_URL" ]]; then
   echo "Frontend: ${APP_PUBLIC_BASE_URL}/"
   echo "Frontend health: ${APP_PUBLIC_BASE_URL}/healthz"

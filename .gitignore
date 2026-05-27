@@ -3,6 +3,8 @@ deploy/docker/docker.env
 deploy/docker/docker.secrets.env
 deploy/local/local-docker.env
 deploy/local/local-docker.secrets.env
+deploy/monitoring/docker/alertmanager.env
+deploy/monitoring/docker/alertmanager.generated.yml
 .terraform/
 *.tfstate
 *.tfstate.backup

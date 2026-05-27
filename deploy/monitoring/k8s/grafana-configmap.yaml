@@ -12,6 +12,11 @@ data:
         access: proxy
         url: http://prometheus:9090
         isDefault: true
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
   dashboard-provider.yaml: |
     apiVersion: 1
     providers:
@@ -43,6 +48,14 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
           "targets": [
             { "expr": "sum(jvm_memory_used_bytes{application=\"ogfashions-backend\"}) by (area)", "legendFormat": "{{area}}" }
+          ]
+        },
+        {
+          "type": "logs",
+          "title": "Recent Container Logs",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+          "targets": [
+            { "expr": "{namespace=~\"ogfashions-.*\"}", "datasource": { "type": "loki", "uid": "loki" } }
           ]
         }
       ],
