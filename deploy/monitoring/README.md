@@ -20,6 +20,13 @@ Linux, Ubuntu, WSL, or Git Bash:
 bash deploy/monitoring/docker/run-monitoring.sh
 ```
 
+Git Bash on Windows is now handled automatically by the script:
+
+- `MSYS_NO_PATHCONV=1`
+- `MSYS2_ARG_CONV_EXCL=*`
+
+This prevents Docker bind mounts like `/etc/prometheus/...` and `/etc/loki/...` from being incorrectly rewritten to `C:\Program Files\Git\...`.
+
 Windows PowerShell:
 
 ```powershell
@@ -66,6 +73,23 @@ Grafana now has:
 
 - Prometheus datasource
 - Loki datasource
+
+### Step 3A. Windows note for Promtail
+
+On native Windows hosts, Promtail is skipped by default because:
+
+- `/var/lib/docker/containers` is a Linux host path
+- Docker Desktop on Windows does not expose that path the same way as Linux
+
+That means on native Windows local runs:
+
+- Prometheus: works
+- Grafana: works
+- Alertmanager: works
+- Loki: works
+- Promtail: skipped intentionally
+
+Use WSL Ubuntu, Linux, or EC2 if you want Docker-container log scraping with Promtail.
 
 ## Kubernetes monitoring
 
