@@ -13,4 +13,4 @@ if (-not (Test-Path $LocalSecretsFile)) {
 }
 
 $env:DOCKER_SECRETS_FILE = $LocalSecretsFile
-& bash (Join-Path $RootDir "deploy/docker/ec2-deploy.sh") $LocalEnvFile
+& (Join-Path $RootDir "deploy\docker\ec2-deploy.ps1") $LocalEnvFile

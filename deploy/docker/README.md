@@ -13,7 +13,7 @@ This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell dri
 - `ec2-deploy.sh`
   - main Docker deployment script
 - `ec2-deploy.ps1`
-  - PowerShell wrapper for Windows users
+  - native PowerShell deploy entrypoint for Windows users
 - `ec2-registry-deploy.sh`
   - registry-image deployment wrapper
 - `ec2-rollback.sh`
