@@ -7,11 +7,11 @@ ROLLBACK_IMAGE_TAG="${2:-${ROLLBACK_IMAGE_TAG:-}}"
 
 if [[ -z "$ROLLBACK_IMAGE_TAG" ]]; then
   echo "Usage: bash deploy/docker/ec2-rollback.sh [env-file] <image-tag>"
-  echo "Example: bash deploy/docker/ec2-rollback.sh deploy/docker/docker.env release-42"
+  echo "Example: bash deploy/docker/ec2-rollback.sh deploy/docker/docker.env v1.0"
   exit 1
 fi
 
 export IMAGE_TAG="$ROLLBACK_IMAGE_TAG"
 export BUILD_IMAGES_LOCALLY=false
 
-"$ROOT_DIR/deploy/docker/ec2-deploy.sh" "$ENV_FILE"
+bash "$ROOT_DIR/deploy/docker/ec2-deploy.sh" "$ENV_FILE"

@@ -1,6 +1,6 @@
 # Docker Deployment
 
-This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell driven Docker deployment.
+This folder is for Linux, Ubuntu, and EC2 Docker deployment.
 
 ## Files
 
@@ -12,8 +12,6 @@ This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell dri
   - template for secrets
 - `ec2-deploy.sh`
   - main Docker deployment script
-- `ec2-deploy.ps1`
-  - native PowerShell deploy entrypoint for Windows users
 - `ec2-registry-deploy.sh`
   - registry-image deployment wrapper
 - `ec2-rollback.sh`
@@ -26,7 +24,7 @@ This folder is for Linux, Ubuntu, EC2, WSL, Git Bash, and Windows PowerShell dri
 The Docker deploy script now supports:
 
 - `PORT_CONFLICT_STRATEGY=fail`
-  - safest for real servers where `80` and `8888` should be intentionally reserved
+  - strict mode for real servers where `80` and `8888` should be intentionally reserved
 - `PORT_CONFLICT_STRATEGY=auto`
   - useful for local or shared hosts where a fallback port is acceptable
 - `PORT_SEARCH_LIMIT=25`
@@ -85,7 +83,7 @@ If you use managed RDS later, keep `SPRING_DATASOURCE_PASSWORD` here and set `US
 
 For internet-facing production:
 
-- keep `PORT_CONFLICT_STRATEGY=fail`
+- use `PORT_CONFLICT_STRATEGY=auto` when you want the script to avoid port conflicts automatically
 - keep `FRONTEND_HOST_PORT=80`
 
 For shared or test servers:
@@ -94,17 +92,9 @@ For shared or test servers:
 
 ### Step 5. Deploy
 
-Linux, Ubuntu, EC2, WSL, or Git Bash:
-
 ```bash
 chmod +x deploy/docker/ec2-deploy.sh
-./deploy/docker/ec2-deploy.sh
-```
-
-Windows PowerShell:
-
-```powershell
-./deploy/docker/ec2-deploy.ps1
+bash deploy/docker/ec2-deploy.sh
 ```
 
 ### Step 6. Verify containers
@@ -143,17 +133,17 @@ Use this when Jenkins builds images and the server only needs to pull and run th
 
 ```bash
 chmod +x deploy/docker/ec2-registry-deploy.sh
-./deploy/docker/ec2-registry-deploy.sh
+bash deploy/docker/ec2-registry-deploy.sh
 ```
 
 ### Step 8A. Roll back to a previous image
 
 ```bash
 chmod +x deploy/docker/ec2-rollback.sh
-./deploy/docker/ec2-rollback.sh deploy/docker/docker.env release-42
+bash deploy/docker/ec2-rollback.sh deploy/docker/docker.env v1.0
 ```
 
-This redeploys the selected immutable image tag without rebuilding locally.
+This redeploys the selected release image tag without rebuilding locally.
 
 ### Step 9. Cleanup
 
