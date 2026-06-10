@@ -99,16 +99,19 @@ global:
   smtp_require_tls: true
 
 route:
-  receiver: email-notifications
+  receiver: operations-notifications
   group_by: ['alertname', 'service']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 2h
 
 receivers:
-  - name: email-notifications
+  - name: operations-notifications
     email_configs:
       - to: '${ALERT_EMAIL_TO:-contact.ogfashions@gmail.com}'
+        send_resolved: true
+    webhook_configs:
+      - url: '${ALERT_WEBHOOK_URL:-http://ogfashions-backend:8888/api/monitoring/alerts/webhook}'
         send_resolved: true
 EOF
 
