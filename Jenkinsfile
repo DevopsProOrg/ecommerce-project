@@ -78,6 +78,9 @@ pipeline {
         IMAGE_REPO = 'yarrav7'
         DOCKER_BUILDKIT = '1'
         MAVEN_ARGS = '-q'
+
+        EC2_SSH_HOST = '44.211.170.188'
+        EC2_SSH_USER = 'ubuntu'
     }
 
     stages {
