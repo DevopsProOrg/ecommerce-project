@@ -14,6 +14,8 @@ This folder is organized for multi-environment, org-style deployment.
   - environment-specific namespaces, access model, replica counts, and ingress rules
 - `scripts/deploy.sh`
   - applies an overlay and updates the backend and frontend images
+- `scripts/rollback.sh`
+  - rolls deployments back either to the previous rollout or to a specific immutable image tag
 - `secrets/ogfashions-secrets.example.yaml`
   - secret template for any target namespace
 
@@ -84,13 +86,27 @@ bash deploy/scripts/preflight-check.sh k8s
 ## Example deploy
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh lp yarrav7 release-12
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 v1.0
 ```
 
 That deploys:
 
-- backend image: `docker.io/yarrav7/ogfashions-backend:release-12`
-- frontend image: `docker.io/yarrav7/ogfashions-frontend:release-12`
+- backend image: `docker.io/yarrav7/ogfashions-backend:v1.0`
+- frontend image: `docker.io/yarrav7/ogfashions-frontend:v1.0`
+
+## Example rollback
+
+Roll back to the previous ReplicaSet revision:
+
+```bash
+bash deploy/k8s/scripts/rollback.sh lp
+```
+
+Roll back to a known image tag:
+
+```bash
+bash deploy/k8s/scripts/rollback.sh lp yarrav7 v1.1 https://ogstyles.store
+```
 
 ## Access model
 
@@ -154,6 +170,8 @@ For stronger production readiness later, move to:
 - Amazon RDS for MySQL
 
 That will simplify backups, upgrades, and high availability.
+
+The Docker deployment path already supports external RDS by setting `USE_EXTERNAL_DB=true` and `SPRING_DATASOURCE_URL`.
 
 ## Jenkins usage
 

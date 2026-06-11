@@ -34,6 +34,19 @@ output "eks_cluster_endpoint" {
   value = var.create_eks ? module.eks[0].cluster_endpoint : null
 }
 
+output "rds_endpoint" {
+  value = var.create_rds ? aws_db_instance.app[0].address : null
+}
+
+output "rds_port" {
+  value = var.create_rds ? aws_db_instance.app[0].port : null
+}
+
+output "spring_datasource_url" {
+  value     = var.create_rds ? "jdbc:mysql://${aws_db_instance.app[0].address}:${aws_db_instance.app[0].port}/${var.db_name}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC" : null
+  sensitive = true
+}
+
 output "ansible_inventory_app_host" {
   value = var.create_app_host ? <<-EOT
     [app_hosts]

@@ -4,10 +4,10 @@ metadata:
   name: ogfashions-config
 data:
   APP_ENV: k8s
-  APP_PUBLIC_BASE_URL: https://ogstyles.store
+  APP_PUBLIC_BASE_URL: ""
   MYSQL_DATABASE: ecommerce
-  APP_CORS_ALLOWED_ORIGINS: https://ogstyles.store,https://www.ogstyles.store
-  APP_CORS_ALLOWED_ORIGIN_PATTERNS: https://*.ogstyles.store
+  APP_CORS_ALLOWED_ORIGINS: ""
+  APP_CORS_ALLOWED_ORIGIN_PATTERNS: ""
   APP_MAIL_ENABLED: "true"
   APP_MAIL_FROM: contact.ogfashions@gmail.com
   SPRING_MAIL_HOST: smtp.gmail.com

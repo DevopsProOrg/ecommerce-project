@@ -63,6 +63,30 @@ variable "create_www_record" {
   default     = false
 }
 
+variable "ssh_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to SSH to the app host."
+  default     = []
+}
+
+variable "public_app_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach the app host directly over HTTP when no ALB is used."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "backend_health_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach the backend port directly."
+  default     = []
+}
+
+variable "monitoring_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to reach Prometheus and Grafana on the app host."
+  default     = []
+}
+
 variable "enable_alb" {
   type        = bool
   description = "Whether to create an internet-facing Application Load Balancer."
@@ -97,6 +121,61 @@ variable "instance_type" {
   type        = string
   description = "EC2 instance type for the app host."
   default     = "t3.large"
+}
+
+variable "create_rds" {
+  type        = bool
+  description = "Whether to provision a managed MySQL RDS instance."
+  default     = false
+}
+
+variable "db_name" {
+  type        = string
+  description = "Database name for the application."
+  default     = "ecommerce"
+}
+
+variable "db_username" {
+  type        = string
+  description = "Database username for the application."
+  default     = "root"
+}
+
+variable "db_password" {
+  type        = string
+  description = "Database password for RDS."
+  default     = null
+  sensitive   = true
+}
+
+variable "db_instance_class" {
+  type        = string
+  description = "Instance class for RDS."
+  default     = "db.t3.micro"
+}
+
+variable "db_allocated_storage" {
+  type        = number
+  description = "Allocated storage in GiB for RDS."
+  default     = 20
+}
+
+variable "db_multi_az" {
+  type        = bool
+  description = "Whether to run RDS in Multi-AZ mode."
+  default     = false
+}
+
+variable "db_publicly_accessible" {
+  type        = bool
+  description = "Whether the RDS instance should be publicly accessible."
+  default     = false
+}
+
+variable "db_ingress_cidrs" {
+  type        = list(string)
+  description = "CIDR ranges allowed to connect directly to RDS when no app host security group is used."
+  default     = []
 }
 
 variable "key_pair_name" {

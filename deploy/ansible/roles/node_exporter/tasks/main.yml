@@ -2,7 +2,7 @@
 - name: Ensure Node Exporter container is running
   community.docker.docker_container:
     name: node-exporter
-    image: prom/node-exporter:latest
+    image: "prom/node-exporter:v{{ node_exporter_version }}"
     restart_policy: unless-stopped
     published_ports:
       - "9100:9100"

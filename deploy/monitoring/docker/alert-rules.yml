@@ -1,0 +1,22 @@
+groups:
+  - name: ogfashions-platform
+    rules:
+      - alert: OgfashionsBackendDown
+        expr: up{job="ogfashions-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: ogfashions-backend
+        annotations:
+          summary: "OG Fashions backend is down"
+          description: "Prometheus cannot scrape the backend metrics endpoint for more than 2 minutes."
+
+      - alert: HighJvmMemoryUsage
+        expr: (sum(jvm_memory_used_bytes{application="ogfashions-backend",area="heap"}) / sum(jvm_memory_max_bytes{application="ogfashions-backend",area="heap"})) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          service: ogfashions-backend
+        annotations:
+          summary: "High JVM heap usage"
+          description: "Backend JVM heap usage stayed above 85% for 10 minutes."

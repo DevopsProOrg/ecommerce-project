@@ -13,6 +13,16 @@ module "platform" {
   app_subdomain    = ""
   create_public_dns_record = false
   enable_alb       = false
+  ssh_ingress_cidrs = var.ssh_ingress_cidrs
+  monitoring_ingress_cidrs = var.monitoring_ingress_cidrs
+  backend_health_ingress_cidrs = var.backend_health_ingress_cidrs
+  create_rds      = var.create_rds
+  db_name         = var.db_name
+  db_username     = var.db_username
+  db_password     = var.db_password
+  db_instance_class = var.db_instance_class
+  db_allocated_storage = var.db_allocated_storage
+  db_ingress_cidrs = var.db_ingress_cidrs
   create_app_host  = false
   create_eks       = true
   key_pair_name    = var.key_pair_name

@@ -12,7 +12,7 @@ It supports:
 
 ## 1. What Terraform can create
 
-The shared stack in [stacks/org-platform](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform) can create:
+The shared stack in [stacks/org-platform](stacks/org-platform) can create:
 
 - VPC
 - public subnets
@@ -23,6 +23,7 @@ The shared stack in [stacks/org-platform](/E:/Restart/Projects/ecommerce-project
 - optional EKS cluster
 - optional internet-facing Application Load Balancer
 - optional Route53 records
+- optional RDS for MySQL
 
 ## 2. Environment model
 
@@ -52,6 +53,7 @@ Before running Terraform, prepare these AWS items:
 4. EC2 key pair created [example: `ogstyles-lp-key`]
 5. Route53 hosted zone ready if production DNS is needed
 6. ACM certificate created if production HTTPS ALB is needed
+7. decide whether you want container MySQL or managed RDS
 
 Production extras:
 
@@ -63,11 +65,11 @@ Production extras:
 
 Examples:
 
-- [environments/l1](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l1)
-- [environments/l2](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l2)
-- [environments/l3](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l3)
-- [environments/l6](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l6)
-- [environments/lp](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/lp)
+- [environments/l1](environments/l1)
+- [environments/l2](environments/l2)
+- [environments/l3](environments/l3)
+- [environments/l6](environments/l6)
+- [environments/lp](environments/lp)
 
 ## 5. Step-by-step for lower levels
 
@@ -93,6 +95,8 @@ Typical values:
 
 - `hosted_zone_id = null`
 - `key_pair_name = "ogstyles-l1-key"` [example]
+- `ssh_ingress_cidrs = ["203.0.113.10/32"]` [example]
+- `monitoring_ingress_cidrs = ["203.0.113.10/32"]` [example]
 
 The environment variables file already contains:
 
@@ -124,6 +128,11 @@ Lower-level examples:
 - `http://<elastic-ip>/`
 - `http://<elastic-ip>/healthz`
 - `http://<elastic-ip>/api/actuator/health`
+
+If you enable RDS, also save:
+
+- RDS endpoint
+- generated `spring_datasource_url`
 
 ## 6. Step-by-step for production
 
@@ -157,6 +166,8 @@ Examples:
 hosted_zone_id      = "ZXXXXXXXXXXXXX"
 key_pair_name       = "ogstyles-lp-key"
 alb_certificate_arn = "arn:aws:acm:ap-south-1:123456789012:certificate/replace-me"
+ssh_ingress_cidrs   = ["203.0.113.10/32"]
+monitoring_ingress_cidrs = ["203.0.113.10/32"]
 ```
 
 ### Step 5. Run Terraform
@@ -177,6 +188,16 @@ The `lp` environment now defaults to:
 - internet-facing ALB
 - public DNS record
 - `www` alias if enabled
+- optional MySQL RDS instance
+
+### Step 6A. Understand the new security defaults
+
+The stack now behaves more safely:
+
+1. SSH stays closed unless you explicitly allow CIDRs
+2. Prometheus and Grafana stay closed unless you explicitly allow CIDRs
+3. backend port `8888` stays closed unless you explicitly allow CIDRs
+4. when ALB is enabled, the instance accepts app traffic from the ALB security group instead of the internet
 
 ### Step 7. Production traffic flow
 
@@ -208,11 +229,16 @@ Run these next:
 2. Docker deploy or Jenkins deploy
 3. production validation
 
+If you created RDS, set Docker or application runtime to:
+
+- `USE_EXTERNAL_DB=true`
+- `SPRING_DATASOURCE_URL=<terraform-output-spring-datasource-url>`
+
 Suggested order:
 
-1. [../ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
-2. [../docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
-3. [../jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+1. [../ansible/README.md](../ansible/README.md)
+2. [../docker/README.md](../docker/README.md)
+3. [../jenkins/README.md](../jenkins/README.md)
 
 ## 9. Real-world production checklist
 
@@ -228,7 +254,7 @@ For `lp`, confirm all of these:
 
 ## 10. Related files
 
-- [stacks/org-platform/main.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/main.tf)
-- [stacks/org-platform/variables.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/variables.tf)
-- [stacks/org-platform/outputs.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/outputs.tf)
-- [../DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)
+- [stacks/org-platform/main.tf](stacks/org-platform/main.tf)
+- [stacks/org-platform/variables.tf](stacks/org-platform/variables.tf)
+- [stacks/org-platform/outputs.tf](stacks/org-platform/outputs.tf)
+- [../START-HERE.md](../START-HERE.md)
