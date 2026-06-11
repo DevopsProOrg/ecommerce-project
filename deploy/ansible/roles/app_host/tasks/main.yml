@@ -24,6 +24,18 @@
     dest: "{{ docker_secrets_file }}"
     mode: "0600"
 
+- name: Ensure Linux deployment scripts are executable
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: "0755"
+  loop:
+    - "{{ app_root }}/deploy/docker/ec2-deploy.sh"
+    - "{{ app_root }}/deploy/docker/ec2-registry-deploy.sh"
+    - "{{ app_root }}/deploy/docker/ec2-rollback.sh"
+    - "{{ app_root }}/deploy/docker/ec2-cleanup.sh"
+    - "{{ app_root }}/deploy/scripts/http-smoke.sh"
+    - "{{ app_root }}/deploy/scripts/preflight-check.sh"
+
 - name: Show next deploy command
   ansible.builtin.debug:
     msg: "Run {{ app_root }}/deploy/docker/ec2-deploy.sh on the target host to deploy the application."

@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Prevent Git Bash / MSYS from rewriting Docker bind-mount paths such as
-# /etc/prometheus/... into C:\Program Files\Git\etc\... on Windows hosts.
-case "${OSTYPE:-$(uname -s 2>/dev/null || echo unknown)}" in
-  msys*|cygwin*|win32*|MINGW*|mingw*)
-    export MSYS_NO_PATHCONV=1
-    export MSYS2_ARG_CONV_EXCL="*"
-    ;;
-esac
-
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NETWORK_NAME="${MONITORING_DOCKER_NETWORK:-ogfashions-net}"
 PROMETHEUS_HOST_PORT="${PROMETHEUS_HOST_PORT:-9090}"
@@ -21,20 +12,6 @@ PORT_SEARCH_LIMIT="${PORT_SEARCH_LIMIT:-25}"
 ALERTMANAGER_ENV_FILE="${ALERTMANAGER_ENV_FILE:-$ROOT_DIR/alertmanager.env}"
 ALERTMANAGER_RENDERED_CONFIG="$ROOT_DIR/alertmanager.generated.yml"
 ENABLE_PROMTAIL="${ENABLE_PROMTAIL:-true}"
-
-is_windows_host=false
-case "${OSTYPE:-$(uname -s 2>/dev/null || echo unknown)}" in
-  msys*|cygwin*|win32*|MINGW*|mingw*)
-    is_windows_host=true
-    ;;
-esac
-
-if [[ "$is_windows_host" == "true" && "${ENABLE_PROMTAIL,,}" == "true" ]]; then
-  ENABLE_PROMTAIL="false"
-  echo "Windows host detected. Promtail is disabled because /var/lib/docker/containers is not a valid Windows host path."
-  echo "Prometheus, Grafana, Alertmanager, and Loki will still start."
-  echo "Use WSL Ubuntu, Linux, or an EC2 host if you want Docker-container log scraping with Promtail."
-fi
 
 port_in_use() {
   local port="$1"

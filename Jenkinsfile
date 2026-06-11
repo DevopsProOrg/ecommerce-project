@@ -14,7 +14,7 @@ def captureCmd(String unixCommand, String windowsCommand = null) {
 }
 
 def sendBuildNotification(String status) {
-    def recipients = (env.NOTIFY_EMAIL ?: '').trim()
+    def recipients = (params.NOTIFY_EMAIL ?: env.NOTIFY_EMAIL ?: '').trim()
     if (!recipients) {
         echo "NOTIFY_EMAIL is not configured. Skipping ${status} notification email."
         return
@@ -31,6 +31,7 @@ def sendBuildNotification(String status) {
         "Effective image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
         "Rollback mode: ${env.IS_ROLLBACK ?: 'false'}",
         "Rollback image tag: ${params.ROLLBACK_IMAGE_TAG ?: 'n/a'}",
+        "Release version: ${params.RELEASE_VERSION ?: 'n/a'}",
         "Approved by: ${env.APPROVED_BY ?: 'n/a'}",
         "Change ticket: ${params.CHANGE_TICKET ?: 'n/a'}",
         "Backend image: ${env.BACKEND_IMAGE ?: 'n/a'}:${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
@@ -63,13 +64,23 @@ pipeline {
         choice(name: 'K8S_OVERLAY', choices: ['l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose Kubernetes overlay.')
         booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarQube analysis if configured.')
         booleanParam(name: 'RUN_TRIVY', defaultValue: true, description: 'Run Trivy filesystem and image scans if installed.')
-        booleanParam(name: 'RUN_NEXUS_PUBLISH', defaultValue: false, description: 'Publish backend artifact to Nexus if configured.')
+        choice(name: 'ARTIFACT_REPOSITORY', choices: ['none', 'nexus', 'artifactory'], description: 'Publish backend Maven artifact to Nexus or Artifactory.')
+        booleanParam(name: 'RUN_NEXUS_PUBLISH', defaultValue: false, description: 'Legacy switch. Prefer ARTIFACT_REPOSITORY=nexus.')
+        string(name: 'RELEASE_VERSION', defaultValue: 'v1.0', description: 'Release image tag, for example v1.0, v1.1, or v1.2. Use the same tag across environments.')
         string(name: 'ROLLBACK_IMAGE_TAG', defaultValue: '', description: 'Optional image tag to rollback to. When set, build/test/package stages are skipped and the selected tag is redeployed.')
         string(name: 'CHANGE_TICKET', defaultValue: '', description: 'Optional change ticket, release ID, or CAB reference for auditability.')
         string(name: 'RELEASE_NOTES_MAX_COMMITS', defaultValue: '15', description: 'How many recent commits to include when no previous successful build is available.')
+        string(name: 'EC2_SSH_HOST', defaultValue: '44.211.170.188', description: 'Target Docker host public IP or DNS name.')
+        string(name: 'EC2_SSH_USER', defaultValue: 'ubuntu', description: 'Target Docker host SSH user. Example: ubuntu or ec2-user.')
+        string(name: 'EC2_SSH_CREDENTIALS_ID', defaultValue: 'ec2-ssh-key', description: 'Jenkins SSH private key credential ID for Docker host deployments.')
         string(name: 'REMOTE_APP_DIR', defaultValue: '/opt/ogfashions', description: 'Remote application checkout directory for Docker deployments.')
         string(name: 'DOCKER_ENV_REMOTE_PATH', defaultValue: '/opt/ogfashions/deploy/docker/docker.env', description: 'Remote Docker env file path.')
         string(name: 'DEPLOY_BASE_URL', defaultValue: 'https://ogstyles.store', description: 'Browser-testable base URL after deployment.')
+        string(name: 'NOTIFY_EMAIL', defaultValue: 'contact.ogfashions@gmail.com', description: 'Build and deployment notification recipients.')
+        string(name: 'CONTAINER_REGISTRY', defaultValue: 'docker.io', description: 'Container registry host. Examples: docker.io, nexus.company.com:5000, company.jfrog.io/docker-local.')
+        string(name: 'CONTAINER_IMAGE_REPO', defaultValue: 'yarrav7', description: 'Container image namespace or repository owner. Example: yarrav7.')
+        string(name: 'NEXUS_MAVEN_REPO_URL', defaultValue: 'http://your-nexus-host:8081/repository/maven-releases/', description: 'Nexus hosted Maven repository URL.')
+        string(name: 'ARTIFACTORY_MAVEN_REPO_URL', defaultValue: 'https://your-artifactory-host/artifactory/libs-release-local/', description: 'Artifactory Maven repository URL.')
     }
 
     environment {
@@ -95,7 +106,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', usernameVariable: 'DOCKER_REGISTRY_USER', passwordVariable: 'DOCKER_REGISTRY_PASS')]) {
                     script {
                         def safeBranch = (env.BRANCH_NAME ?: 'local').replaceAll('[^A-Za-z0-9._-]', '-')
-                        def configuredRepo = env.IMAGE_REPO?.trim()
+                        env.REGISTRY = params.CONTAINER_REGISTRY?.trim() ?: env.REGISTRY
+                        def configuredRepo = params.CONTAINER_IMAGE_REPO?.trim() ?: env.IMAGE_REPO?.trim()
                         if (!configuredRepo || configuredRepo == 'your-dockerhub-or-ecr-user') {
                             configuredRepo = env.DOCKER_REGISTRY_USER
                         }
@@ -103,10 +115,18 @@ pipeline {
                         env.IMAGE_REPO = configuredRepo
                         env.BACKEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-backend"
                         env.FRONTEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-frontend"
-                        env.IMAGE_TAG = "${safeBranch}-${env.BUILD_NUMBER}"
+                        def requestedVersion = params.RELEASE_VERSION?.trim() ?: "v1.0"
+                        if (!(requestedVersion ==~ /^v?[0-9]+\\.[0-9]+(\\.[0-9]+)?$/)) {
+                            error("RELEASE_VERSION must look like v1.0, v1.1, v1.2, or 1.2.3. Received: ${requestedVersion}")
+                        }
+                        env.IMAGE_TAG = requestedVersion.startsWith('v') ? requestedVersion : "v${requestedVersion}"
                         env.EFFECTIVE_IMAGE_TAG = params.ROLLBACK_IMAGE_TAG?.trim() ? params.ROLLBACK_IMAGE_TAG.trim() : env.IMAGE_TAG
+                        env.ARTIFACT_VERSION = env.EFFECTIVE_IMAGE_TAG.replaceFirst(/^v/, '')
                         env.IS_ROLLBACK = params.ROLLBACK_IMAGE_TAG?.trim() ? 'true' : 'false'
                         env.REMOTE_REPO_URL = env.GIT_URL ?: 'https://github.com/DevopsProOrg/ecommerce-project.git'
+                        env.EC2_SSH_HOST = params.EC2_SSH_HOST?.trim() ?: env.EC2_SSH_HOST
+                        env.EC2_SSH_USER = params.EC2_SSH_USER?.trim() ?: env.EC2_SSH_USER
+                        env.EC2_SSH_CREDENTIALS_ID = params.EC2_SSH_CREDENTIALS_ID?.trim() ?: 'ec2-ssh-key'
                         env.DEPLOY_BASE_URL = params.DEPLOY_BASE_URL?.trim() ?: 'https://ogstyles.store'
                         env.DEPLOY_LEVEL = params.DEPLOY_LEVEL != 'none' ? params.DEPLOY_LEVEL : (params.DEPLOY_TARGET != 'none' ? params.K8S_OVERLAY : 'none')
                         env.IS_RELEASE_BRANCH = (env.BRANCH_NAME == 'release' || (env.BRANCH_NAME ?: '').startsWith('release/')) ? 'true' : 'false'
@@ -154,6 +174,9 @@ pipeline {
                     }
                     if ((params.DEPLOY_TARGET == 'k8s' || params.DEPLOY_TARGET == 'both') && params.K8S_OVERLAY != params.DEPLOY_LEVEL) {
                         error("K8S_OVERLAY (${params.K8S_OVERLAY}) must match DEPLOY_LEVEL (${params.DEPLOY_LEVEL}) for Kubernetes deployments.")
+                    }
+                    if (env.IS_PRODUCTION_LEVEL == 'true' && !params.CHANGE_TICKET?.trim()) {
+                        error('CHANGE_TICKET is required for lp production deployments.')
                     }
                 }
             }
@@ -277,12 +300,59 @@ pipeline {
 
         stage('Publish Maven Artifact To Nexus') {
             when {
-                expression { return params.RUN_NEXUS_PUBLISH && env.IS_ROLLBACK != 'true' }
+                expression { return (params.RUN_NEXUS_PUBLISH || params.ARTIFACT_REPOSITORY == 'nexus') && env.IS_ROLLBACK != 'true' }
             }
             steps {
-                dir('backend') {
-                    script {
-                        runCmd('mvn -DskipTests deploy')
+                withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    dir('backend') {
+                        script {
+                            def repoUrl = params.NEXUS_MAVEN_REPO_URL?.trim() ?: env.NEXUS_MAVEN_REPO_URL
+                            if (!repoUrl || repoUrl.contains('your-nexus-host')) {
+                                error('Set NEXUS_MAVEN_REPO_URL before publishing to Nexus.')
+                            }
+                            writeFile file: 'ci-maven-settings.xml', text: """
+                            <settings>
+                              <servers>
+                                <server>
+                                  <id>nexus</id>
+                                  <username>${env.NEXUS_USER}</username>
+                                  <password>${env.NEXUS_PASS}</password>
+                                </server>
+                              </servers>
+                            </settings>
+                            """.stripIndent().trim()
+                            runCmd("mvn -s ci-maven-settings.xml -Drevision=${env.ARTIFACT_VERSION} -DskipTests deploy -DaltDeploymentRepository=nexus::default::${repoUrl}")
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Publish Maven Artifact To Artifactory') {
+            when {
+                expression { return params.ARTIFACT_REPOSITORY == 'artifactory' && env.IS_ROLLBACK != 'true' }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'artifactory-creds', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
+                    dir('backend') {
+                        script {
+                            def repoUrl = params.ARTIFACTORY_MAVEN_REPO_URL?.trim() ?: env.ARTIFACTORY_MAVEN_REPO_URL
+                            if (!repoUrl || repoUrl.contains('your-artifactory-host')) {
+                                error('Set ARTIFACTORY_MAVEN_REPO_URL before publishing to Artifactory.')
+                            }
+                            writeFile file: 'ci-maven-settings.xml', text: """
+                            <settings>
+                              <servers>
+                                <server>
+                                  <id>artifactory</id>
+                                  <username>${env.ARTIFACTORY_USER}</username>
+                                  <password>${env.ARTIFACTORY_PASS}</password>
+                                </server>
+                              </servers>
+                            </settings>
+                            """.stripIndent().trim()
+                            runCmd("mvn -s ci-maven-settings.xml -Drevision=${env.ARTIFACT_VERSION} -DskipTests deploy -DaltDeploymentRepository=artifactory::default::${repoUrl}")
+                        }
                     }
                 }
             }
@@ -313,7 +383,7 @@ pipeline {
                         expression { return params.DEPLOY_TARGET == 'docker' || params.DEPLOY_TARGET == 'both' }
                     }
                     steps {
-                        sshagent(credentials: ['ec2-ssh-key']) {
+                        sshagent(credentials: [env.EC2_SSH_CREDENTIALS_ID]) {
                             script {
                                 def remoteDir = params.REMOTE_APP_DIR?.trim() ?: '/opt/ogfashions'
                                 def remoteParent = remoteDir.contains('/') ? remoteDir.substring(0, remoteDir.lastIndexOf('/')) : '.'
@@ -336,7 +406,8 @@ pipeline {
                                   echo 'Missing remote env file: ${remoteEnvPath}'
                                   exit 1
                                 fi
-                                IMAGE_TAG='${env.EFFECTIVE_IMAGE_TAG}' BACKEND_IMAGE='${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' FRONTEND_IMAGE='${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' BUILD_IMAGES_LOCALLY=false ./deploy/docker/ec2-registry-deploy.sh '${remoteEnvPath}'
+                                chmod +x deploy/docker/*.sh deploy/scripts/*.sh
+                                IMAGE_TAG='${env.EFFECTIVE_IMAGE_TAG}' BACKEND_IMAGE='${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' FRONTEND_IMAGE='${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' BUILD_IMAGES_LOCALLY=false bash ./deploy/docker/ec2-registry-deploy.sh '${remoteEnvPath}'
                                 """.stripIndent().trim()
                                 runCmd("ssh -o StrictHostKeyChecking=no ${env.EC2_SSH_USER}@${env.EC2_SSH_HOST} \"${remoteCommand.replace('"', '\\\"')}\"")
                             }
@@ -350,7 +421,7 @@ pipeline {
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
                             script {
-                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.EFFECTIVE_IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
+                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' CONTAINER_REGISTRY='${env.REGISTRY}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.EFFECTIVE_IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
                             }
                         }
                     }
@@ -385,7 +456,7 @@ pipeline {
                         expression { return params.DEPLOY_TARGET == 'docker' || params.DEPLOY_TARGET == 'both' }
                     }
                     steps {
-                        sshagent(credentials: ['ec2-ssh-key']) {
+                        sshagent(credentials: [env.EC2_SSH_CREDENTIALS_ID]) {
                             script {
                                 def remoteDir = params.REMOTE_APP_DIR?.trim() ?: '/opt/ogfashions'
                                 def remoteParent = remoteDir.contains('/') ? remoteDir.substring(0, remoteDir.lastIndexOf('/')) : '.'
@@ -408,7 +479,8 @@ pipeline {
                                   echo 'Missing remote env file: ${remoteEnvPath}'
                                   exit 1
                                 fi
-                                IMAGE_TAG='${env.EFFECTIVE_IMAGE_TAG}' BACKEND_IMAGE='${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' FRONTEND_IMAGE='${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' BUILD_IMAGES_LOCALLY=false ./deploy/docker/ec2-registry-deploy.sh '${remoteEnvPath}'
+                                chmod +x deploy/docker/*.sh deploy/scripts/*.sh
+                                IMAGE_TAG='${env.EFFECTIVE_IMAGE_TAG}' BACKEND_IMAGE='${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' FRONTEND_IMAGE='${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}' BUILD_IMAGES_LOCALLY=false bash ./deploy/docker/ec2-registry-deploy.sh '${remoteEnvPath}'
                                 """.stripIndent().trim()
                                 runCmd("ssh -o StrictHostKeyChecking=no ${env.EC2_SSH_USER}@${env.EC2_SSH_HOST} \"${remoteCommand.replace('"', '\\\"')}\"")
                             }
@@ -422,7 +494,7 @@ pipeline {
                     steps {
                         withCredentials([file(credentialsId: 'kubeconfig-credential', variable: 'KUBECONFIG_FILE')]) {
                             script {
-                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.EFFECTIVE_IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
+                                runCmd("KUBECONFIG='${env.KUBECONFIG_FILE}' CONTAINER_REGISTRY='${env.REGISTRY}' bash deploy/k8s/scripts/deploy.sh ${env.DEPLOY_LEVEL} ${env.IMAGE_REPO} ${env.EFFECTIVE_IMAGE_TAG} '${env.DEPLOY_BASE_URL}'")
                             }
                         }
                     }
@@ -455,6 +527,7 @@ pipeline {
                         "Deploy level: ${env.DEPLOY_LEVEL ?: 'n/a'}",
                         "K8s overlay: ${params.K8S_OVERLAY}",
                         "Rollback mode: ${env.IS_ROLLBACK ?: 'false'}",
+                        "Release version: ${params.RELEASE_VERSION ?: 'n/a'}",
                         "Effective image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
                         "Change ticket: ${params.CHANGE_TICKET ?: 'n/a'}",
                         "Approved by: ${env.APPROVED_BY ?: 'n/a'}",

@@ -46,4 +46,9 @@ public class MonitoringAlertController {
     public Map<String, Object> summary() {
         return monitoringAlertService.getSummary();
     }
+
+    @GetMapping("/incidents")
+    public List<Map<String, Object>> incidents(@RequestParam(defaultValue = "100") int limit) {
+        return monitoringAlertService.getIncidents(limit);
+    }
 }

@@ -86,13 +86,13 @@ bash deploy/scripts/preflight-check.sh k8s
 ## Example deploy
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh lp yarrav7 release-12
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 v1.0
 ```
 
 That deploys:
 
-- backend image: `docker.io/yarrav7/ogfashions-backend:release-12`
-- frontend image: `docker.io/yarrav7/ogfashions-frontend:release-12`
+- backend image: `docker.io/yarrav7/ogfashions-backend:v1.0`
+- frontend image: `docker.io/yarrav7/ogfashions-frontend:v1.0`
 
 ## Example rollback
 
@@ -105,7 +105,7 @@ bash deploy/k8s/scripts/rollback.sh lp
 Roll back to a known image tag:
 
 ```bash
-bash deploy/k8s/scripts/rollback.sh lp yarrav7 release-11 https://ogstyles.store
+bash deploy/k8s/scripts/rollback.sh lp yarrav7 v1.1 https://ogstyles.store
 ```
 
 ## Access model

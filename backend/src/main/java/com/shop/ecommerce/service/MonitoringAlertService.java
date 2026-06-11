@@ -107,6 +107,49 @@ public class MonitoringAlertService {
         return summary;
     }
 
+    public List<Map<String, Object>> getIncidents(int limit) {
+        List<MonitoringAlertEvent> recentEvents = monitoringAlertEventRepository
+                .findAllByOrderByReceivedAtDesc(PageRequest.of(0, Math.max(sanitizeLimit(limit) * 20, 500)))
+                .getContent();
+
+        Map<String, List<MonitoringAlertEvent>> eventsByFingerprint = new LinkedHashMap<>();
+        for (MonitoringAlertEvent event : recentEvents) {
+            eventsByFingerprint.computeIfAbsent(event.getFingerprint(), ignored -> new ArrayList<>()).add(event);
+        }
+
+        List<Map<String, Object>> incidents = new ArrayList<>();
+        for (List<MonitoringAlertEvent> events : eventsByFingerprint.values()) {
+            MonitoringAlertEvent latest = events.get(0);
+            MonitoringAlertEvent oldest = events.get(events.size() - 1);
+            LocalDateTime resolvedAt = events.stream()
+                    .filter(event -> "resolved".equalsIgnoreCase(event.getStatus()))
+                    .map(MonitoringAlertEvent::getReceivedAt)
+                    .findFirst()
+                    .orElse(null);
+
+            Map<String, Object> incident = new LinkedHashMap<>();
+            incident.put("fingerprint", latest.getFingerprint());
+            incident.put("status", latest.getStatus());
+            incident.put("alertName", latest.getAlertName());
+            incident.put("serviceName", latest.getServiceName());
+            incident.put("severity", latest.getSeverity());
+            incident.put("environment", latest.getEnvironment());
+            incident.put("summary", latest.getSummary());
+            incident.put("description", latest.getDescription());
+            incident.put("firstSeenAt", oldest.getReceivedAt());
+            incident.put("lastSeenAt", latest.getReceivedAt());
+            incident.put("resolvedAt", resolvedAt);
+            incident.put("eventCount", events.size());
+            incident.put("generatorUrl", latest.getGeneratorUrl());
+            incidents.add(incident);
+
+            if (incidents.size() >= sanitizeLimit(limit)) {
+                break;
+            }
+        }
+        return incidents;
+    }
+
     private MonitoringAlertEvent toEvent(AlertmanagerWebhookPayload payload, AlertmanagerAlertPayload alert) {
         Map<String, String> labels = mergeMaps(payload.getCommonLabels(), alert.getLabels());
         Map<String, String> annotations = mergeMaps(payload.getCommonAnnotations(), alert.getAnnotations());
@@ -158,7 +201,11 @@ public class MonitoringAlertService {
         if (value == null || value.isBlank() || "0001-01-01T00:00:00Z".equals(value)) {
             return null;
         }
-        return OffsetDateTime.parse(value).withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        try {
+            return OffsetDateTime.parse(value).withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        } catch (RuntimeException exception) {
+            return null;
+        }
     }
 
     private String buildFallbackFingerprint(Map<String, String> labels, String startsAt) {

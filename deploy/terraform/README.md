@@ -12,7 +12,7 @@ It supports:
 
 ## 1. What Terraform can create
 
-The shared stack in [stacks/org-platform](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform) can create:
+The shared stack in [stacks/org-platform](stacks/org-platform) can create:
 
 - VPC
 - public subnets
@@ -65,11 +65,11 @@ Production extras:
 
 Examples:
 
-- [environments/l1](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l1)
-- [environments/l2](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l2)
-- [environments/l3](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l3)
-- [environments/l6](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/l6)
-- [environments/lp](/E:/Restart/Projects/ecommerce-project/deploy/terraform/environments/lp)
+- [environments/l1](environments/l1)
+- [environments/l2](environments/l2)
+- [environments/l3](environments/l3)
+- [environments/l6](environments/l6)
+- [environments/lp](environments/lp)
 
 ## 5. Step-by-step for lower levels
 
@@ -236,9 +236,9 @@ If you created RDS, set Docker or application runtime to:
 
 Suggested order:
 
-1. [../ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
-2. [../docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
-3. [../jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
+1. [../ansible/README.md](../ansible/README.md)
+2. [../docker/README.md](../docker/README.md)
+3. [../jenkins/README.md](../jenkins/README.md)
 
 ## 9. Real-world production checklist
 
@@ -254,7 +254,7 @@ For `lp`, confirm all of these:
 
 ## 10. Related files
 
-- [stacks/org-platform/main.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/main.tf)
-- [stacks/org-platform/variables.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/variables.tf)
-- [stacks/org-platform/outputs.tf](/E:/Restart/Projects/ecommerce-project/deploy/terraform/stacks/org-platform/outputs.tf)
-- [../DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)
+- [stacks/org-platform/main.tf](stacks/org-platform/main.tf)
+- [stacks/org-platform/variables.tf](stacks/org-platform/variables.tf)
+- [stacks/org-platform/outputs.tf](stacks/org-platform/outputs.tf)
+- [../START-HERE.md](../START-HERE.md)

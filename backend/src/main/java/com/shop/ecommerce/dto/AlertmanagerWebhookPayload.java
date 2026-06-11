@@ -1,5 +1,6 @@
 package com.shop.ecommerce.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ public class AlertmanagerWebhookPayload {
     private Map<String, String> groupLabels;
     private Map<String, String> commonLabels;
     private Map<String, String> commonAnnotations;
+    @JsonProperty("externalURL")
     private String externalURL;
     private List<AlertmanagerAlertPayload> alerts;
 

@@ -14,23 +14,10 @@ for Docker-based and Kubernetes-based deployments.
 
 ### Step 1. Start monitoring containers
 
-Linux, Ubuntu, WSL, or Git Bash:
+Linux or Ubuntu:
 
 ```bash
 bash deploy/monitoring/docker/run-monitoring.sh
-```
-
-Git Bash on Windows is now handled automatically by the script:
-
-- `MSYS_NO_PATHCONV=1`
-- `MSYS2_ARG_CONV_EXCL=*`
-
-This prevents Docker bind mounts like `/etc/prometheus/...` and `/etc/loki/...` from being incorrectly rewritten to `C:\Program Files\Git\...`.
-
-Windows PowerShell:
-
-```powershell
-./deploy/monitoring/docker/run-monitoring.ps1
 ```
 
 ### Step 1A. Configure runtime alert email
@@ -86,28 +73,14 @@ This project now persists Alertmanager webhook events in the backend so you can 
 - whether it is still open or already resolved
 - the latest alert summary, severity, environment, and service
 
+For a real company deployment, keep this backend webhook for application-support visibility and also route the same alerts to an external incident system such as Jira, ServiceNow, PagerDuty, Opsgenie, or Slack. That external route matters because a backend outage may prevent the application itself from recording the first firing event.
+
 Useful APIs:
 
 - `GET /api/monitoring/alerts/history?limit=100`
 - `GET /api/monitoring/alerts/open?limit=50`
 - `GET /api/monitoring/alerts/summary`
-
-### Step 3A. Windows note for Promtail
-
-On native Windows hosts, Promtail is skipped by default because:
-
-- `/var/lib/docker/containers` is a Linux host path
-- Docker Desktop on Windows does not expose that path the same way as Linux
-
-That means on native Windows local runs:
-
-- Prometheus: works
-- Grafana: works
-- Alertmanager: works
-- Loki: works
-- Promtail: skipped intentionally
-
-Use WSL Ubuntu, Linux, or EC2 if you want Docker-container log scraping with Promtail.
+- `GET /api/monitoring/alerts/incidents?limit=100`
 
 ## Kubernetes monitoring
 

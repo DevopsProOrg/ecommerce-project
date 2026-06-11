@@ -3,8 +3,9 @@ set -euo pipefail
 
 OVERLAY="${1:-}"
 IMAGE_REPO="${2:-}"
-IMAGE_TAG="${3:-latest}"
+IMAGE_TAG="${3:-v1.0}"
 BASE_URL="${4:-}"
+CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-docker.io}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SMOKE_SCRIPT="$ROOT_DIR/../scripts/http-smoke.sh"
@@ -22,8 +23,8 @@ fi
 
 NAMESPACE="ogfashions-$OVERLAY"
 kubectl apply -k "$OVERLAY_DIR"
-kubectl -n "$NAMESPACE" set image deployment/ogfashions-backend backend="docker.io/${IMAGE_REPO}/ogfashions-backend:${IMAGE_TAG}"
-kubectl -n "$NAMESPACE" set image deployment/ogfashions-frontend frontend="docker.io/${IMAGE_REPO}/ogfashions-frontend:${IMAGE_TAG}"
+kubectl -n "$NAMESPACE" set image deployment/ogfashions-backend backend="${CONTAINER_REGISTRY}/${IMAGE_REPO}/ogfashions-backend:${IMAGE_TAG}"
+kubectl -n "$NAMESPACE" set image deployment/ogfashions-frontend frontend="${CONTAINER_REGISTRY}/${IMAGE_REPO}/ogfashions-frontend:${IMAGE_TAG}"
 kubectl -n "$NAMESPACE" rollout status deployment/ogfashions-backend --timeout=180s
 kubectl -n "$NAMESPACE" rollout status deployment/ogfashions-frontend --timeout=180s
 

@@ -1,13 +1,12 @@
 # Local Docker Deployment
 
-This path is for a full local container-based run on one machine and is the safest first validation step before EC2, Kubernetes, Terraform, or Ansible.
+This path is for a full Linux or Ubuntu container-based run on one machine and is the safest first validation step before EC2, Kubernetes, Terraform, or Ansible.
 
 ## Files
 
 - `local-docker.env.example`
 - `local-docker.secrets.env.example`
 - `local-docker.sh`
-- `local-docker.ps1`
 - `local-docker-cleanup.sh`
 
 ## Port behavior
@@ -45,17 +44,9 @@ If you want different preferred ports, edit:
 
 ### Step 3. Run locally
 
-Linux, Ubuntu, macOS, WSL, or Git Bash:
-
 ```bash
 chmod +x deploy/local/local-docker.sh
-./deploy/local/local-docker.sh
-```
-
-Windows PowerShell:
-
-```powershell
-./deploy/local/local-docker.ps1
+bash deploy/local/local-docker.sh
 ```
 
 ### Step 4. Test locally

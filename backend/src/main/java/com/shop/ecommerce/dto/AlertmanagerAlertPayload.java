@@ -1,5 +1,6 @@
 package com.shop.ecommerce.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 public class AlertmanagerAlertPayload {
@@ -9,6 +10,7 @@ public class AlertmanagerAlertPayload {
     private Map<String, String> annotations;
     private String startsAt;
     private String endsAt;
+    @JsonProperty("generatorURL")
     private String generatorURL;
     private String fingerprint;
 

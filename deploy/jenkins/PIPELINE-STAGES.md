@@ -47,6 +47,12 @@ The current `Jenkinsfile` exposes these parameters:
   - run Trivy file system and image scans when enabled
 - `RUN_NEXUS_PUBLISH`
   - publish Maven artifact to Nexus when enabled
+- `EC2_SSH_HOST`
+  - target Docker host public IP or DNS name
+- `EC2_SSH_USER`
+  - SSH user for the Docker host, for example `ubuntu`
+- `EC2_SSH_CREDENTIALS_ID`
+  - Jenkins SSH private key credential ID
 - `REMOTE_APP_DIR`
   - remote application checkout directory on the target Docker host
 - `DOCKER_ENV_REMOTE_PATH`
@@ -359,6 +365,7 @@ Behavior:
 - `IMAGE_REPO`
 - `EC2_SSH_HOST`
 - `EC2_SSH_USER`
+- `EC2_SSH_CREDENTIALS_ID`
 - `SONAR_HOST_URL`
 - `NEXUS_MAVEN_REPO_URL`
 - `NOTIFY_EMAIL`

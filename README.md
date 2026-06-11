@@ -1,245 +1,66 @@
-# OG Fashions Deployment Guide
+# OG Fashions
 
-OG Fashions is structured for:
+This is an ecommerce application with a real DevOps deployment structure.
 
-- local development
-- local Docker deployment
-- Docker-first deployment on a Linux host such as EC2
-- Kubernetes deployment with frontend, backend, and MySQL workloads
-- Terraform-based AWS infrastructure
-- Ansible-based server configuration
-- Prometheus and Grafana monitoring
+If you are deploying or configuring the platform, start here:
 
-## Architecture
+1. [deploy/START-HERE.md](deploy/START-HERE.md)
 
-- `frontend/`
-  Static storefront and admin UI served by Nginx
-- `backend/`
-  Spring Boot API on port `8888`
-- `deploy/docker/`
-  Docker-first deployment assets for EC2 or any Linux server
-- `deploy/local/`
-  Local Docker deployment scripts and env templates
-- `deploy/k8s/`
-  Organization-style Kubernetes base and overlays
-- `deploy/terraform/`
-  AWS infrastructure provisioning
-- `deploy/ansible/`
-  Host and app configuration management
-- `deploy/monitoring/`
-  Prometheus and Grafana deployment assets
-- `deploy/jenkins/`
-  Jenkins setup references and environment examples
-- `deploy/ORG-PLATFORM-RUNBOOK.md`
-  End-to-end execution guide across all layers
+Do not read every README first. The repository has many focused README files because each DevOps area has its own reference. The main path is [deploy/START-HERE.md](deploy/START-HERE.md).
 
-## Production notes
+## What This Project Includes
 
-The app no longer depends on your laptop MySQL in deployed environments.
+- frontend static ecommerce site
+- Spring Boot backend API
+- MySQL database
+- Docker deployment
+- Kubernetes overlays for `l1`, `l2`, `l3`, `l6`, and `lp`
+- Terraform AWS infrastructure
+- Ansible server configuration
+- Jenkins CI/CD
+- Nexus and Artifactory publishing support
+- Prometheus, Grafana, Loki, Promtail, and Alertmanager
+- retained alert incident history in the admin UI
 
-For Docker and Kubernetes:
+## Quick Local Validation
 
-- MySQL runs as its own workload with persistent storage
-- frontend proxies `/api` traffic to the backend
-- backend health endpoints are available through Spring Boot Actuator
-- Gmail SMTP stays external and is supplied through secrets or env vars
+Backend:
 
-Recommended production direction:
-
-1. Use EC2 + Docker for the first internet-facing deployment.
-2. Move MySQL to Amazon RDS when you want a stronger production database setup.
-3. Move images to ECR or Docker Hub before Kubernetes deployment.
-4. Use an ingress controller and a real domain with HTTPS in Kubernetes.
-
-## Local development
-
-### Backend
-
-```powershell
+```bash
 cd backend
-mvn spring-boot:run
+mvn test
+cd ..
 ```
 
-Backend default URL:
-
-- `http://localhost:8888`
-
-### Frontend
-
-Serve the `frontend` folder with any static web server, or use the frontend Docker image.
-
-## Local Docker deployment
-
-Use:
-
-- [deploy/local/README.md](/E:/Restart/Projects/ecommerce-project/deploy/local/README.md)
-
-This path runs MySQL, backend, and frontend on one machine with Docker.
-
-Local Docker now prefers frontend port `8081` by default so Jenkins can keep using `8080`.
-
-## Docker deployment on EC2 or Linux
-
-Use:
-
-- [deploy/docker/README.md](/E:/Restart/Projects/ecommerce-project/deploy/docker/README.md)
-
-The repo includes committed production defaults for `ogstyles.store` in:
-
-- [deploy/docker/docker.env.defaults](/E:/Restart/Projects/ecommerce-project/deploy/docker/docker.env.defaults)
-
-Create only the server-local secrets file:
+Frontend syntax:
 
 ```bash
-cp deploy/docker/docker.secrets.env.example deploy/docker/docker.secrets.env
-vi deploy/docker/docker.secrets.env
+node --check frontend/js/admin.js
+node --check frontend/js/auth.js
+node --check frontend/js/app-config.js
 ```
 
-Set these real values:
-
-- `MYSQL_ROOT_PASSWORD`
-- `SPRING_DATASOURCE_PASSWORD`
-- `APP_BOOTSTRAP_ADMIN_PASSWORD`
-- `SPRING_MAIL_PASSWORD`
-
-Then deploy:
+Local Docker:
 
 ```bash
-chmod +x deploy/docker/ec2-deploy.sh
-./deploy/docker/ec2-deploy.sh
+cp deploy/local/local-docker.env.example deploy/local/local-docker.env
+cp deploy/local/local-docker.secrets.env.example deploy/local/local-docker.secrets.env
+bash deploy/local/local-docker.sh
 ```
 
-Access:
+Open:
 
-- Frontend: `https://ogstyles.store/`
-- Frontend health: `https://ogstyles.store/healthz`
-- Backend health: `https://ogstyles.store/api/actuator/health`
-
-## Kubernetes deployment
-
-Files are in:
-
-- [deploy/k8s](/E:/Restart/Projects/ecommerce-project/deploy/k8s)
-
-Use:
-
-- [deploy/k8s/README.md](/E:/Restart/Projects/ecommerce-project/deploy/k8s/README.md)
-
-Example apply:
-
-```bash
-bash deploy/k8s/scripts/deploy.sh lp yarrav7 latest
+```text
+http://localhost:8081/
+http://localhost:8081/healthz
+http://localhost:8081/api/actuator/health
 ```
 
-This repo includes overlays for:
+## Environment Rule
 
-- `l1`
-- `l2`
-- `l3`
-- `l6`
-- `lp`
+- `l1`, `l2`, `l3`, `l6`: use server IP or load balancer address.
+- `lp`: use `https://ogstyles.store`.
 
-Environment model:
+## Image Tag Rule
 
-- `l1`, `l2`, `l3`
-  lower environments such as dev and test
-- `l6`
-  pre-production or staging
-- `lp`
-  production
-
-Access model:
-
-- `l1`, `l2`, `l3`, `l6`
-  use IP address, load balancer address, or server address
-- `lp`
-  uses the permanent production domain `ogstyles.store`
-
-Legacy `staging` and `production` manifests are still present for compatibility, but the current org-level flow uses `l1`, `l2`, `l3`, `l6`, and `lp`.
-
-## Terraform
-
-Use:
-
-- [deploy/terraform/README.md](/E:/Restart/Projects/ecommerce-project/deploy/terraform/README.md)
-
-This provisions AWS infrastructure for:
-
-- network
-- EC2 app hosts
-- optional EKS clusters
-- Route53 records
-
-across `l1`, `l2`, `l3`, `l6`, and `lp`.
-
-## Ansible
-
-Use:
-
-- [deploy/ansible/README.md](/E:/Restart/Projects/ecommerce-project/deploy/ansible/README.md)
-
-This configures:
-
-- Docker hosts
-- app directories
-- secrets files
-- Node Exporter
-
-after Terraform provisioning.
-
-## Monitoring
-
-Use:
-
-- [deploy/monitoring/README.md](/E:/Restart/Projects/ecommerce-project/deploy/monitoring/README.md)
-
-This includes:
-
-- Docker Prometheus + Grafana
-- Kubernetes Prometheus + Grafana
-- backend metrics scraping through `/actuator/prometheus`
-
-## Jenkins pipeline
-
-This repo includes:
-
-- [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile)
-- [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
-- [deploy/jenkins/README.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/README.md)
-- [deploy/jenkins/PIPELINE-STAGES.md](/E:/Restart/Projects/ecommerce-project/deploy/jenkins/PIPELINE-STAGES.md)
-- [deploy/DEVOPS-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-RUNBOOK.md)
-
-The pipeline is designed for a real branch flow:
-
-1. Any branch can validate code.
-2. Any branch can deploy when Jenkins deployment parameters are explicitly chosen.
-3. `DEPLOY_LEVEL=lp` requires manual approval before production deployment.
-4. Jenkins can deploy to Docker on EC2, Kubernetes, or both.
-
-## DevOps documentation
-
-For end-to-end DevOps ownership of this project, start here:
-
-1. [deploy/README.md](/E:/Restart/Projects/ecommerce-project/deploy/README.md)
-2. [deploy/DEVOPS-OPERATIONS-HANDBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/DEVOPS-OPERATIONS-HANDBOOK.md)
-3. [deploy/ENVIRONMENT-MATRIX.md](/E:/Restart/Projects/ecommerce-project/deploy/ENVIRONMENT-MATRIX.md)
-4. [deploy/DEPLOYMENT-CHECKLISTS.md](/E:/Restart/Projects/ecommerce-project/deploy/DEPLOYMENT-CHECKLISTS.md)
-5. [deploy/ORG-PRODUCTION-PLAYBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PRODUCTION-PLAYBOOK.md)
-
-## Validation checklist
-
-After deployment, verify:
-
-1. Frontend loads from the server domain.
-2. Login and admin pages work.
-3. Product listing loads through `/api`.
-4. Cart and wishlist still function.
-5. Support tickets are saved in MySQL.
-6. Order emails and support emails are delivered.
-7. Backend health is `UP`.
-
-## Full platform runbook
-
-See:
-
-- [deploy/ORG-PLATFORM-RUNBOOK.md](/E:/Restart/Projects/ecommerce-project/deploy/ORG-PLATFORM-RUNBOOK.md)
+Use version tags such as `v1.0`, `v1.1`, and `v1.2`. Do not use `latest` for real environment promotion.
