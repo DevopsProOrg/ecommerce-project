@@ -839,6 +839,7 @@ textarea{min-height:98px}
         <a href="#catalog-admin">Catalog composer</a>
         <a href="#settings-admin">Store settings</a>
         <a href="#support-admin">Support tickets</a>
+        <a href="#monitoring-admin">Monitoring incidents</a>
         <a href="#orders-admin">Order fulfillment</a>
         <a href="#users-admin">User management</a>
         <a href="#inventory-admin">Inventory view</a>
@@ -853,6 +854,8 @@ textarea{min-height:98px}
         <article class="stat-card"><div class="stat-label">Open work</div><div class="stat-value" id="stat-open-work">0</div><div class="stat-note">New, open, pending, hold</div></article>
         <article class="stat-card"><div class="stat-label">Resolved</div><div class="stat-value" id="stat-resolved">0</div><div class="stat-note">Handled by support</div></article>
         <article class="stat-card"><div class="stat-label">Urgent</div><div class="stat-value" id="stat-urgent">0</div><div class="stat-note">High-priority attention</div></article>
+        <article class="stat-card"><div class="stat-label">Open alerts</div><div class="stat-value" id="stat-alert-open">0</div><div class="stat-note">Platform incidents active</div></article>
+        <article class="stat-card"><div class="stat-label">Resolved alerts</div><div class="stat-value" id="stat-alert-resolved">0</div><div class="stat-note">Retained alert history</div></article>
     </section>
 
     <section class="workspace">
@@ -1046,6 +1049,25 @@ textarea{min-height:98px}
                 <div id="ticket-detail-panel" style="margin-top:16px;"></div>
             </div>
         </div>
+    </section>
+
+    <section id="monitoring-admin" class="queue-shell surface">
+        <div class="queue-head">
+            <div>
+                <p class="eyebrow" style="margin-bottom:6px;">Monitoring and SRE</p>
+                <h2>Platform alert history</h2>
+                <p class="subtle" style="margin:10px 0 0;">Alertmanager sends firing and resolved lifecycle events here, so resolved incidents stay visible for review, handover, and preventive action.</p>
+            </div>
+            <button id="monitoring-refresh-btn" class="btn btn-secondary" type="button">Refresh incidents</button>
+        </div>
+        <div class="queue-summary">
+            <div class="queue-card"><div class="stat-label">Tracked incidents</div><div class="value" id="stat-alert-tracked">0</div></div>
+            <div class="queue-card"><div class="stat-label">Critical open</div><div class="value" id="stat-alert-critical">0</div></div>
+            <div class="queue-card"><div class="stat-label">Warning open</div><div class="value" id="stat-alert-warning">0</div></div>
+            <div class="queue-card"><div class="stat-label">Last event</div><div class="value" id="stat-alert-last" style="font-size:1rem;">-</div></div>
+        </div>
+        <div id="monitoring-results-meta" class="filter-meta">Waiting for Alertmanager webhook events.</div>
+        <div id="monitoring-incidents" class="ticket-table-wrap"></div>
     </section>
 
     <section id="orders-admin" class="inventory-shell surface">

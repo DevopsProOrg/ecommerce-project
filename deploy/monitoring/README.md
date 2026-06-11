@@ -1,22 +1,39 @@
 # Monitoring Stack
 
-This folder provides Prometheus and Grafana for Docker-based and Kubernetes-based deployments.
+This folder provides:
+
+- Prometheus
+- Grafana
+- Loki
+- Promtail
+- Alertmanager
+
+for Docker-based and Kubernetes-based deployments.
 
 ## Docker monitoring
 
 ### Step 1. Start monitoring containers
 
-Linux, Ubuntu, WSL, or Git Bash:
+Linux or Ubuntu:
 
 ```bash
 bash deploy/monitoring/docker/run-monitoring.sh
 ```
 
-Windows PowerShell:
+### Step 1A. Configure runtime alert email
 
-```powershell
-./deploy/monitoring/docker/run-monitoring.ps1
+```bash
+cp deploy/monitoring/docker/alertmanager.env.example deploy/monitoring/docker/alertmanager.env
 ```
+
+Set:
+
+- `SMTP_SMARTHOST`
+- `SMTP_FROM`
+- `SMTP_AUTH_USERNAME`
+- `SMTP_AUTH_PASSWORD`
+- `ALERT_EMAIL_TO`
+- `ALERT_WEBHOOK_URL` (example: `http://ogfashions-backend:8888/api/monitoring/alerts/webhook`)
 
 ### Step 2. Port behavior
 
@@ -37,6 +54,33 @@ Typical defaults:
 
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3000`
+- Alertmanager: `http://localhost:9093`
+- Loki: `http://localhost:3100`
+
+Grafana now has:
+
+- Prometheus datasource
+- Loki datasource
+- an operations dashboard with availability, latency, JVM, connection pool, logs, and active alert panels
+
+### Step 3B. Track alert history
+
+Prometheus and Alertmanager only show live alert state. Once an alert is resolved, it leaves the active screen by design.
+
+This project now persists Alertmanager webhook events in the backend so you can track:
+
+- when an alert first fired
+- whether it is still open or already resolved
+- the latest alert summary, severity, environment, and service
+
+For a real company deployment, keep this backend webhook for application-support visibility and also route the same alerts to an external incident system such as Jira, ServiceNow, PagerDuty, Opsgenie, or Slack. That external route matters because a backend outage may prevent the application itself from recording the first firing event.
+
+Useful APIs:
+
+- `GET /api/monitoring/alerts/history?limit=100`
+- `GET /api/monitoring/alerts/open?limit=50`
+- `GET /api/monitoring/alerts/summary`
+- `GET /api/monitoring/alerts/incidents?limit=100`
 
 ## Kubernetes monitoring
 
@@ -57,6 +101,8 @@ kubectl get all -n monitoring
 ```bash
 kubectl port-forward svc/prometheus 9090:9090 -n monitoring
 kubectl port-forward svc/grafana 3000:3000 -n monitoring
+kubectl port-forward svc/alertmanager 9093:9093 -n monitoring
+kubectl port-forward svc/loki 3100:3100 -n monitoring
 ```
 
 ### Step 4. Check backend metrics
@@ -69,8 +115,9 @@ Prometheus should scrape:
 
 Recommended next layers:
 
-- Alertmanager
-- Slack or email alert routing
-- kube-state-metrics
-- persistent volumes
-- custom Grafana dashboards
+1. replace placeholder SMTP values in `deploy/monitoring/k8s/alertmanager-configmap.yaml`
+2. confirm the Alertmanager webhook URL points to the backend service you want to use for alert history retention
+3. add persistent volumes for Grafana, Prometheus, and Loki
+4. add kube-state-metrics and node exporter
+5. route alerts to Slack or Teams
+6. add retention tuning for logs and metrics

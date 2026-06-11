@@ -17,4 +17,4 @@ if [[ ! -f "$LOCAL_SECRETS_FILE" ]]; then
   exit 1
 fi
 
-DOCKER_SECRETS_FILE="$LOCAL_SECRETS_FILE" "$ROOT_DIR/deploy/docker/ec2-deploy.sh" "$LOCAL_ENV_FILE"
+DOCKER_SECRETS_FILE="$LOCAL_SECRETS_FILE" bash "$ROOT_DIR/deploy/docker/ec2-deploy.sh" "$LOCAL_ENV_FILE"

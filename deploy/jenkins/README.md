@@ -1,6 +1,6 @@
-# Jenkins CI/CD Setup
+﻿# Jenkins CI/CD Setup
 
-This guide explains how to set up Jenkins for this project and connect it to the repository [Jenkinsfile](/E:/Restart/Projects/ecommerce-project/Jenkinsfile).
+This guide explains how to set up Jenkins for this project and connect it to the repository [Jenkinsfile](../../Jenkinsfile).
 
 Use [PIPELINE-STAGES.md](./PIPELINE-STAGES.md) for the detailed stage-by-stage pipeline behavior.
 
@@ -16,6 +16,9 @@ The repository pipeline supports:
 - optional SonarQube, Trivy, and Nexus stages
 - browser-facing smoke checks
 - post-build email notifications for success, failure, unstable, and aborted runs
+- release notes artifact generation
+- deployment summary artifact generation
+- rollback by immutable image tag
 
 ## Recommended Jenkins server options
 
@@ -78,6 +81,7 @@ Set these in Jenkins global env vars, folder properties, or job configuration:
 
 - `EC2_SSH_HOST`
 - `EC2_SSH_USER`
+- `EC2_SSH_CREDENTIALS_ID`
 - `REGISTRY`
 - `IMAGE_REPO`
 - `DEPLOY_BASE_URL`
@@ -147,6 +151,8 @@ Run one build and confirm you receive:
 - deploy target
 - image tags
 - build URL
+- release notes
+- deployment summary
 
 ## Branch and deployment policy
 
@@ -167,10 +173,14 @@ Pipeline behavior is now parameter-driven:
   - the build validates only
 - if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL` is chosen
   - the pipeline can push images and deploy from that branch
+- if `DEPLOY_TARGET` is set and `DEPLOY_LEVEL=none`
+  - the pipeline now fails fast with a clear validation error
 - if `DEPLOY_LEVEL=lp`
   - Jenkins requires manual approval before production deployment
 - if `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
   - deployment can proceed without production approval
+- if `DEPLOY_TARGET` includes Kubernetes
+  - `K8S_OVERLAY` must match `DEPLOY_LEVEL`
 
 ## Suggested pipeline parameters
 
@@ -194,7 +204,59 @@ Pipeline behavior is now parameter-driven:
   - `lp`
 - `REMOTE_APP_DIR`
 - `DOCKER_ENV_REMOTE_PATH`
+- `EC2_SSH_HOST`
+- `EC2_SSH_USER`
+- `EC2_SSH_CREDENTIALS_ID`
 - `DEPLOY_BASE_URL`
+- `ROLLBACK_IMAGE_TAG`
+- `RELEASE_VERSION`
+- `CONTAINER_REGISTRY`
+- `CONTAINER_IMAGE_REPO`
+- `ARTIFACT_REPOSITORY`
+- `NEXUS_MAVEN_REPO_URL`
+- `ARTIFACTORY_MAVEN_REPO_URL`
+- `NOTIFY_EMAIL`
+
+## Release version image tags
+
+Use release-style tags for promoted images:
+
+- `v1.0`
+- `v1.1`
+- `v1.2`
+
+Set `RELEASE_VERSION` for normal deployments. Set `ROLLBACK_IMAGE_TAG` to the previous known-good tag for rollback.
+
+The same image tag should move from `l1` to `l2`, `l3`, `l6`, and finally `lp`.
+
+The backend Maven artifact uses the same release family without the leading `v`.
+
+Example:
+
+- Docker image tag: `v1.2`
+- Maven artifact version: `1.2`
+
+## Nexus and Artifactory publishing
+
+Create Jenkins username/password credentials:
+
+- `nexus-creds`
+- `artifactory-creds`
+
+Use:
+
+- `ARTIFACT_REPOSITORY=nexus` with `NEXUS_MAVEN_REPO_URL`
+- `ARTIFACT_REPOSITORY=artifactory` with `ARTIFACTORY_MAVEN_REPO_URL`
+
+For Docker images, set `REGISTRY` to your Docker registry endpoint:
+For this Jenkinsfile, use `CONTAINER_REGISTRY` and `CONTAINER_IMAGE_REPO` parameters:
+
+- Docker Hub example: `docker.io`
+- Nexus Docker registry example: `nexus.company.com:5000`
+- Artifactory Docker registry example: `company.jfrog.io/docker-local`
+- Image repo example: `yarrav7`
+- `CHANGE_TICKET`
+- `RELEASE_NOTES_MAX_COMMITS`
 
 ## GitHub webhook setup
 
@@ -242,10 +304,11 @@ Use this policy to reduce deployment issues:
 4. run smoke checks after every deploy
 5. require approval only for `lp`
 6. keep the previous good image tag for rollback
+7. use `CHANGE_TICKET` for auditable production deployments
 
 ## Related docs
 
 - [PIPELINE-STAGES.md](./PIPELINE-STAGES.md)
 - [../docker/README.md](../docker/README.md)
 - [../k8s/README.md](../k8s/README.md)
-- [../DEVOPS-RUNBOOK.md](../DEVOPS-RUNBOOK.md)
+- [../START-HERE.md](../START-HERE.md)

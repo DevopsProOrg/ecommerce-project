@@ -47,6 +47,12 @@ The current `Jenkinsfile` exposes these parameters:
   - run Trivy file system and image scans when enabled
 - `RUN_NEXUS_PUBLISH`
   - publish Maven artifact to Nexus when enabled
+- `EC2_SSH_HOST`
+  - target Docker host public IP or DNS name
+- `EC2_SSH_USER`
+  - SSH user for the Docker host, for example `ubuntu`
+- `EC2_SSH_CREDENTIALS_ID`
+  - Jenkins SSH private key credential ID
 - `REMOTE_APP_DIR`
   - remote application checkout directory on the target Docker host
 - `DOCKER_ENV_REMOTE_PATH`
@@ -105,6 +111,17 @@ Outputs:
 - `HAS_DEPLOY_REQUEST`
 - `IS_PRODUCTION_LEVEL`
 - `ALLOW_IMAGE_PUSH`
+
+### 2A. Validate Deployment Parameters
+
+Purpose:
+
+- fail early when deployment intent is incomplete or contradictory
+
+Current behavior:
+
+- fails if `DEPLOY_TARGET != none` and `DEPLOY_LEVEL = none`
+- fails if Kubernetes deployment is requested and `K8S_OVERLAY` does not match `DEPLOY_LEVEL`
 
 ### 3. Compile Backend
 
@@ -348,6 +365,7 @@ Behavior:
 - `IMAGE_REPO`
 - `EC2_SSH_HOST`
 - `EC2_SSH_USER`
+- `EC2_SSH_CREDENTIALS_ID`
 - `SONAR_HOST_URL`
 - `NEXUS_MAVEN_REPO_URL`
 - `NOTIFY_EMAIL`

@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: docker.io/yarrav7/ogfashions-frontend:latest
+          image: docker.io/yarrav7/ogfashions-frontend:v1.0
           ports:
             - containerPort: 80
           env:

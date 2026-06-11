@@ -16,6 +16,7 @@ const ticketDetailPanel = document.getElementById("ticket-detail-panel");
 const ordersContainer = document.getElementById("orders");
 const orderDetailPanel = document.getElementById("order-detail-panel");
 const usersContainer = document.getElementById("users");
+const monitoringIncidentsContainer = document.getElementById("monitoring-incidents");
 
 let currentProducts = [];
 let currentTickets = [];
@@ -29,6 +30,7 @@ let selectedTicketIds = new Set();
 let activeTicketId = null;
 let selectedOrderIds = new Set();
 let activeOrderId = null;
+let currentAlertIncidents = [];
 
 function setStatus(message, type = "") {
     statusElement.textContent = message;
@@ -269,6 +271,110 @@ function updateTicketStats(requests) {
     if (meta) {
         meta.textContent = `Showing ${requests.length} ticket(s) from ${baseTickets.length} queue record(s). Total archived in database: ${allTickets.filter((ticket) => ticket.archived).length}.`;
     }
+}
+
+function updateMonitoringStats(summary = {}, incidents = currentAlertIncidents) {
+    const openAlerts = Number(summary.openAlerts || 0);
+    const resolvedAlerts = Number(summary.resolvedAlerts || 0);
+    const latest = incidents[0];
+
+    document.getElementById("stat-alert-open").textContent = openAlerts;
+    document.getElementById("stat-alert-resolved").textContent = resolvedAlerts;
+    document.getElementById("stat-alert-tracked").textContent = Number(summary.trackedAlerts || incidents.length || 0);
+    document.getElementById("stat-alert-critical").textContent = incidents.filter((incident) =>
+        String(incident.status || "").toLowerCase() !== "resolved"
+        && String(incident.severity || "").toLowerCase() === "critical"
+    ).length;
+    document.getElementById("stat-alert-warning").textContent = incidents.filter((incident) =>
+        String(incident.status || "").toLowerCase() !== "resolved"
+        && String(incident.severity || "").toLowerCase() === "warning"
+    ).length;
+    document.getElementById("stat-alert-last").textContent = latest ? formatDateTime(latest.lastSeenAt) : "-";
+}
+
+function incidentStatusClass(status) {
+    return String(status || "").toLowerCase() === "resolved" ? "status-resolved" : "status-open";
+}
+
+function renderMonitoringIncidents(incidents) {
+    if (!monitoringIncidentsContainer) {
+        return;
+    }
+
+    const meta = document.getElementById("monitoring-results-meta");
+    if (meta) {
+        meta.textContent = incidents.length
+            ? `Showing ${incidents.length} retained alert incident(s). Resolved incidents stay here for audit and handover.`
+            : "No alert lifecycle events are stored yet. Trigger or resolve an Alertmanager alert to populate this table.";
+    }
+
+    if (!incidents.length) {
+        monitoringIncidentsContainer.innerHTML = '<div class="empty-state">No platform alert history yet. Confirm Alertmanager webhook routing is enabled and the backend is reachable from the monitoring network.</div>';
+        return;
+    }
+
+    monitoringIncidentsContainer.innerHTML = `
+        <table class="ticket-table">
+            <thead>
+                <tr>
+                    <th>State</th>
+                    <th>Alert</th>
+                    <th>Service</th>
+                    <th>Environment</th>
+                    <th>First seen</th>
+                    <th>Last update</th>
+                    <th>Events</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${incidents.map((incident) => `
+                    <tr>
+                        <td>
+                            <span class="status-pill ${incidentStatusClass(incident.status)}">${escapeHtml(incident.status || "unknown")}</span>
+                            <div class="compact" style="margin-top:8px;">${escapeHtml(incident.severity || "unknown")}</div>
+                        </td>
+                        <td>
+                            <button class="ticket-link-btn" type="button">${escapeHtml(incident.alertName || "unknown-alert")}</button>
+                            <div class="compact">${escapeHtml(incident.fingerprint || "-")}</div>
+                        </td>
+                        <td>${escapeHtml(incident.serviceName || "-")}</td>
+                        <td>${escapeHtml(incident.environment || "docker/local")}</td>
+                        <td>${escapeHtml(formatDateTime(incident.firstSeenAt))}</td>
+                        <td>
+                            ${escapeHtml(formatDateTime(incident.lastSeenAt))}
+                            <div class="compact">Resolved: ${escapeHtml(incident.resolvedAt ? formatDateTime(incident.resolvedAt) : "not yet")}</div>
+                        </td>
+                        <td>${escapeHtml(incident.eventCount || 1)}</td>
+                        <td>
+                            <div class="ticket-summary-main">${escapeHtml(incident.summary || "-")}</div>
+                            <div class="ticket-summary-sub">${escapeHtml(incident.description || "")}</div>
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+async function loadMonitoringIncidents() {
+    const [summaryResponse, incidentsResponse] = await Promise.all([
+        fetch(`${API_BASE}/monitoring/alerts/summary`),
+        fetch(`${API_BASE}/monitoring/alerts/incidents?limit=100`)
+    ]);
+    const summary = await parseApiResponse(summaryResponse);
+    const incidents = await parseApiResponse(incidentsResponse);
+
+    if (!summaryResponse.ok) {
+        throw new Error(summary.message || "Unable to load alert summary");
+    }
+    if (!incidentsResponse.ok) {
+        throw new Error(incidents.message || "Unable to load alert incidents");
+    }
+
+    currentAlertIncidents = Array.isArray(incidents) ? incidents : [];
+    updateMonitoringStats(summary, currentAlertIncidents);
+    renderMonitoringIncidents(currentAlertIncidents);
 }
 
 function fillSettingsForm(settings) {
@@ -1727,7 +1833,7 @@ async function saveStoreSettings(event) {
 }
 
 async function refreshDashboard() {
-    const results = await Promise.allSettled([loadProducts(), loadStoreSettings(), loadSupportRequests(), loadOrders(), loadUsers()]);
+    const results = await Promise.allSettled([loadProducts(), loadStoreSettings(), loadSupportRequests(), loadOrders(), loadUsers(), loadMonitoringIncidents()]);
     const criticalFailure = results.slice(0, 3).find((result) => result.status === "rejected");
     if (criticalFailure) {
         throw criticalFailure.reason;
@@ -1739,6 +1845,11 @@ async function refreshDashboard() {
     const userFailure = results[4];
     if (userFailure && userFailure.status === "rejected") {
         setSettingsStatus(userFailure.reason?.message || "Users could not be loaded yet.", "error");
+    }
+    const monitoringFailure = results[5];
+    if (monitoringFailure && monitoringFailure.status === "rejected") {
+        renderMonitoringIncidents([]);
+        setSettingsStatus(monitoringFailure.reason?.message || "Monitoring incidents could not be loaded yet.", "error");
     }
 }
 
@@ -1789,6 +1900,12 @@ document.getElementById("refresh-btn").addEventListener("click", () => {
     refreshDashboard().catch((error) => {
         setSettingsStatus(error.message || "Unable to refresh the workspace.", "error");
     });
+});
+
+document.getElementById("monitoring-refresh-btn").addEventListener("click", () => {
+    loadMonitoringIncidents()
+        .then(() => setSettingsStatus("Monitoring incidents refreshed.", "success"))
+        .catch((error) => setSettingsStatus(error.message || "Unable to refresh monitoring incidents.", "error"));
 });
 
 document.getElementById("ticket-apply-btn").addEventListener("click", () => {
