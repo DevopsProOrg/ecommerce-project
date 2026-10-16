@@ -8,21 +8,33 @@ import com.shop.ecommerce.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 
 @Service
 public class AuthService {
 
     private final UserRepository repo;
     private final PasswordService passwordService;
+    private final JwtEncoder jwtEncoder;
 
-    public AuthService(UserRepository repo, PasswordService passwordService) {
+    public AuthService(UserRepository repo, PasswordService passwordService, JwtEncoder jwtEncoder) {
         this.repo = repo;
         this.passwordService = passwordService;
+        this.jwtEncoder = jwtEncoder;
     }
 
     public AuthResponse register(RegisterRequest request) {
         if (request.getEmail() == null || request.getPassword() == null || request.getName() == null || request.getMobile() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name, email, mobile number, and password are required");
+        }
+        if (request.getPassword().length() < 12 || request.getPassword().length() > 128) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be between 12 and 128 characters");
         }
 
         String normalizedEmail = request.getEmail().trim().toLowerCase();
@@ -57,16 +69,33 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
+        if (passwordService.needsUpgrade(user.getPassword())) {
+            user.setPassword(passwordService.hash(request.getPassword()));
+            user = repo.save(user);
+        }
+
         return toResponse(user);
     }
 
     private AuthResponse toResponse(User user) {
+        Instant now = Instant.now();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(
+                JwsHeader.with(MacAlgorithm.HS256).build(),
+                JwtClaimsSet.builder()
+                        .subject(user.getId().toString())
+                        .issuedAt(now)
+                        .expiresAt(now.plus(15, ChronoUnit.MINUTES))
+                        .claim("roles", java.util.List.of(user.getRole()))
+                        .claim("email", user.getEmail())
+                        .build()
+        )).getTokenValue();
         return new AuthResponse(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getMobile(),
-                user.getRole()
+                user.getRole(),
+                token
         );
     }
 

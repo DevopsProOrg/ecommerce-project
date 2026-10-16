@@ -38,6 +38,11 @@ Frontend syntax:
 node --check frontend/js/admin.js
 node --check frontend/js/auth.js
 node --check frontend/js/app-config.js
+node --check frontend/js/app.js
+node --check frontend/js/products.js
+node --check frontend/js/cart.js
+node --check frontend/js/ui.js
+node --check frontend/js/wishlist.js
 ```
 
 Local Docker:
@@ -61,6 +66,10 @@ http://localhost:8081/api/actuator/health
 - `l1`, `l2`, `l3`, `l6`: use server IP or load balancer address.
 - `lp`: use `https://ogstyles.store`.
 
+## Local To Production
+
+Use [deploy/START-HERE.md](deploy/START-HERE.md) as the canonical runbook. The short flow is: validate backend and frontend locally, run the full local Docker stack, deploy to `l1`, promote that same immutable Jenkins image through `l2`, `l3`, and `l6`, then deploy to `lp` only after production approval and a change ticket. Select one environment per Jenkins run. The runbook contains the per-stage commands, secrets, validation, and rollback steps.
+
 ## Image Tag Rule
 
-Use version tags such as `v1.0`, `v1.1`, and `v1.2`. Do not use `latest` for real environment promotion.
+Jenkins creates immutable build tags automatically (`build-<build-number>-<commit>`). Select the target environment for each run; use the generated tag in `ROLLBACK_IMAGE_TAG` when promoting that exact build to another environment.

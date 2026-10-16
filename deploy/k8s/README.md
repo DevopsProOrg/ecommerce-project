@@ -72,8 +72,13 @@ Recommended choices:
 
 1. Install ingress-nginx in the cluster.
 2. Copy `secrets/ogfashions-secrets.example.yaml` to a real secret file.
-3. Update the namespace in the secret file to match the overlay.
-4. Apply the secret before or immediately after the first deploy.
+3. Update the Secret namespace to match the overlay (`ogfashions-l1`, `ogfashions-l2`, `ogfashions-l3`, `ogfashions-l6`, or `ogfashions-lp`).
+4. Create that namespace before applying the Secret, for example `kubectl create namespace ogfashions-l1`.
+5. Apply the populated Secret, then deploy the overlay. Use separate credentials per environment.
+
+Set `SPRING_DATASOURCE_USERNAME=ecommerce_app` and generate a unique `APP_SECURITY_JWT_SECRET` with `openssl rand -hex 32`. Keep that JWT key identical across replicas in an environment. New MySQL volumes create the application database account from the secret; existing PVCs require a one-time SQL user/grant migration before rollout. Never commit the populated Secret manifest.
+
+The Secret template leaves bootstrap admin creation disabled. For a first deployment, enable `APP_BOOTSTRAP_ADMIN_ENABLED` and set a unique admin password of at least 12 characters; after the account has been created, disable bootstrap again.
 
 ## Preflight
 
@@ -86,13 +91,18 @@ bash deploy/scripts/preflight-check.sh k8s
 ## Example deploy
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh lp yarrav7 v1.0
+kubectl create namespace ogfashions-lp
+kubectl apply -f deploy/k8s/secrets/ogfashions-secrets.yaml
+IMAGE_TAG=build-123-abcdef12
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 "$IMAGE_TAG" https://ogstyles.store
 ```
 
-That deploys:
+The example deploys:
 
-- backend image: `docker.io/yarrav7/ogfashions-backend:v1.0`
-- frontend image: `docker.io/yarrav7/ogfashions-frontend:v1.0`
+- backend image: `docker.io/yarrav7/ogfashions-backend:<image-tag>`
+- frontend image: `docker.io/yarrav7/ogfashions-frontend:<image-tag>`
+
+For a Jenkins-built image, use its generated `build-<build-number>-<commit>` tag. No release tag is required.
 
 ## Example rollback
 

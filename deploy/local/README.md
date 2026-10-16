@@ -22,6 +22,8 @@ The script prints the actual frontend and backend ports after startup, so you do
 
 ## Step-by-step
 
+The secrets file must include a unique `APP_SECURITY_JWT_SECRET` with at least 32 bytes. Generate one with `openssl rand -hex 32`. The provided local example uses a fixed local-only secret; replace it if the database or app is accessible to anyone else.
+
 ### Step 1. Prepare local env files
 
 ```bash

@@ -9,5 +9,6 @@ docker_secrets:
   MYSQL_ROOT_PASSWORD: "replace-me"
   SPRING_DATASOURCE_PASSWORD: "replace-me"
   APP_BOOTSTRAP_ADMIN_PASSWORD: "replace-me"
+  APP_SECURITY_JWT_SECRET: "replace-with-a-random-secret-of-at-least-32-bytes"
   SPRING_MAIL_PASSWORD: "replace-me"
 node_exporter_version: "1.8.1"

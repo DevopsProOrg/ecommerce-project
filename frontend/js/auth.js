@@ -1,4 +1,4 @@
-const AUTH_API = `${(window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api"}/auth`;
+const AUTH_API = `${(window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || `${window.location.origin}/api`}/auth`;
 
 const form = document.getElementById("auth-form");
 const statusElement = document.getElementById("status");
@@ -100,7 +100,8 @@ async function handleSubmit(event) {
             return;
         }
 
-        localStorage.setItem("user", JSON.stringify(data));
+        sessionStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("user", JSON.stringify({ id: data.id, name: data.name, email: data.email, mobile: data.mobile, role: data.role }));
         setStatus("Login successful. Redirecting...", "success");
 
         setTimeout(() => {

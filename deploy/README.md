@@ -47,12 +47,4 @@ For detailed commands, environment variables, Jenkins parameters, monitoring set
 
 ## Image Tag Rule
 
-Use version tags:
-
-```text
-v1.0
-v1.1
-v1.2
-```
-
-Do not use `latest` for real deployments.
+Jenkins generates an immutable `build-<build-number>-<commit>` image tag for every build. Deploy one selected environment per run. To promote the same image to another environment, pass the generated tag through `ROLLBACK_IMAGE_TAG`; this reuses the existing image and skips rebuilding. Manual Docker/Kubernetes scripts still accept any valid image tag.

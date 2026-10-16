@@ -1,5 +1,10 @@
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || `${window.location.origin}/api`;
 const adminUser = JSON.parse(localStorage.getItem("user") || "null");
+if (!adminUser || adminUser.role !== "ADMIN" || !sessionStorage.getItem("accessToken")) {
+    localStorage.removeItem("user");
+    window.location.replace("login.html");
+    throw new Error("An authenticated admin session is required.");
+}
 const DEFAULT_IMAGE = "assets/images/products/og-marketplace-style-1.svg";
 
 const form = document.getElementById("product-form");
@@ -1892,6 +1897,7 @@ function resetTicketFilters() {
 }
 
 document.getElementById("logout-btn").addEventListener("click", () => {
+    sessionStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     window.location.href = "login.html";
 });

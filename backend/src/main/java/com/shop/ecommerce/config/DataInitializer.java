@@ -50,6 +50,9 @@ public class DataInitializer {
         if (email.isBlank() || bootstrapAdminPassword == null || bootstrapAdminPassword.isBlank()) {
             return;
         }
+        if (bootstrapAdminPassword.length() < 12 || bootstrapAdminPassword.length() > 128) {
+            throw new IllegalStateException("Bootstrap admin password must be between 12 and 128 characters");
+        }
 
         if (userRepository.findByEmail(email).isPresent()) {
             return;

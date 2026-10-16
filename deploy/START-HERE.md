@@ -16,14 +16,12 @@ Follow this order exactly:
 6. Ansible server configuration
 7. Jenkins CI/CD setup
 8. Maven, SonarQube, Trivy, Nexus, and Artifactory validation
-9. Jenkins deployment to `l1`
-10. Promote same image to `l2`
-11. Promote same image to `l3`
-12. Promote same image to `l6`
-13. Kubernetes lower-level deployment
-14. Kubernetes production deployment
-15. Production `lp` deployment with `ogstyles.store`
-16. Post-deployment smoke checks, monitoring checks, alert checks, and rollback readiness
+9. Deploy to `l1` and validate
+10. Promote the same immutable image one environment per run through `l2`, `l3`, and `l6`
+11. Complete production readiness checks and promote that same image to `lp` after approval
+12. Run post-deployment smoke checks, monitoring checks, alert checks, and verify rollback readiness
+
+Docker/EC2 and Kubernetes are deployment targets for the same environment levels; choose the target that matches the provisioned infrastructure. The pipeline deploys one selected level per run. Kubernetes is an alternative deployment target, not a required extra production rollout after a successful Docker rollout.
 
 ## 2. Environment Levels
 
@@ -38,34 +36,19 @@ Follow this order exactly:
 
 Use IP or load balancer URLs for `l1`, `l2`, `l3`, and `l6`. Use the real domain only for `lp`.
 
-## 3. Version And Promotion Rule
+## 3. Build And Promotion Rule
 
-Use version tags:
+Jenkins generates a unique image tag from its build number and the source commit. No release version input is required. Each Jenkins run targets the selected environment. To promote the exact image built by an earlier run, set `ROLLBACK_IMAGE_TAG` to that build's tag; Jenkins reuses the published image and skips building it again. Production deployments still require a change ticket and approval.
 
-```text
-v1.0
-v1.1
-v1.2
-```
+## Application Security Prerequisites
 
-Rules:
-
-- Build one image tag once.
-- Promote the same image tag through all levels.
-- Do not use `latest` for real deployments.
-- Do not rebuild a different image for production.
-- Use `ROLLBACK_IMAGE_TAG` to redeploy a previous known-good image.
-
-Example:
-
-```text
-Build: v1.2
-l1: v1.2
-l2: v1.2
-l3: v1.2
-l6: v1.2
-lp: v1.2
-```
+- Generate `APP_SECURITY_JWT_SECRET` with `openssl rand -hex 32`; keep the same secret on every backend replica in one environment and store it in the platform secret store.
+- Set `SPRING_DATASOURCE_USERNAME=ecommerce_app`. Use a separate random `SPRING_DATASOURCE_PASSWORD`; keep the MySQL root password only for database administration.
+- For the first startup only, enable `APP_BOOTSTRAP_ADMIN_ENABLED` and set a unique admin password of at least 12 characters; disable bootstrap after the admin account exists.
+- New MySQL volumes create the application account from `MYSQL_USER` and `MYSQL_PASSWORD`. Existing Docker volumes or Kubernetes PVCs do not replay MySQL initialization variables; create/grant the `ecommerce_app` user on those databases before upgrading.
+- User registration requires a 12 to 128 character password. Existing SHA-256 password hashes are upgraded to BCrypt after successful login.
+- The API uses 15 minute bearer tokens held in the browser tab session. Users must sign in again after the token expires or the tab session ends.
+- Keep CORS origins empty for the normal same-origin frontend/API deployment. Add only exact trusted origins when a separate frontend host is required; do not use cloud-provider wildcard origins.
 
 ## 4. Files You Actually Need
 
@@ -146,7 +129,7 @@ APP_PUBLIC_BASE_URL=http://localhost:8081
 FRONTEND_HOST_PORT=8081
 BACKEND_HOST_PORT=8888
 PORT_CONFLICT_STRATEGY=auto
-IMAGE_TAG=v1.0
+IMAGE_TAG=<local-tag>
 BUILD_IMAGES_LOCALLY=true
 ```
 
@@ -156,6 +139,7 @@ Edit `deploy/local/local-docker.secrets.env`:
 MYSQL_ROOT_PASSWORD=<local-mysql-password>
 SPRING_DATASOURCE_PASSWORD=<local-mysql-password>
 APP_BOOTSTRAP_ADMIN_PASSWORD=<local-admin-password>
+APP_SECURITY_JWT_SECRET=<unique-random-secret-at-least-32-bytes>
 SPRING_MAIL_PASSWORD=<gmail-app-password-or-local-placeholder>
 ```
 
@@ -223,7 +207,7 @@ USE_EXTERNAL_DB=false
 FRONTEND_HOST_PORT=80
 BACKEND_HOST_PORT=8888
 PORT_CONFLICT_STRATEGY=auto
-IMAGE_TAG=v1.0
+IMAGE_TAG=<local-tag>
 BUILD_IMAGES_LOCALLY=true
 ```
 
@@ -235,7 +219,7 @@ APP_PUBLIC_BASE_URL=https://ogstyles.store
 FRONTEND_HOST_PORT=80
 BACKEND_HOST_PORT=8888
 PORT_CONFLICT_STRATEGY=auto
-IMAGE_TAG=v1.0
+IMAGE_TAG=<local-tag>
 ```
 
 Edit `deploy/docker/docker.secrets.env`:
@@ -470,9 +454,9 @@ Maven test
 Maven package
 Frontend node --check
 SonarQube scan if configured
-Trivy filesystem scan if installed
+Trivy filesystem scan (required when `RUN_TRIVY=true`; default is true)
 Docker image build
-Trivy image scan if installed
+Trivy image scan (required when `RUN_TRIVY=true`; default is true)
 Optional Nexus publish
 Optional Artifactory publish
 Docker image push
@@ -487,7 +471,6 @@ Important Jenkins parameters:
 RUN_SONAR=true
 RUN_TRIVY=true
 ARTIFACT_REPOSITORY=none or nexus or artifactory
-RELEASE_VERSION=v1.0
 NOTIFY_EMAIL=contact.ogfashions@gmail.com
 ```
 
@@ -513,7 +496,6 @@ For `l1` Docker deployment:
 DEPLOY_TARGET=docker
 DEPLOY_LEVEL=l1
 K8S_OVERLAY=l1
-RELEASE_VERSION=v1.0
 EC2_SSH_HOST=<l1-server-public-ip>
 EC2_SSH_USER=ubuntu
 EC2_SSH_CREDENTIALS_ID=ec2-ssh-key
@@ -529,7 +511,7 @@ Promote to `l2`:
 
 ```text
 DEPLOY_LEVEL=l2
-RELEASE_VERSION=v1.0
+ROLLBACK_IMAGE_TAG=<tag-from-l1-build>
 EC2_SSH_HOST=<l2-server-public-ip>
 DEPLOY_BASE_URL=http://<l2-server-public-ip>
 ```
@@ -538,7 +520,7 @@ Promote to `l3`:
 
 ```text
 DEPLOY_LEVEL=l3
-RELEASE_VERSION=v1.0
+ROLLBACK_IMAGE_TAG=<tag-from-l1-build>
 EC2_SSH_HOST=<l3-server-public-ip>
 DEPLOY_BASE_URL=http://<l3-server-public-ip>
 ```
@@ -547,7 +529,7 @@ Promote to `l6`:
 
 ```text
 DEPLOY_LEVEL=l6
-RELEASE_VERSION=v1.0
+ROLLBACK_IMAGE_TAG=<tag-from-l1-build>
 EC2_SSH_HOST=<l6-server-public-ip>
 DEPLOY_BASE_URL=http://<l6-server-public-ip>
 ```
@@ -570,16 +552,18 @@ vi deploy/k8s/secrets/ogfashions-secrets.yaml
 kubectl apply -f deploy/k8s/secrets/ogfashions-secrets.yaml
 ```
 
+Create the selected environment namespace before applying its Secret (for example, `kubectl create namespace ogfashions-l1`), and set `metadata.namespace` in the Secret manifest to that same namespace. Repeat with the target level for each environment; never reuse production credentials in lower levels. The overlay also declares the namespace, so `deploy.sh` will apply the matching namespace and workloads.
+
 Deploy `l1`:
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh l1 yarrav7 v1.0 http://<load-balancer-address>
+bash deploy/k8s/scripts/deploy.sh l1 yarrav7 <image-tag> http://<load-balancer-address>
 ```
 
 Deploy `l6`:
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh l6 yarrav7 v1.0 http://<load-balancer-address>
+bash deploy/k8s/scripts/deploy.sh l6 yarrav7 <image-tag> http://<load-balancer-address>
 ```
 
 Validate:
@@ -599,7 +583,7 @@ Confirm DNS points to production load balancer before final cutover.
 Deploy:
 
 ```bash
-bash deploy/k8s/scripts/deploy.sh lp yarrav7 v1.0 https://ogstyles.store
+bash deploy/k8s/scripts/deploy.sh lp yarrav7 <image-tag> https://ogstyles.store
 ```
 
 Jenkins production parameters:
@@ -608,7 +592,7 @@ Jenkins production parameters:
 DEPLOY_TARGET=k8s
 DEPLOY_LEVEL=lp
 K8S_OVERLAY=lp
-RELEASE_VERSION=v1.0
+ROLLBACK_IMAGE_TAG=<tag-from-l6-build>
 CHANGE_TICKET=CHG-001
 DEPLOY_BASE_URL=https://ogstyles.store
 ```
@@ -711,7 +695,7 @@ Application mail sends order/support email if enabled
 Docker rollback:
 
 ```bash
-bash deploy/docker/ec2-rollback.sh deploy/docker/docker.env v1.0
+bash deploy/docker/ec2-rollback.sh deploy/docker/docker.env <known-good-image-tag>
 ```
 
 Kubernetes rollback to previous revision:
@@ -723,13 +707,13 @@ bash deploy/k8s/scripts/rollback.sh lp
 Kubernetes rollback to known image:
 
 ```bash
-bash deploy/k8s/scripts/rollback.sh lp yarrav7 v1.0 https://ogstyles.store
+bash deploy/k8s/scripts/rollback.sh lp yarrav7 <known-good-image-tag> https://ogstyles.store
 ```
 
 Jenkins rollback:
 
 ```text
-ROLLBACK_IMAGE_TAG=v1.0
+ROLLBACK_IMAGE_TAG=<known-good-image-tag>
 DEPLOY_TARGET=docker or k8s
 DEPLOY_LEVEL=lp
 CHANGE_TICKET=CHG-rollback-001
@@ -751,8 +735,8 @@ Use this every day:
 10. Check admin monitoring incidents.
 11. Review Loki logs.
 12. Fix issues in Git.
-13. Release new tag.
-14. Promote through environments again.
+13. Let Jenkins generate the immutable build tag for the new change.
+14. Promote that exact tag through environments again.
 
 ## 20. Common Problems And Fixes
 

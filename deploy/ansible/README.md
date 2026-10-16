@@ -41,6 +41,8 @@ Set:
 - secrets-related values
 - monitoring options
 
+Set a unique `APP_SECURITY_JWT_SECRET` (generate with `openssl rand -hex 32`) and encrypt production secrets with Ansible Vault. The committed `replace-me` values are placeholders and will not pass deployment preflight.
+
 ### Step 4. Check SSH access
 
 ```bash

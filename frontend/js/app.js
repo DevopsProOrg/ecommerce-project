@@ -1,6 +1,7 @@
-let user = JSON.parse(localStorage.getItem("user"));
+let user = sessionStorage.getItem("accessToken") ? JSON.parse(localStorage.getItem("user") || "null") : null;
 
-if (!user && !window.location.href.includes("login.html") && !window.location.href.includes("register.html")) {
+if ((!user || !sessionStorage.getItem("accessToken")) && !window.location.href.includes("login.html") && !window.location.href.includes("register.html")) {
+    localStorage.removeItem("user");
     window.location.href = "login.html";
 }
 
