@@ -94,16 +94,16 @@ EOF
 
 docker volume create ogfashions-loki-data >/dev/null 2>&1 || true
 
-docker run -d \
+MSYS_NO_PATHCONV=1 docker run -d \
   --name ogfashions-prometheus \
   --network "$NETWORK_NAME" \
   --restart unless-stopped \
   -p "${PROMETHEUS_HOST_PORT}:9090" \
-  -v "$ROOT_DIR/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
-  -v "$ROOT_DIR/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro" \
+  -v "${ROOT_DIR}/prometheus.yml:/etc/prometheus/prometheus.yml:ro" \
+  -v "${ROOT_DIR}/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro" \
   prom/prometheus:v2.53.0
 
-docker run -d \
+MSYS_NO_PATHCONV=1 docker run -d \
   --name ogfashions-grafana \
   --network "$NETWORK_NAME" \
   --restart unless-stopped \
@@ -112,7 +112,7 @@ docker run -d \
   -v "$ROOT_DIR/grafana/dashboards:/var/lib/grafana/dashboards:ro" \
   grafana/grafana:11.1.0
 
-docker run -d \
+MSYS_NO_PATHCONV=1 docker run -d \
   --name ogfashions-alertmanager \
   --network "$NETWORK_NAME" \
   --restart unless-stopped \
@@ -120,17 +120,18 @@ docker run -d \
   -v "$ALERTMANAGER_RENDERED_CONFIG:/etc/alertmanager/alertmanager.yml:ro" \
   prom/alertmanager:v0.27.0
 
-docker run -d \
+MSYS_NO_PATHCONV=1 docker run -d \
   --name ogfashions-loki \
   --network "$NETWORK_NAME" \
   --restart unless-stopped \
   -p "${LOKI_HOST_PORT}:3100" \
-  -v "$ROOT_DIR/loki-config.yml:/etc/loki/local-config.yaml:ro" \
+  -v "${ROOT_DIR}/loki-config.yml:/etc/loki/local-config.yaml:ro" \
   -v ogfashions-loki-data:/loki \
-  grafana/loki:3.1.1 -config.file=/etc/loki/local-config.yaml
+  grafana/loki:3.1.1 \
+  -config.file=/etc/loki/local-config.yaml
 
 if [[ "${ENABLE_PROMTAIL,,}" == "true" ]]; then
-  docker run -d \
+  MSYS_NO_PATHCONV=1 docker run -d \
     --name ogfashions-promtail \
     --network "$NETWORK_NAME" \
     --restart unless-stopped \

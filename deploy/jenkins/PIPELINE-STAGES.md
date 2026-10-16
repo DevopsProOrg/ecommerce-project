@@ -46,7 +46,9 @@ The current `Jenkinsfile` exposes these parameters:
 - `RUN_TRIVY`
   - run Trivy file system and image scans when enabled
 - `RUN_NEXUS_PUBLISH`
-  - publish Maven artifact to Nexus when enabled
+  - legacy Nexus publish switch; prefer `ARTIFACT_REPOSITORY`
+- `ARTIFACT_REPOSITORY`
+  - `none`, `nexus`, or `artifactory`
 - `EC2_SSH_HOST`
   - target Docker host public IP or DNS name
 - `EC2_SSH_USER`
@@ -99,7 +101,7 @@ Purpose:
 Purpose:
 
 - generate image names
-- generate image tag
+- generate immutable build image tag from Jenkins build number and source commit
 - detect deployment intent from parameters
 
 Outputs:
@@ -155,6 +157,11 @@ Commands:
 node --check frontend/js/admin.js
 node --check frontend/js/auth.js
 node --check frontend/js/app-config.js
+node --check frontend/js/app.js
+node --check frontend/js/products.js
+node --check frontend/js/cart.js
+node --check frontend/js/ui.js
+node --check frontend/js/wishlist.js
 ```
 
 Purpose:
@@ -195,6 +202,8 @@ Runs only when:
 
 - `RUN_TRIVY=true`
 
+Trivy must be installed on the agent when enabled. The parameter defaults to true, and HIGH or CRITICAL findings fail the build. Set it false only when the organization has explicitly accepted running without this scan.
+
 Purpose:
 
 - scan repository contents for high and critical issues
@@ -215,20 +224,17 @@ Purpose:
 
 - scan built images before push and deployment
 
-### 11. Publish Maven Artifact To Nexus
+### 11. Publish Maven Artifact
 
-Runs only when:
-
-- `RUN_NEXUS_PUBLISH=true`
+Runs when `ARTIFACT_REPOSITORY=nexus` or `artifactory` (or the legacy Nexus switch is enabled).
 
 Purpose:
 
-- publish backend artifact to Nexus
+- publish the backend artifact to the selected Maven repository using the generated build identifier as its version
 
 Requirement:
 
-- Nexus server
-- `nexus-creds` Jenkins credential
+- the selected repository and matching Jenkins credentials (`nexus-creds` or `artifactory-creds`)
 
 ### 12. Push Images To Registry
 
@@ -338,18 +344,18 @@ Use:
 
 - any branch with `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`
 
-Behavior:
+Behavior for a new image:
 
-- build
-- validate
-- push
-- deploy
+- validate and scan
+- build and push the immutable image
+- deploy the selected environment
+- smoke check and archive deployment metadata
+
+For promotion, set `ROLLBACK_IMAGE_TAG` to the tag from the successful prior build. Jenkins skips build and push and deploys that same registry image to the selected environment. Run one environment per build.
 
 ### Production
 
-Use:
-
-- any branch with `DEPLOY_LEVEL=lp`
+Use `DEPLOY_LEVEL=lp` on an approved branch after the same image has passed through `l6`.
 
 Behavior:
 

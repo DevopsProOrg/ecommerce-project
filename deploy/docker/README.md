@@ -73,9 +73,13 @@ vi deploy/docker/docker.secrets.env
 Set:
 
 - `MYSQL_ROOT_PASSWORD`
+- `SPRING_DATASOURCE_USERNAME=ecommerce_app`
 - `SPRING_DATASOURCE_PASSWORD`
 - `APP_BOOTSTRAP_ADMIN_PASSWORD`
+- `APP_SECURITY_JWT_SECRET` (generate with `openssl rand -hex 32`)
 - `SPRING_MAIL_PASSWORD`
+
+Keep the database root credential for administration only; the application connects with the dedicated `ecommerce_app` account. Enable the bootstrap administrator only for initial account creation, then disable it. Existing MySQL volumes do not recreate users from initialization variables, so apply the documented one-time user/grant migration before upgrading an existing database.
 
 If you use managed RDS later, keep `SPRING_DATASOURCE_PASSWORD` here and set `USE_EXTERNAL_DB=true` plus `SPRING_DATASOURCE_URL` in `docker.env`.
 

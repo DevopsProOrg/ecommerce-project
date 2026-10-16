@@ -832,7 +832,7 @@ body{font-size:.96rem}
 
 <script src="js/app-config.js"></script>
 <script>
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || `${window.location.origin}/api`;
 const DEFAULT_IMAGE = "assets/images/products/shirt1.jpg";
 const DEFAULT_SETTINGS = { brandName:"OG Fashions", tagline:"Hyderabad's fashion and accessories marketplace.", announcementBar:"New arrivals, flash sales, fashion essentials, watches, pouches, and gifting picks shipped across India.", heroTitle:"A cleaner product listing page built for real shopping.", heroSubtitle:"Use smart filters, quick view, wishlist, and cart from one page while the experience grows into a deeper marketplace journey.", featuredMessage:"Sharper product browsing with richer filters and quick detail views.", contactPhone:"", contactEmail:"contact.ogfashions@gmail.com", storeAddress:"OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India", openingHours:"Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed", paymentQrImageUrl:"", paymentUpiId:"contact.ogfashions@upi", paymentInstructions:"Scan the QR code, complete the payment, and enter your payment reference before placing the order.", cashOnDeliveryEnabled:true };
 const CATEGORY_IMAGE_MAP = { Shirts:"assets/images/products/shirt2.jpg", Overshirts:"assets/images/products/shirt1.jpg", "T-Shirts":"assets/images/products/tshirt1.jpg", TShirts:"assets/images/products/tshirt1.jpg", Tshirt:"assets/images/products/tshirt1.jpg", Pants:"assets/images/products/pant1.jpg", Trousers:"assets/images/products/pant2.jpg", Watches:"assets/images/products/og-marketplace-watch-1.svg", "Mobile Pouches":"assets/images/products/og-marketplace-pouch-1.svg", Bags:"assets/images/products/og-marketplace-bag-1.svg", Wallets:"assets/images/products/og-marketplace-wallet-1.svg", "Travel Essentials":"assets/images/products/og-marketplace-organizer-1.svg" };
@@ -846,7 +846,8 @@ let productsDB = [];
 let activeCategory = "All";
 let cart = [];
 let wishlist = JSON.parse(localStorage.getItem("og_wishlist") || "[]");
-let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+let currentUser = sessionStorage.getItem("accessToken") ? JSON.parse(localStorage.getItem("user") || "null") : null;
+if (!currentUser) localStorage.removeItem("user");
 let visibleCount = 6;
 let wishlistMode = false;
 let orders = [];
@@ -1635,6 +1636,7 @@ document.getElementById("wishlist-filter-btn").addEventListener("click", () => {
 document.getElementById("login-btn").addEventListener("click", () => { window.location.href = "login.html"; });
 document.getElementById("admin-btn").addEventListener("click", () => { window.location.href = "admin.html"; });
 document.getElementById("logout-btn").addEventListener("click", () => {
+    sessionStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     currentUser = null;
     orders = [];

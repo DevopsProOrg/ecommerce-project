@@ -29,9 +29,9 @@ def sendBuildNotification(String status) {
         "Deploy level: ${env.DEPLOY_LEVEL ?: 'n/a'}",
         "K8s overlay: ${env.DEPLOY_LEVEL ?: params.K8S_OVERLAY}",
         "Effective image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
-        "Rollback mode: ${env.IS_ROLLBACK ?: 'false'}",
-        "Rollback image tag: ${params.ROLLBACK_IMAGE_TAG ?: 'n/a'}",
-        "Release version: ${params.RELEASE_VERSION ?: 'n/a'}",
+        "Existing image reuse: ${env.IS_ROLLBACK ?: 'false'}",
+        "Existing image tag: ${params.ROLLBACK_IMAGE_TAG ?: 'n/a'}",
+        "Image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
         "Approved by: ${env.APPROVED_BY ?: 'n/a'}",
         "Change ticket: ${params.CHANGE_TICKET ?: 'n/a'}",
         "Backend image: ${env.BACKEND_IMAGE ?: 'n/a'}:${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
@@ -60,14 +60,13 @@ pipeline {
 
     parameters {
         choice(name: 'DEPLOY_TARGET', choices: ['none', 'docker', 'k8s', 'both'], description: 'Choose deployment target.')
-        choice(name: 'DEPLOY_LEVEL', choices: ['none', 'l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose deployment environment level. Use none for validation-only builds.')
+        choice(name: 'DEPLOY_LEVEL', choices: ['none', 'l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose one deployment environment for this run. Image tags are generated automatically.')
         choice(name: 'K8S_OVERLAY', choices: ['l1', 'l2', 'l3', 'l6', 'lp'], description: 'Choose Kubernetes overlay.')
         booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarQube analysis if configured.')
         booleanParam(name: 'RUN_TRIVY', defaultValue: true, description: 'Run Trivy filesystem and image scans if installed.')
         choice(name: 'ARTIFACT_REPOSITORY', choices: ['none', 'nexus', 'artifactory'], description: 'Publish backend Maven artifact to Nexus or Artifactory.')
         booleanParam(name: 'RUN_NEXUS_PUBLISH', defaultValue: false, description: 'Legacy switch. Prefer ARTIFACT_REPOSITORY=nexus.')
-        string(name: 'RELEASE_VERSION', defaultValue: 'v1.0', description: 'Release image tag, for example v1.0, v1.1, or v1.2. Use the same tag across environments.')
-        string(name: 'ROLLBACK_IMAGE_TAG', defaultValue: '', description: 'Optional image tag to rollback to. When set, build/test/package stages are skipped and the selected tag is redeployed.')
+        string(name: 'ROLLBACK_IMAGE_TAG', defaultValue: '', description: 'Optional existing build tag to promote or roll back. When set, Jenkins skips building and redeploys that registry image.')
         string(name: 'CHANGE_TICKET', defaultValue: '', description: 'Optional change ticket, release ID, or CAB reference for auditability.')
         string(name: 'RELEASE_NOTES_MAX_COMMITS', defaultValue: '15', description: 'How many recent commits to include when no previous successful build is available.')
         string(name: 'EC2_SSH_HOST', defaultValue: '44.211.170.188', description: 'Target Docker host public IP or DNS name.')
@@ -103,40 +102,34 @@ pipeline {
 
         stage('Initialize Metadata') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-registry-creds', usernameVariable: 'DOCKER_REGISTRY_USER', passwordVariable: 'DOCKER_REGISTRY_PASS')]) {
-                    script {
-                        def safeBranch = (env.BRANCH_NAME ?: 'local').replaceAll('[^A-Za-z0-9._-]', '-')
-                        env.REGISTRY = params.CONTAINER_REGISTRY?.trim() ?: env.REGISTRY
-                        def configuredRepo = params.CONTAINER_IMAGE_REPO?.trim() ?: env.IMAGE_REPO?.trim()
-                        if (!configuredRepo || configuredRepo == 'your-dockerhub-or-ecr-user') {
-                            configuredRepo = env.DOCKER_REGISTRY_USER
-                        }
-
-                        env.IMAGE_REPO = configuredRepo
-                        env.BACKEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-backend"
-                        env.FRONTEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-frontend"
-                        def requestedVersion = params.RELEASE_VERSION?.trim() ?: "v1.0"
-                        if (!(requestedVersion ==~ /^v?[0-9]+\\.[0-9]+(\\.[0-9]+)?$/)) {
-                            error("RELEASE_VERSION must look like v1.0, v1.1, v1.2, or 1.2.3. Received: ${requestedVersion}")
-                        }
-                        env.IMAGE_TAG = requestedVersion.startsWith('v') ? requestedVersion : "v${requestedVersion}"
-                        env.EFFECTIVE_IMAGE_TAG = params.ROLLBACK_IMAGE_TAG?.trim() ? params.ROLLBACK_IMAGE_TAG.trim() : env.IMAGE_TAG
-                        env.ARTIFACT_VERSION = env.EFFECTIVE_IMAGE_TAG.replaceFirst(/^v/, '')
-                        env.IS_ROLLBACK = params.ROLLBACK_IMAGE_TAG?.trim() ? 'true' : 'false'
-                        env.REMOTE_REPO_URL = env.GIT_URL ?: 'https://github.com/DevopsProOrg/ecommerce-project.git'
-                        env.EC2_SSH_HOST = params.EC2_SSH_HOST?.trim() ?: env.EC2_SSH_HOST
-                        env.EC2_SSH_USER = params.EC2_SSH_USER?.trim() ?: env.EC2_SSH_USER
-                        env.EC2_SSH_CREDENTIALS_ID = params.EC2_SSH_CREDENTIALS_ID?.trim() ?: 'ec2-ssh-key'
-                        env.DEPLOY_BASE_URL = params.DEPLOY_BASE_URL?.trim() ?: 'https://ogstyles.store'
-                        env.DEPLOY_LEVEL = params.DEPLOY_LEVEL != 'none' ? params.DEPLOY_LEVEL : (params.DEPLOY_TARGET != 'none' ? params.K8S_OVERLAY : 'none')
-                        env.IS_RELEASE_BRANCH = (env.BRANCH_NAME == 'release' || (env.BRANCH_NAME ?: '').startsWith('release/')) ? 'true' : 'false'
-                        env.IS_MAINLINE = ['main', 'master'].contains(env.BRANCH_NAME ?: '') ? 'true' : 'false'
-                        env.HAS_DEPLOY_REQUEST = (params.DEPLOY_TARGET != 'none' && params.DEPLOY_LEVEL != 'none') ? 'true' : 'false'
-                        env.IS_PRODUCTION_LEVEL = (env.DEPLOY_LEVEL == 'lp') ? 'true' : 'false'
-                        env.IS_PREPROD_LEVEL = (env.DEPLOY_LEVEL == 'l6') ? 'true' : 'false'
-                        env.ALLOW_IMAGE_PUSH = (env.IS_ROLLBACK == 'true') ? 'false' : ((env.HAS_DEPLOY_REQUEST == 'true' || env.IS_MAINLINE == 'true' || env.IS_RELEASE_BRANCH == 'true') ? 'true' : 'false')
-                        currentBuild.description = "${params.DEPLOY_TARGET}/${env.DEPLOY_LEVEL} tag=${env.EFFECTIVE_IMAGE_TAG}${env.IS_ROLLBACK == 'true' ? ' rollback' : ''}"
+                script {
+                    env.REGISTRY = params.CONTAINER_REGISTRY?.trim() ?: env.REGISTRY
+                    def configuredRepo = params.CONTAINER_IMAGE_REPO?.trim() ?: env.IMAGE_REPO?.trim()
+                    if (!configuredRepo || configuredRepo == 'your-dockerhub-or-ecr-user') {
+                        error('Set CONTAINER_IMAGE_REPO to the registry namespace before building images.')
                     }
+
+                    env.IMAGE_REPO = configuredRepo
+                    env.BACKEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-backend"
+                    env.FRONTEND_IMAGE = "${env.REGISTRY}/${env.IMAGE_REPO}/ogfashions-frontend"
+                    def commitSuffix = (env.GIT_COMMIT ?: 'local').take(8)
+                    env.IMAGE_TAG = "build-${env.BUILD_NUMBER}-${commitSuffix}"
+                    env.EFFECTIVE_IMAGE_TAG = params.ROLLBACK_IMAGE_TAG?.trim() ? params.ROLLBACK_IMAGE_TAG.trim() : env.IMAGE_TAG
+                    env.ARTIFACT_VERSION = env.EFFECTIVE_IMAGE_TAG
+                    env.IS_ROLLBACK = params.ROLLBACK_IMAGE_TAG?.trim() ? 'true' : 'false'
+                    env.REMOTE_REPO_URL = env.GIT_URL ?: 'https://github.com/DevopsProOrg/ecommerce-project.git'
+                    env.EC2_SSH_HOST = params.EC2_SSH_HOST?.trim() ?: env.EC2_SSH_HOST
+                    env.EC2_SSH_USER = params.EC2_SSH_USER?.trim() ?: env.EC2_SSH_USER
+                    env.EC2_SSH_CREDENTIALS_ID = params.EC2_SSH_CREDENTIALS_ID?.trim() ?: 'ec2-ssh-key'
+                    env.DEPLOY_BASE_URL = params.DEPLOY_BASE_URL?.trim() ?: 'https://ogstyles.store'
+                    env.DEPLOY_LEVEL = params.DEPLOY_LEVEL != 'none' ? params.DEPLOY_LEVEL : (params.DEPLOY_TARGET != 'none' ? params.K8S_OVERLAY : 'none')
+                    env.IS_RELEASE_BRANCH = (env.BRANCH_NAME == 'release' || (env.BRANCH_NAME ?: '').startsWith('release/')) ? 'true' : 'false'
+                    env.IS_MAINLINE = ['main', 'master'].contains(env.BRANCH_NAME ?: '') ? 'true' : 'false'
+                    env.HAS_DEPLOY_REQUEST = (params.DEPLOY_TARGET != 'none' && params.DEPLOY_LEVEL != 'none') ? 'true' : 'false'
+                    env.IS_PRODUCTION_LEVEL = (env.DEPLOY_LEVEL == 'lp') ? 'true' : 'false'
+                    env.IS_PREPROD_LEVEL = (env.DEPLOY_LEVEL == 'l6') ? 'true' : 'false'
+                    env.ALLOW_IMAGE_PUSH = (env.IS_ROLLBACK == 'true') ? 'false' : ((env.HAS_DEPLOY_REQUEST == 'true' || env.IS_MAINLINE == 'true' || env.IS_RELEASE_BRANCH == 'true') ? 'true' : 'false')
+                    currentBuild.description = "${params.DEPLOY_TARGET}/${env.DEPLOY_LEVEL} tag=${env.EFFECTIVE_IMAGE_TAG}${env.IS_ROLLBACK == 'true' ? ' existing image' : ''}"
                 }
             }
         }
@@ -217,6 +210,11 @@ pipeline {
                     runCmd('node --check frontend/js/admin.js', 'node --check frontend\\js\\admin.js')
                     runCmd('node --check frontend/js/auth.js', 'node --check frontend\\js\\auth.js')
                     runCmd('node --check frontend/js/app-config.js', 'node --check frontend\\js\\app-config.js')
+                    runCmd('node --check frontend/js/app.js', 'node --check frontend\\js\\app.js')
+                    runCmd('node --check frontend/js/products.js', 'node --check frontend\\js\\products.js')
+                    runCmd('node --check frontend/js/cart.js', 'node --check frontend\\js\\cart.js')
+                    runCmd('node --check frontend/js/ui.js', 'node --check frontend\\js\\ui.js')
+                    runCmd('node --check frontend/js/wishlist.js', 'node --check frontend\\js\\wishlist.js')
                 }
             }
         }
@@ -239,25 +237,19 @@ pipeline {
                 expression { return params.RUN_SONAR && env.IS_ROLLBACK != 'true' }
             }
             steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    script {
-                        runCmd(
-                            '''
-                            if command -v sonar-scanner >/dev/null 2>&1; then
-                              sonar-scanner -Dsonar.login="$SONAR_TOKEN"
-                            else
-                              echo "Sonar scanner not installed on this agent. Skipping explicit scanner execution."
-                            fi
-                            '''.stripIndent().trim(),
-                            '''
-                            where sonar-scanner >nul 2>nul
-                            if %ERRORLEVEL% EQU 0 (
-                              sonar-scanner -Dsonar.login=%SONAR_TOKEN%
-                            ) else (
-                              echo Sonar scanner not installed on this agent. Skipping explicit scanner execution.
-                            )
-                            '''.stripIndent().trim()
+                script {
+                    def scannerStatus = isUnix() ?
+                        sh(script: 'command -v sonar-scanner >/dev/null 2>&1', returnStatus: true) :
+                        bat(script: 'where sonar-scanner >nul 2>nul', returnStatus: true)
+                    if (scannerStatus == 0) {
+                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                            runCmd(
+                                'sonar-scanner -Dsonar.token="$SONAR_TOKEN"',
+                                'sonar-scanner -Dsonar.token=%SONAR_TOKEN%'
                         )
+                        }
+                    } else {
+                        echo 'Sonar scanner is not installed on this agent; skipping SonarQube analysis.'
                     }
                 }
             }
@@ -269,7 +261,7 @@ pipeline {
             }
             steps {
                 script {
-                    runCmd('trivy fs --severity HIGH,CRITICAL --exit-code 0 .')
+                    runCmd('trivy fs --severity HIGH,CRITICAL --exit-code 1 .')
                 }
             }
         }
@@ -292,8 +284,8 @@ pipeline {
             }
             steps {
                 script {
-                    runCmd("trivy image --severity HIGH,CRITICAL --exit-code 0 ${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}")
-                    runCmd("trivy image --severity HIGH,CRITICAL --exit-code 0 ${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}")
+                    runCmd("trivy image --severity HIGH,CRITICAL --exit-code 1 ${env.BACKEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}")
+                    runCmd("trivy image --severity HIGH,CRITICAL --exit-code 1 ${env.FRONTEND_IMAGE}:${env.EFFECTIVE_IMAGE_TAG}")
                 }
             }
         }
@@ -526,8 +518,8 @@ pipeline {
                         "Deploy target: ${params.DEPLOY_TARGET}",
                         "Deploy level: ${env.DEPLOY_LEVEL ?: 'n/a'}",
                         "K8s overlay: ${params.K8S_OVERLAY}",
-                        "Rollback mode: ${env.IS_ROLLBACK ?: 'false'}",
-                        "Release version: ${params.RELEASE_VERSION ?: 'n/a'}",
+                        "Existing image reuse: ${env.IS_ROLLBACK ?: 'false'}",
+                        "Image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
                         "Effective image tag: ${env.EFFECTIVE_IMAGE_TAG ?: 'n/a'}",
                         "Change ticket: ${params.CHANGE_TICKET ?: 'n/a'}",
                         "Approved by: ${env.APPROVED_BY ?: 'n/a'}",

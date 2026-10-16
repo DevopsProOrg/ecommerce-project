@@ -7,6 +7,7 @@ public class AuthResponse {
     private String email;
     private String mobile;
     private String role;
+    private String accessToken;
 
     public AuthResponse() {
     }
@@ -17,6 +18,11 @@ public class AuthResponse {
         this.email = email;
         this.mobile = mobile;
         this.role = role;
+    }
+
+    public AuthResponse(Long id, String name, String email, String mobile, String role, String accessToken) {
+        this(id, name, email, mobile, role);
+        this.accessToken = accessToken;
     }
 
     public Long getId() {
@@ -57,5 +63,13 @@ public class AuthResponse {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

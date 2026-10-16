@@ -6,6 +6,8 @@ import com.shop.ecommerce.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @RestController
 @RequestMapping("/api/products")
@@ -38,7 +40,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id, @RequestParam Long adminUserId){
-        service.deleteProduct(id, adminUserId);
+    public void deleteProduct(@PathVariable Long id, @AuthenticationPrincipal Jwt principal){
+        service.deleteProduct(id, Long.valueOf(principal.getSubject()));
     }
 }

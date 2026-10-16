@@ -27,6 +27,16 @@ spec:
       containers:
         - name: backend
           image: docker.io/yarrav7/ogfashions-backend:v1.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
           ports:
             - containerPort: 8888
           env:
@@ -94,6 +104,11 @@ spec:
                 secretKeyRef:
                   name: ogfashions-secrets
                   key: APP_BOOTSTRAP_ADMIN_PASSWORD
+            - name: APP_SECURITY_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: APP_SECURITY_JWT_SECRET
             - name: APP_MAIL_ENABLED
               valueFrom:
                 configMapKeyRef:
@@ -153,3 +168,10 @@ spec:
             limits:
               cpu: "1"
               memory: 1Gi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi

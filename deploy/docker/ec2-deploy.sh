@@ -24,10 +24,13 @@ set +a
 
 placeholder_values=(
   ""
+  "change-me"
   "change-this-mysql-root-password"
+  "replace-me"
   "replace-with-real-mysql-root-password"
   "replace-with-real-datasource-password"
   "replace-with-real-admin-password"
+  "replace-with-a-random-secret-of-at-least-32-bytes"
   "replace-with-gmail-app-password"
 )
 
@@ -114,9 +117,23 @@ resolve_host_port() {
 
 require_secret SPRING_DATASOURCE_PASSWORD
 require_secret APP_BOOTSTRAP_ADMIN_PASSWORD
+require_secret APP_SECURITY_JWT_SECRET
 require_secret SPRING_MAIL_PASSWORD
 if [[ "$USE_EXTERNAL_DB" != "true" ]]; then
   require_secret MYSQL_ROOT_PASSWORD
+fi
+
+if [[ "$SPRING_DATASOURCE_USERNAME" == "root" ]]; then
+  echo "SPRING_DATASOURCE_USERNAME must be a least-privilege application user, not root."
+  exit 1
+fi
+if (( ${#APP_SECURITY_JWT_SECRET} < 32 )); then
+  echo "APP_SECURITY_JWT_SECRET must contain at least 32 characters. Generate it with: openssl rand -hex 32"
+  exit 1
+fi
+if [[ "$APP_BOOTSTRAP_ADMIN_ENABLED" == "true" ]] && (( ${#APP_BOOTSTRAP_ADMIN_PASSWORD} < 12 )); then
+  echo "APP_BOOTSTRAP_ADMIN_PASSWORD must contain at least 12 characters."
+  exit 1
 fi
 
 if [[ -n "$APP_PUBLIC_BASE_URL" ]]; then
@@ -161,6 +178,8 @@ else
     --restart unless-stopped \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
     -e MYSQL_DATABASE="$MYSQL_DATABASE" \
+    -e MYSQL_USER="$SPRING_DATASOURCE_USERNAME" \
+    -e MYSQL_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
     -v "${MYSQL_VOLUME}:/var/lib/mysql" \
     mysql:8.4
 
@@ -187,6 +206,7 @@ docker run -d \
   -e APP_BOOTSTRAP_ADMIN_NAME="$APP_BOOTSTRAP_ADMIN_NAME" \
   -e APP_BOOTSTRAP_ADMIN_EMAIL="$APP_BOOTSTRAP_ADMIN_EMAIL" \
   -e APP_BOOTSTRAP_ADMIN_PASSWORD="$APP_BOOTSTRAP_ADMIN_PASSWORD" \
+  -e APP_SECURITY_JWT_SECRET="$APP_SECURITY_JWT_SECRET" \
   -e APP_MAIL_ENABLED="$APP_MAIL_ENABLED" \
   -e APP_MAIL_FROM="$APP_MAIL_FROM" \
   -e SPRING_MAIL_HOST="$SPRING_MAIL_HOST" \

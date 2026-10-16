@@ -40,6 +40,16 @@ spec:
                 secretKeyRef:
                   name: ogfashions-secrets
                   key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ogfashions-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql

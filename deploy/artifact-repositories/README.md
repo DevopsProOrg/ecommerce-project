@@ -11,11 +11,7 @@ Use both artifact types:
 - Docker images for deployments [example: `docker.io/yarrav7/ogfashions-backend:v1.2`]
 - Maven artifacts for build traceability [example: `com.shop:ecommerce:1.2`]
 
-Version rule:
-
-- Jenkins `RELEASE_VERSION=v1.2`
-- Docker image tag becomes `v1.2`
-- Maven artifact version becomes `1.2`
+Jenkins generates an immutable build identifier (`build-<build-number>-<first-8-commit-characters>`) and uses it for the Docker images and Maven artifact version. No semantic version or Git tag input is required. Reusing `ROLLBACK_IMAGE_TAG` promotes an already-published image and skips rebuilding; Maven publishing is skipped for that reuse run.
 
 ## 2. Nexus Setup
 
@@ -43,7 +39,6 @@ Jenkins parameters:
 ```text
 ARTIFACT_REPOSITORY=nexus
 NEXUS_MAVEN_REPO_URL=http://nexus.example.com:8081/repository/maven-releases/
-RELEASE_VERSION=v1.2
 ```
 
 ## 3. Artifactory Setup
@@ -70,7 +65,6 @@ Jenkins parameters:
 ```text
 ARTIFACT_REPOSITORY=artifactory
 ARTIFACTORY_MAVEN_REPO_URL=https://artifactory.example.com/artifactory/libs-release-local/
-RELEASE_VERSION=v1.2
 ```
 
 ## 4. Jenkins Publish Flow
@@ -80,11 +74,11 @@ Jenkins performs these steps:
 1. validates backend and frontend
 2. packages backend
 3. builds Docker images
-4. optionally publishes Maven artifact to Nexus or Artifactory
-5. pushes Docker images
-6. deploys selected environment
-7. runs smoke test
-8. sends email notification
+4. optionally publishes the Maven artifact to the selected repository (`ARTIFACT_REPOSITORY=nexus` or `artifactory`)
+5. pushes Docker images when the run is configured to publish/deploy
+6. deploys the one selected environment
+7. runs smoke checks
+8. records release notes and deployment summary, then sends email notification
 
 ## 5. Validation
 
@@ -104,5 +98,5 @@ Jenkins archived release-notes.txt
 - Use Jenkins credentials only.
 - Use release repositories for `lp`.
 - Use snapshot repositories only if you later add snapshot builds.
-- Keep Maven artifact version aligned with Docker release version.
+- Keep Maven artifact version aligned with the generated Docker image tag.
 - Keep the same Docker image tag across `l1`, `l2`, `l3`, `l6`, and `lp`.

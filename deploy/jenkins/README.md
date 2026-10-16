@@ -13,7 +13,7 @@ The repository pipeline supports:
 - approval-gated production deploy to `lp`
 - Docker deployment on EC2
 - Kubernetes deployment
-- optional SonarQube, Trivy, and Nexus stages
+- optional SonarQube and Maven repository publishing; Trivy scans are enabled by default
 - browser-facing smoke checks
 - post-build email notifications for success, failure, unstable, and aborted runs
 - release notes artifact generation
@@ -63,7 +63,7 @@ Install and make available in `PATH`:
 Optional but recommended:
 
 - Sonar Scanner
-- Trivy
+- Trivy (required when `RUN_TRIVY=true`; the parameter defaults to true and HIGH/CRITICAL findings fail the build)
 
 ## Suggested Jenkins credentials
 
@@ -209,7 +209,6 @@ Pipeline behavior is now parameter-driven:
 - `EC2_SSH_CREDENTIALS_ID`
 - `DEPLOY_BASE_URL`
 - `ROLLBACK_IMAGE_TAG`
-- `RELEASE_VERSION`
 - `CONTAINER_REGISTRY`
 - `CONTAINER_IMAGE_REPO`
 - `ARTIFACT_REPOSITORY`
@@ -217,24 +216,17 @@ Pipeline behavior is now parameter-driven:
 - `ARTIFACTORY_MAVEN_REPO_URL`
 - `NOTIFY_EMAIL`
 
-## Release version image tags
+## Automatic build tags and environment promotion
 
-Use release-style tags for promoted images:
+Jenkins generates an immutable tag automatically for each build:
 
-- `v1.0`
-- `v1.1`
-- `v1.2`
+```text
+build-<Jenkins build number>-<first 8 commit characters>
+```
 
-Set `RELEASE_VERSION` for normal deployments. Set `ROLLBACK_IMAGE_TAG` to the previous known-good tag for rollback.
+No release/version tag is required. Select one `DEPLOY_LEVEL` for each run. To deploy the same build to another environment, use its generated tag in `ROLLBACK_IMAGE_TAG`; that reuses the existing registry image and skips rebuilding.
 
-The same image tag should move from `l1` to `l2`, `l3`, `l6`, and finally `lp`.
-
-The backend Maven artifact uses the same release family without the leading `v`.
-
-Example:
-
-- Docker image tag: `v1.2`
-- Maven artifact version: `1.2`
+The backend Maven artifact uses the same generated build identifier.
 
 ## Nexus and Artifactory publishing
 
@@ -292,7 +284,7 @@ After deploy, Jenkins checks:
 7. Trigger any branch first with `DEPLOY_TARGET=none`.
 8. Trigger a lower environment using `DEPLOY_LEVEL=l1`, `l2`, `l3`, or `l6`.
 9. Trigger production using `DEPLOY_LEVEL=lp`.
-10. Later enable Sonar, Trivy, Nexus, and Kubernetes.
+10. Configure Trivy (enabled by default), then optionally enable Sonar and Maven repository publishing; add Kubernetes when the target cluster is ready.
 
 ## Recommended org-level build policy
 

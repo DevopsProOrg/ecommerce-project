@@ -559,7 +559,7 @@ body{font-size:.96rem}
 
 <script src="js/app-config.js"></script>
 <script>
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || "http://localhost:8888/api";
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) || `${window.location.origin}/api`;
 const DEFAULT_SETTINGS = { brandName:"OG Fashions", tagline:"Hyderabad's fashion and accessories marketplace.", announcementBar:"New arrivals, festival deals, fashion essentials, watches, pouches, and gifting picks across India.", heroTitle:"A premium OG Fashions marketplace built for discovery and fast shopping.", heroSubtitle:"Shop apparel, gifting, watches, pouches, and everyday lifestyle picks from one storefront that feels more like a serious modern marketplace.", contactPhone:"", contactEmail:"contact.ogfashions@gmail.com", storeAddress:"OG Fashion, New green city Budhwel, Rajendhranagar, Hyderabad.\n300030, India", openingHours:"Monday - Saturday: 10:00 AM - 8:30 PM\nSunday: Closed" };
 const SHORTCUTS = [
     { icon:"👕", title:"Fashion", note:"Shirts, pants, tees, and new fits", link:"catalog.html?category=Fashion" },
@@ -575,7 +575,8 @@ const LIFESTYLE_SUBCATEGORIES = ["lifestyle", "footwear", "essentials"];
 
 let storeSettings = { ...DEFAULT_SETTINGS };
 let productsDB = [];
-let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+let currentUser = sessionStorage.getItem("accessToken") ? JSON.parse(localStorage.getItem("user") || "null") : null;
+if (!currentUser) localStorage.removeItem("user");
 let wishlist = JSON.parse(localStorage.getItem("og_wishlist") || "[]");
 let cart = [];
 let sliderIndex = 0;
@@ -927,6 +928,7 @@ document.getElementById("admin-btn").addEventListener("click", () => {
     window.location.href = "admin.html";
 });
 document.getElementById("logout-btn").addEventListener("click", () => {
+    sessionStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     currentUser = null;
     updateAuthUI();
